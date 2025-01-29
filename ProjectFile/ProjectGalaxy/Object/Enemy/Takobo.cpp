@@ -58,7 +58,7 @@ namespace
 
 	const char* kShotSEhandlePath = "Shot.mp3";
 
-	const char* kTakoboFileName = "shotMonster.mv1";
+	const char* kTakoboFileName = "shotMonster";
 
 	const char* name = "takobo";
 }

@@ -76,8 +76,8 @@ Vec3 PolygonModelPlanet::GravityEffect(std::shared_ptr<Collidable> obj)
 	Vec3 objPos = obj->PlanetOnlyGetRigid()->GetNextPos();
 	Vec3 toObj = objPos - m_rigid->GetPos();
 	toObj = toObj.GetNormalized();
-	Vec3 GravityDir = toObj * -1;
-	obj->SetUpVec(GetNormVec(objPos));
+	Vec3 GravityDir = NearestNormVec(objPos,obj->GetUpVec()) * -1;
+	obj->SetUpVec(GravityDir*-1);
 
 	if (obj->IsAntiGravity())
 	{
@@ -109,24 +109,38 @@ Vec3 PolygonModelPlanet::FrictionEffect(std::shared_ptr<Collidable> obj)
 
 Vec3 PolygonModelPlanet::GetNormVec(Vec3 pos)
 {
+	return Vec3::Zero();
+}
+
+Vec3 PolygonModelPlanet::NearestNormVec(Vec3 pos, Vec3 upVec)
+{
 	Vec3 closestPoint = { 0.0f, 0.0f, 0.0f };
 	Vec3 closestNormal = { 0.0f, 0.0f, 0.0f };
 	float minDistanceSq = FLT_MAX;
 
 	// モデル内の三角形リストを処理
 	for (const auto& triangle : m_polygons->GetTriangles()) {
-		// 三角形と点の最近接点を求める
-		Vec3 currentClosest = ClosestPointOnTriangle(pos, triangle.vertex[0], triangle.vertex[1], triangle.vertex[2]);
+		// 三角形の法線を計算
+		Vec3 normal = triangle.Normal();
+		normal.Normalize();
 
-		// 距離を比較して最小値を更新
-		float distSq = (pos - currentClosest).SqLength();
-		if (distSq < minDistanceSq)
-		{
-			minDistanceSq = distSq;
-			closestPoint = currentClosest;
+		// upVecと法線の角度を計算
+		float dotProduct = Dot(upVec, normal); // 内積
+		float angle = acosf(std::clamp(dotProduct, -1.0f, 1.0f)) * (180.0f / 3.141592653589793f); // 角度に変換
 
-			// 三角形の法線を計算
-			closestNormal = triangle.Normal();
+		// 角度が45度以下の場合のみ処理
+		if (angle <= /*45.0f*/90.f) {
+			// 三角形と点の最近接点を求める
+			Vec3 currentClosest = ClosestPointOnTriangle(pos, triangle.vertex[0], triangle.vertex[1], triangle.vertex[2]);
+
+			// 距離を比較して最小値を更新
+			float distSq = (pos - currentClosest).SqLength();
+			if (distSq < minDistanceSq)
+			{
+				minDistanceSq = distSq;
+				closestPoint = currentClosest;
+				closestNormal = normal;
+			}
 		}
 	}
 
@@ -136,6 +150,7 @@ Vec3 PolygonModelPlanet::GetNormVec(Vec3 pos)
 
 void PolygonModelPlanet::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
 {
+	colider->SetUpVec(NearestNormVec(colider->GetRigidbody()->GetPos(), colider->GetUpVec()));
 }
 
 void PolygonModelPlanet::OnTriggerExit(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)

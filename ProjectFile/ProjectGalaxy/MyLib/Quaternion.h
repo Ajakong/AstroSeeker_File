@@ -19,6 +19,7 @@ public:
 		y = _y;
 		z = _z;
 	};
+	// クォータニオンの共役を返す
 	Quaternion Conjugated() const
 	{
 		return Quaternion(w,-x, -y, -z);

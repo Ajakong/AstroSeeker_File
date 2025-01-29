@@ -1,4 +1,4 @@
-#include <DxLib.h>
+﻿#include <DxLib.h>
 #include <cassert>
 #include "Application.h"
 #include "SceneManager.h"
@@ -8,6 +8,7 @@
 
 #include"Game.h"
 #include"Pad.h"
+#include"UI.h"
 
 namespace
 {
@@ -18,7 +19,7 @@ namespace
 ClearScene::ClearScene(SceneManager& mgr) :
 	Scene(mgr),
 	m_numFontHandle(FontManager::GetInstance().GetFontData("disital.TTF", "Pocket Calculator", 60, 7, DX_FONTTYPE_NORMAL)),
-	m_fontHandle(FontManager::GetInstance().GetFontData("SF_font.ttf", "���z�� �l�N�X�g UP B", 60, 7, DX_FONTTYPE_NORMAL))
+	m_fontHandle(FontManager::GetInstance().GetFontData("SF_font.ttf", "廻想体 ネクスト UP B", 60, 7, DX_FONTTYPE_NORMAL))
 {
 	m_frame = 60;
 	m_updateFunc = &ClearScene::FadeInUpdate;
@@ -38,6 +39,7 @@ void ClearScene::Load()
 
 void ClearScene::Update()
 {
+	UI::GetInstance().Update();
 	(this->*m_updateFunc)();
 
 	Pad::Update();
@@ -46,6 +48,7 @@ void ClearScene::Update()
 void ClearScene::Draw()
 {
 	(this->*m_drawFunc)();
+	UI::GetInstance().Draw();
 }
 
 void ClearScene::FadeInUpdate()
@@ -63,9 +66,31 @@ void ClearScene::NormalUpdate()
 	m_btnFrame++;
 	if (Pad::IsTrigger(PAD_INPUT_1))
 	{
+		UI::GetInstance().InText("Congratulations!");
+		
+		std::list<std::string> clear;
+		clear.push_back("よくやった");
+		clear.push_back("これで宇宙は救われた");
+
+		UI::GetInstance().InTexts(clear);
+		UI::GetInstance().InText("俺もようやく一息つけるってわけだ");
+
+		std::list<std::string> thanks;
+		thanks.push_back("これも全部君のおかげだ");
+		thanks.push_back("ありがとう");
+		UI::GetInstance().InTexts(thanks);
+
+		std::list<std::string> info;
+		info.push_back("そうだ、君にも4月まで休暇を与えている。");
+		info.push_back("この機にゆっくり休むといい");
+		UI::GetInstance().InTexts(info);
+
+		UI::GetInstance().InText("次はAstro Seeker2で会おう");
+
 		m_updateFunc = &ClearScene::FadeOutUpdate;
 		m_drawFunc = &ClearScene::FadeDraw;
 	}
+	
 }
 
 void ClearScene::FadeOutUpdate()
@@ -89,11 +114,11 @@ void ClearScene::FadeDraw()
 	int halfHeight = (size.h - 100) / 2;
 	int centerY = size.h / 2;
 
-	float rate = static_cast<float>(m_frame) / kAppeaInterval;	// ���݂̎��Ԃ̊���(0.0�`1.0)
+	float rate = static_cast<float>(m_frame) / kAppeaInterval;	// 現在の時間の割合(0.0～1.0)
 	int currentHalfHeight = static_cast<int>(rate * halfHeight);
 
 	SetDrawBlendMode(DX_BLENDMODE_MUL, 255);
-	// ������ƈÂ���`��`��
+	// ちょっと暗い矩形を描画
 	DrawBox(kMenuMargin, centerY - currentHalfHeight, size.w - kMenuMargin, centerY + currentHalfHeight,
 		0x888888, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -108,7 +133,7 @@ void ClearScene::NormalDraw()
 	Application& app = Application::GetInstance();
 	const auto& size = app.GetWindowSize();
 	SetDrawBlendMode(DX_BLENDMODE_MUL, 255);
-	// ������ƈÂ���`��`��
+	// ちょっと暗い矩形を描画
 	DrawBox(kMenuMargin, kMenuMargin, size.w - kMenuMargin, size.h - kMenuMargin,
 		0x888888, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
@@ -116,5 +141,6 @@ void ClearScene::NormalDraw()
 	int idx = m_btnFrame / 10 % 3;
 	constexpr int kButtonSize = 16;
 	constexpr float kBtnScale = 3.0f;
+	
 	
 }

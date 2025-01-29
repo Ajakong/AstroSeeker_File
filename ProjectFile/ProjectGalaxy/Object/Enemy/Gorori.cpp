@@ -3,30 +3,31 @@
 #include"Physics.h"
 #include"SoundManager.h"
 #include"ModelManager.h"
+#include"Easing.h"
 
 
 namespace
 {
-	constexpr float kCollisionRadius = 50.f;
+	constexpr float kCollisionRadius = 5.f;
 
 	/// <summary>
 	/// 最大HP
 	/// </summary>
 	constexpr int kHp = 20;
 
-	constexpr int kStartPosX = 200;
-	constexpr int kStartPosY = 50;
+	constexpr int kStartPosX = 20;
+	constexpr int kStartPosY = 5;
 	constexpr int kStartPosZ = 0;
 
 	/// <summary>
 	/// 足元からモデルの中心までの距離
 	/// </summary>
-	constexpr int kFootToCenter = 30;
+	constexpr int kFootToCenter = 3;
 
 	/// <summary>
 	/// 攻撃クールタイム中の最低移動速度
 	/// </summary>
-	constexpr int kIdleSpeed = 20;
+	constexpr int kIdleSpeed = 2;
 	/// <summary>
 	/// 球の生成間隔
 	/// </summary>
@@ -39,7 +40,7 @@ namespace
 	/// <summary>
 	/// ステージモデルの縦横サイズ/2
 	/// </summary>
-	constexpr int kStageSizeHalf = 200;
+	constexpr int kStageSizeHalf = 20;
 
 	const char* name = "gorori";
 	const char* modelFileName = "Gorori.mv1";
@@ -50,13 +51,14 @@ Vec3 ToVec(Vec3 a, Vec3 b);
 Vec3 norm(Vec3 a);
 float lerp(float start, float end, float t);
 
-Gorori::Gorori(Vec3 pos,Vec3 velocity) :Enemy(Priority::Static, ObjectTag::Gorori),
+Gorori::Gorori(Vec3 pos, std::shared_ptr<Collidable>target) :Enemy(Priority::High, ObjectTag::Gorori),
 m_hp(kHp),
 m_attackCoolDownCount(0),
 m_centerToEnemyAngle(0),
 m_attackCount(0),
 m_color(0xaaaa11),
-m_modelHandle(ModelManager::GetInstance().GetModelData(modelFileName))
+m_target(target),
+m_modelHandle(-1)
 {
 	m_enemyUpdate = &Gorori::IdleUpdate;
 	m_rigid->SetPos(pos);
@@ -64,10 +66,10 @@ m_modelHandle(ModelManager::GetInstance().GetModelData(modelFileName))
 	auto item = dynamic_pointer_cast<MyEngine::ColliderSphere>(m_colliders.back()->col);
 	item->radius = kCollisionRadius;
 	m_moveShaftPos = m_rigid->GetPos();
-	AddThroughTag(ObjectTag::Gorori);
-	AddThroughTag(ObjectTag::Takobo);
-	AddThroughTag(ObjectTag::WarpGate);
-	AddThroughTag(ObjectTag::EnemyAttack);
+	//AddThroughTag(ObjectTag::Gorori);
+	//AddThroughTag(ObjectTag::Takobo);
+	//AddThroughTag(ObjectTag::WarpGate);
+	//AddThroughTag(ObjectTag::EnemyAttack);
 }
 
 Gorori::~Gorori()
@@ -81,6 +83,8 @@ void Gorori::Init()
 
 void Gorori::Update()
 {
+	//ローカル上方向ベクトルをいい感じ線形保管
+	m_upVec = Slerp(m_upVec, m_nextUpVec, 1.f);
 	(this->*m_enemyUpdate)();
 }
 
@@ -152,17 +156,17 @@ void Gorori::SetTarget(std::shared_ptr<Collidable> target)
 
 void Gorori::IdleUpdate()
 {
-	m_vec.x = 1;
+	/*m_vec.x = 1;
 	if (abs(m_rigid->GetPos().x - m_moveShaftPos.x) > 5)
 	{
 		m_vec.x *= -1;
-	}
+	}*/
 
-	m_rigid->SetVelocity(VGet(m_vec.x, 0, 0));
+	//m_rigid->SetVelocity(VGet(m_vec.x, 0, 0));
 
 	m_attackCoolDownCount++;
 
-	if ((m_rigid->GetPos() - m_target->GetRigidbody()->GetPos()).Length() > 100)
+	//if ((m_rigid->GetPos() - m_target->GetRigidbody()->GetPos()).Length() > 10)
 	{
 		if (m_attackCoolDownCount > kAttackCoolDownTime)
 		{
@@ -185,7 +189,9 @@ void Gorori::IdleUpdate()
 
 void Gorori::AttackUpdate()
 {
-	m_rigid->SetVelocity(m_attackDir * 8);
+	//m_attackDirはターゲットに向かうベクトルなので、今はsideのベクトルを出してる。Playerに追いかけさせるの面白そうなんよな。止まってるときはバリアあって動いてるときだけ倒せるてきな
+	Vec3 runVec = Cross(m_attackDir,m_upVec);
+	m_rigid->SetVelocity(runVec);
 	m_attackCount++;
 	if (m_attackCount > 1000)
 	{

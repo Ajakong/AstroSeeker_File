@@ -16,7 +16,7 @@ float EaseInOutNum(float x)
 }
 
 
-SeekerLine::SeekerLine(std::vector<Vec3> points, int color) : Collidable(Priority::StageGimmick, ObjectTag::SeekerLine),
+SeekerLine::SeekerLine(std::vector<Vec3> points, int color, bool isActive) : Collidable(Priority::StageGimmick, ObjectTag::SeekerLine),
 m_hitPointNum(0),
 m_length(0),
 m_speed(0),
@@ -24,6 +24,7 @@ m_num(0),
 m_color(color),
 m_ratio(0)
 {
+	SetIsActive(isActive);
 	for (auto& point : points)
 	{
 		m_points.push_back(point);

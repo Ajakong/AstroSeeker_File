@@ -12,12 +12,16 @@ Collidable::Collidable(Priority priority, ObjectTag tag) :
 	m_tag(tag),
 	m_isAntiGravity(false),
 	m_isDestroyFlag(false),
-	m_upVec(Vec3::Up())
+	m_upVec(Vec3::Up()),
+	m_postUpVec(Vec3::Up()),
+	m_frontVec(Vec3::Front()),
+	m_sideVec(Vec3::Left())
 {
 	m_rigid = std::make_shared<Rigidbody>();
 	m_cbuffH = CreateShaderConstantBuffer(sizeof(UserData));
 	m_userData= static_cast<UserData*>(GetBufferShaderConstantBuffer(m_cbuffH));
 	m_userData->dissolveY = 1.0f;
+	m_isActive = true;
 }
 
 MyEngine::Collidable::Collidable(std::shared_ptr<Collidable> col) :

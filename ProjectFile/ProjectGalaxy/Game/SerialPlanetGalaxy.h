@@ -27,6 +27,7 @@ class Gorori;
 class Kuribo;
 class SpaceEmperor;
 class Boss;
+class TalkObject;
 
 class SerialPlanetGalaxy :public Galaxy//GameManagerが管理,惑星やオブジェクトの情報を持っている
 {
@@ -92,8 +93,6 @@ private:
 	UserData* userData = static_cast<UserData*>(GetBufferShaderConstantBuffer(cbuffH));
 
 	std::shared_ptr<Camera> m_camera;
-	std::shared_ptr<UI> m_ui;
-	std::shared_ptr<GalaxyCreater> m_creater;
 	//ステージ
 	std::vector<std::shared_ptr<Planet>> m_planet;
 	//アイテム
@@ -108,13 +107,15 @@ private:
 	std::vector<std::shared_ptr<Item>> m_poworStone;
 	//エネミー
 	std::vector<std::shared_ptr<Enemy>> m_enemies;
-
+	std::vector<std::shared_ptr<Enemy>> m_keyLockEnemies;
 	/*std::vector<std::shared_ptr<Takobo>> m_takobo;
 	std::vector<std::shared_ptr<KillerTheSeeker>> m_killerTheSeeker;
 	std::vector<std::shared_ptr<Gorori>> m_gorori;
 	std::vector<std::shared_ptr<Kuribo>> m_kuribo;
 	std::vector<std::shared_ptr<SpaceEmperor>> m_spaceEmperor;
 	std::vector<std::shared_ptr<Boss>>m_boss;*/
+
+	std::vector<std::shared_ptr<TalkObject>> m_talkObjects;
 
 	Vec3 m_cameraUpVec;
 

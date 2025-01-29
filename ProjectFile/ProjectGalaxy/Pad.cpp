@@ -7,10 +7,21 @@ namespace
 	int lastPad = 0;
 	// 個のフレームのパッド押し下げ状態
 	int nowPad = 0;
+
+	std::string state = "PlayerInput";
 }
 
 namespace Pad
 {
+	void Pad::Init()
+	{
+		// 前のフレームのパッド押し下げ状態
+		lastPad = 0;
+		// 個のフレームのパッド押し下げ状態
+		nowPad = 0;
+
+		state = "PlayerInput";
+	}
 	void Pad::Update()
 	{
 		// 前のフレームに取得したパッド情報を一つ古い情報にする
@@ -18,6 +29,21 @@ namespace Pad
 
 		// 現在のパッドの情報を取得する
 		nowPad = GetJoypadInputState(DX_INPUT_KEY_PAD1);
+	}
+
+	void SetState(std::string statement)
+	{
+		state = statement;
+	}
+
+	std::string GetState()
+	{
+		return state;
+	}
+
+	bool IsState(std::string statement)
+	{
+		return state==statement;
 	}
 
 	bool IsPress(int key)
@@ -40,8 +66,6 @@ namespace Pad
 
 		return (!isNow && isLast);
 	}
-
-
 
 	bool Pad::IsRepeat(int key, int& frame, int RepeatFrame)
 	{

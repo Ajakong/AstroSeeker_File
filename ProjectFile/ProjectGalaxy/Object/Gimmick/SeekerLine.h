@@ -5,7 +5,7 @@ class Player;
 class SeekerLine : public MyEngine::Collidable
 {
 public:
-	SeekerLine(std::vector<Vec3> points, int color);
+	SeekerLine(std::vector<Vec3> points, int color,bool isActive=false);
 	virtual ~SeekerLine();
 
 	void Init();

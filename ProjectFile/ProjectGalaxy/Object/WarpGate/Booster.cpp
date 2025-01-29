@@ -20,7 +20,7 @@ namespace
 	const char* effectname = "warpEffect.efk";
 }
 
-Booster::Booster(Vec3 pos, Vec3 Dir, int handle, float power) :Collidable(Priority::StageGimmick, ObjectTag::WarpGate),
+Booster::Booster(Vec3 pos, Vec3 Dir, int handle, float power, bool isActive) :Collidable(Priority::StageGimmick, ObjectTag::WarpGate),
 m_emitterHandle(EffectManager::GetInstance().GetEffectData(effectname)),
 m_power(power)
 {
@@ -34,7 +34,7 @@ m_power(power)
 	m_gaussScreenHandle = ScreenManager::GetInstance().GetScreenData(kGaussScreenName, 1600, 900);
 	m_colorScreenHandle = ScreenManager::GetInstance().GetScreenData(kColorScreenName, 1600, 900);
 
-	
+	SetIsActive(isActive);
 }
 
 Booster::~Booster()

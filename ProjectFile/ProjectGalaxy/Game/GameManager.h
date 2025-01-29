@@ -8,7 +8,7 @@ class Vec3;
 class Galaxy;
 class Player;
 
-class GameManager
+class GameManager : public std::enable_shared_from_this<GameManager>
 {
 public:
 	GameManager();
@@ -19,6 +19,8 @@ public:
 
 	bool GetGameOver() const { return m_isGameOverFlag; }
 	bool GetClear() const { return m_isClearFlag; }
+
+	void SetUpdateStopFrame(int stopFrame) { m_updateStopFrame = stopFrame; }
 
 private:
 
@@ -39,6 +41,7 @@ private:
 	std::vector<std::shared_ptr<Galaxy>> galaxy;
 	std::shared_ptr<Player> player;
 
+	int m_updateStopFrame;
 	//このフラグを見てシーンを移行する
 	bool m_isGameOverFlag = false;
 	bool m_isClearFlag = false;

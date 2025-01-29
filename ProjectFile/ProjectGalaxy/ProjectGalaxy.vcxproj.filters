@@ -133,6 +133,18 @@
     <Filter Include="ソース ファイル\Object\Enemy\Boss">
       <UniqueIdentifier>{6dfed3c2-11d8-4012-8433-83923c2847ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\UI">
+      <UniqueIdentifier>{801dc4e2-0022-4057-890c-9bb9b0a47ebd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\UI">
+      <UniqueIdentifier>{73ad0d56-ec8b-4b36-8786-f63475ab7ec1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソース ファイル\Object\TalkingHead">
+      <UniqueIdentifier>{270c7a78-f95f-468d-9526-75820fb07849}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Object\TalkObject">
+      <UniqueIdentifier>{d850fceb-59b9-44c5-85dc-a45ce78e603c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -330,9 +342,6 @@
     <ClCompile Include="MyLib\ColideTag.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="UI.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Object\Enemy\WickedMagician.cpp">
       <Filter>ソース ファイル\Object\Enemy</Filter>
     </ClCompile>
@@ -368,6 +377,45 @@
     </ClCompile>
     <ClCompile Include="Game\GalaxyCreater.cpp">
       <Filter>ソース ファイル\Galaxy\cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Player\TitlePlayer.cpp">
+      <Filter>ソース ファイル\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="TextManager.cpp">
+      <Filter>ソース ファイル\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>ソース ファイル\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Item\Key.cpp">
+      <Filter>ソース ファイル\Object\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Enemy\BigKuribo.cpp">
+      <Filter>ソース ファイル\Object\Enemy\Kuribo</Filter>
+    </ClCompile>
+    <ClCompile Include="util\GameStopManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Mission.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\TalkObject.cpp">
+      <Filter>ソース ファイル\Object\TalkingHead</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\DekaHead_Red.cpp">
+      <Filter>ソース ファイル\Object\TalkingHead</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\DekaHead_Blue.cpp">
+      <Filter>ソース ファイル\Object\TalkingHead</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\DekaHead_Yellow.cpp">
+      <Filter>ソース ファイル\Object\TalkingHead</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\DekaHead_Green.cpp">
+      <Filter>ソース ファイル\Object\TalkingHead</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\DekaHead_White.cpp">
+      <Filter>ソース ファイル\Object\TalkingHead</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -575,9 +623,6 @@
     <ClInclude Include="MyLib\ColideTag.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="UI.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Object\Enemy\WickedMagician.h">
       <Filter>ヘッダー ファイル\Object\Enemy</Filter>
     </ClInclude>
@@ -607,6 +652,45 @@
     </ClInclude>
     <ClInclude Include="Game\GalaxyCreater.h">
       <Filter>ヘッダー ファイル\Galaxy\h</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Player\TitlePlayer.h">
+      <Filter>ヘッダー ファイル\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="TextManager.h">
+      <Filter>ヘッダー ファイル\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>ヘッダー ファイル\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Item\Key.h">
+      <Filter>ヘッダー ファイル\Object\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Enemy\BigKuribo.h">
+      <Filter>ヘッダー ファイル\Object\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="util\GameStopManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Mission.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\TalkObject.h">
+      <Filter>ヘッダー ファイル\Object\TalkObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\DekaHead_Red.h">
+      <Filter>ヘッダー ファイル\Object\TalkObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\DekaHead_Blue.h">
+      <Filter>ヘッダー ファイル\Object\TalkObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\DekaHead_Yellow.h">
+      <Filter>ヘッダー ファイル\Object\TalkObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\DekaHead_Green.h">
+      <Filter>ヘッダー ファイル\Object\TalkObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\DekaHead_White.h">
+      <Filter>ヘッダー ファイル\Object\TalkObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

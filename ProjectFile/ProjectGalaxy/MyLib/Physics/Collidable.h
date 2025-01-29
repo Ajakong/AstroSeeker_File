@@ -106,6 +106,8 @@ namespace MyEngine
 		Priority GetPriority() const { return m_priority; }
 		void SetObjectTag(ObjectTag tag) { m_tag = tag; }
 		bool IsAntiGravity() { return m_isAntiGravity; }
+		void SetIsActive(bool flag) { m_isActive = flag; }
+		bool GetIsActive() { return m_isActive; }
 		void SetUpVec(Vec3 vel) { m_nextUpVec = vel; }
 		Vec3 GetUpVec() { return m_upVec; }
 		Vec3 GetFrontVec() { return m_frontVec; }
@@ -153,7 +155,7 @@ namespace MyEngine
 		ObjectTag m_tag;
 		Priority m_priority;
 		bool m_isAntiGravity;
-		
+		bool m_isActive;
 		
 	};
 }

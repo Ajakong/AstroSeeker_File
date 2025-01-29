@@ -23,7 +23,7 @@ PlayerStickSphere::PlayerStickSphere(MyEngine::Collidable::Priority priority, Ob
 m_player(std::dynamic_pointer_cast<Player>(player)),
 m_sideVec(sideVec),
 m_lifeTime(0),
-m_stickFlag(false)
+m_pushCount(0)
 {
 	/*m_rigid->SetVelocity(VGet(m_velocity.x * 2, m_velocity.y * 2, m_velocity.z * 2));
 	m_rigid->SetPos(pos);
@@ -36,11 +36,14 @@ m_stickFlag(false)
 	{
 		m_moveUpdate = &PlayerStickSphere::StraightUpdate;
 	}
+
+	SetAntiGravity(true);
 }
 
 
 PlayerStickSphere::~PlayerStickSphere()
 {
+	
 }
 
 void PlayerStickSphere::Init()
@@ -50,27 +53,29 @@ void PlayerStickSphere::Init()
 
 void PlayerStickSphere::Update()
 {
-	
-
 	m_startPos = m_player->GetLeftHandPos();
 	(this->*m_moveUpdate)();
 }
 
 void PlayerStickSphere::Draw()
 {
+
 	DrawSphere3D(m_rigid->GetPos().VGet(), kSphereRadius, 10, 0xffff00, m_color, false);
-	DrawLine3D(m_startPos.VGet(), m_rigid->GetPos().VGet(), 0xffffff);
+
+	//m_stickFlagがtrueの時に赤くなる
+	DrawLine3D(m_startPos.VGet(), m_rigid->GetPos().VGet(), 0xffffff-(0x00ffff*m_stickFlag));
 }
 
 void PlayerStickSphere::Effect()
 {
-	if (m_player->GetOperationFlag())
+	/*if (m_player->GetOperationFlag())
 	{
 		m_player->SetIsOperation(false);
 		m_isDestroyFlag = true;
-	}
+	}*/
 	if (m_stickFlag)
 	{
+		
 		if (m_isMoving)
 		{
 			m_moveUpdate = &PlayerStickSphere::ComeBackWithObjectUpdate;
@@ -81,8 +86,9 @@ void PlayerStickSphere::Effect()
 		}
 		else
 		{
+			m_pushCount++;
 			m_player->SetIsOperation(true);
-			m_player->SetVelocity((m_rigid->GetPos() - m_player->GetPos()).GetNormalized() * 3);
+			m_player->SetVelocity((m_rigid->GetPos() - m_player->GetPos()).GetNormalized() * 3 * m_pushCount);
 		}
 		
 	}
@@ -122,6 +128,7 @@ void PlayerStickSphere::StickUpdate()
 {
 	SetAntiGravity(true);
 	m_rigid->SetVelocity(Vec3::Zero());
+	//m_rigid->SetPos(m_contactedCollidable->GetRigidbody()->GetPos() + m_collidableContactPosition);
 	if ((m_rigid->GetPos() - m_startPos).Length() <= 5.0f)
 	{
 		m_player->SetIsOperation(false);
@@ -141,7 +148,6 @@ void PlayerStickSphere::ComeBackUpdate()
 
 void PlayerStickSphere::ComeBackWithObjectUpdate()
 {
-
 	m_rigid->SetVelocity((m_startPos - m_rigid->GetPos()).GetNormalized() * 3);
 	m_contactedCollidable->GetRigidbody()->SetPos(m_rigid->GetPos()+m_collidableContactPosition);
 	if ((m_rigid->GetPos() - m_startPos).Length() <= 1.2f)

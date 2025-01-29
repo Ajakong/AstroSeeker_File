@@ -4,6 +4,7 @@
 #include"Quaternion.h"
 #include"ColliderSphere.h"
 #include"StampImpact.h"
+#include"Planet.h"
 #include<string>
 
 class Camera;
@@ -15,19 +16,25 @@ class Player : public MyEngine::Collidable
 public:
 	enum AnimNum : int
 	{
-		AnimationNumJump,
-		AnimationNumRun,
-		AnimationNumSpin,
+		
+		
+		AnimationNumEmpty,
 		AnimationNumTpose,
-		AnimationNumIdle,
-		AnimationNumHit,
 		AnimationNumDeath,
+		AnimationNumRun,
 		AnimationNumFall,
-		AnimationNumRolling,
+		AnimationNumSpin,
+		AnimationNumHit,
+		AnimationNumIdle,
+		AnimationNumJump,
 		AnimationNumJumpAttack,
+		AnimationNumJumpDive,
+		AnimationNumRolling,
+		AnimationNumRollingAttack,
+		AnimationNumShotPose
 	};
 
-	Player(int modelhandle);
+	Player(int modelhandle,Vec3 pos=Vec3::Zero());
 	~Player();
 
 	void Init();
@@ -43,6 +50,7 @@ public:
 	void SetPos(Vec3 pos) { m_rigid->SetPos(pos); }
 	
 	void SetCameraToPlayer(Vec3 cameraToPlayer);
+	Vec3 GetOnPlanetPos() { return m_nowPlanet->GetRigidbody()->GetPos(); }
 	Vec3 GetVelocity() const { return m_rigid->GetVelocity(); }
 	Vec3 GetMoveDir() const{ return m_moveDir; }
 	Vec3 GetNormVec() const { return m_upVec.GetNormalized(); }
@@ -51,6 +59,7 @@ public:
 	Vec3 GetPostUpVec() const{ return m_postUpVec; }
 	Vec3 GetPostMoveDir()const{ return m_postMoveDir; }
 	Vec3 GetInputVec()const { return m_inputVec; }
+	Vec3 GetInputRightVec()const { return m_inputRightVec; }
 	Vec3 GetShotDir()const { return m_shotDir; }
 	Vec3 GetLookPoint() const{ return m_lookPoint; }
 	float GetRegenerationRange() const{ return m_regeneRange; }
@@ -71,6 +80,7 @@ public:
 	void SetFrontVec(Vec3 front) { m_frontVec = front; }
 	void IsWarp() { m_isJumpFlag = true;}
 	int GetPlayerModelhandle() const { return m_modelHandle; }
+	int GetTitleMoveNum() { return m_titleUpdateNum; }
 	bool IsSearch() { return m_isSearchFlag; }
 	bool OnDamage() { return m_playerUpdate==&Player::DamegeUpdate; }
 	bool IsClear() { return m_isClearFlag; }
@@ -78,7 +88,10 @@ public:
 	//int GetSearchRemainTime() { return m_searchRemainTime; }
 	bool GetJumpFlag() const { return m_isJumpFlag; }
 
-	
+	void InitDush();
+	void TitleDush();
+	void InitJump();
+	void TitleJump();
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnCollideStay(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
@@ -105,12 +118,18 @@ public:
 	/// ジャンプ中の落下攻撃
 	/// </summary>
 	playerState_t m_dropAttackUpdate;
+	/// <summary>
+	/// スピンの更新処理
+	/// </summary>
+	playerState_t m_spinAttackUpdate;
 
 	void CommandJump();
 	void BoostUpdate();
 	void OperationUpdate();
 
-private:
+	void MoveToTargetWithStickStar(Vec3 targetPos);
+
+protected:
 	Vec3 Move();
 
 	void ShotTheStar();
@@ -124,6 +143,7 @@ private:
 
 	//状態別関数(ポインタで呼び出す)
 	/*m_playerUpdateで使う*/
+	void TitleUpdate();
 	/// <summary>
 	/// 開始直後に呼ばれる
 	/// </summary>
@@ -140,10 +160,20 @@ private:
 	/// 走り
 	/// </summary>
 	void DashUpdate();
+	//スピンアクション
+	/// <summary>
+	/// スピンアクション統括
+	/// </summary>
+	void SpinActionUpdate();
 	/// <summary>
 	/// スピン攻撃
 	/// </summary>
 	void SpiningUpdate();
+	/// <summary>
+	/// ローリングアタック
+	/// </summary>
+	void RollingAttackUpdate();
+
 	/// <summary>
 	/// ジャンプ中
 	/// </summary>
@@ -199,12 +229,28 @@ private:
 	void AvoidUpdate();
 
 	void SetShotDir();
+	/// <summary>
+	/// 弾の削除処理
+	/// </summary>
 	void DeleteManage();
+
+	void TalkingUpdate();
+	
+	
+
 	template <typename T>
+	/// <summary>
+	/// 配列の削除処理
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="objects"></param>
 	void DeleteObject(std::vector<std::shared_ptr<T>>& objects);
 	Vec3 GetCameraToPlayer()const;
 
-private:
+	
+
+
+protected:
 	struct UserData
 	{
 		float dissolveY;	// ディゾルヴしたい高さ
@@ -223,6 +269,7 @@ private:
 	int m_modelHandle = 0;
 	int m_aimGraphHandle = 0;
 	int m_handFrameIndex;
+	int m_shotAnimCount;
 
 	int m_landingStanFrame;
 	//プレイヤーのステータス
@@ -230,6 +277,7 @@ private:
 	float m_hp;
 	float m_speed = 1.f;
 	float m_cameraEasingSpeed;
+	float m_currentOxygen;
 
 	/// <summary>
 	/// 行動のフレームを管理する
@@ -242,6 +290,12 @@ private:
 	int m_getItemHandle;
 	int m_color;
 	int m_spinCount;
+
+	bool m_shotAnimFlag;
+	/// <summary>
+	/// タイトル画面で今している行動の番号
+	/// </summary>
+	int m_titleUpdateNum;
 
 	std::list<std::shared_ptr<PlayerSphere>> m_sphere;
 	std::vector<std::shared_ptr<StampImpact>> m_impacts;
@@ -274,6 +328,7 @@ private:
 	Vec3 m_postMoveDir;
 	Vec3 m_nowVec;
 	Vec3 m_inputVec;
+	Vec3 m_inputRightVec;
 
 	Vec3 m_frontVec;
 	Vec3 m_sideVec;
@@ -310,7 +365,7 @@ private:
 	bool m_isAimFlag = false;
 	bool m_isClearFlag=false;
 
-	int m_visibleCount = 0;
+	int m_visibleCount;
 
 	int m_hitCount = 0;
 };

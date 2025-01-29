@@ -9,7 +9,7 @@ class Gorori : public Enemy
 public:
 	/// <param name="m_modelhandle">エネミーのモデル</param>
 		/// <param name="obj">影響を与えるオブジェ</param>
-	Gorori(Vec3 pos,Vec3 velocity);
+	Gorori(Vec3 pos,std::shared_ptr<Collidable>target);
 	~Gorori();
 
 	void Init();

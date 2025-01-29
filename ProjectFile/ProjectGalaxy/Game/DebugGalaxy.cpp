@@ -75,8 +75,11 @@ DebugGalaxy::DebugGalaxy(std::shared_ptr<Player> playerPointer) : Galaxy(playerP
 {
 	m_ui = make_shared<UI>();
 	player = playerPointer;
+	m_planet.push_back(make_shared<BoxPlanet>(Vec3(0, -50, 0), 0x00ffff, 1.f, Vec3(30, 30, 50)));
 	//m_planet.push_back(make_shared<SpherePlanet>(Vec3(0, -50, 0),0x00ff00, 1, 1));
-	m_planet.push_back(make_shared<PolygonModelPlanet>(ModelManager::GetInstance().GetModelData("UFO_GreenMan.mv1"), Vec3(0, -400, 0), 1, 1, 10.f));
+	//m_planet.push_back(make_shared<PolygonModelPlanet>(ModelManager::GetInstance().GetModelData("MechSpiderM1.mv1"), Vec3(0, -400, 0), 1, 1, 400.f));
+	//m_planet.push_back(make_shared<PolygonModelPlanet>(ModelManager::GetInstance().GetModelData("MechSpiderM1.mv1"), Vec3(0, -400, 0), 1, 1, 400.f));
+	//m_planet.push_back(make_shared<PolygonModelPlanet>(ModelManager::GetInstance().GetModelData("UFO_GreenMan.mv1"), Vec3(0, -400, 0), 1, 1, 10.f));
 	//takobo.push_back(make_shared<Takobo>(Vec3(0, 0, -30),player));
 
 	/*boss.push_back(make_shared<Boss>(Vec3(0, 50, 100)));
@@ -186,7 +189,6 @@ void DebugGalaxy::Draw()
 	MyEngine::Physics::GetInstance().Draw();
 
 
-	m_ui->Draw(player->GetHp());
 	if (player->IsSearch())
 	{
 		DxLib::SetDrawBlendMode(DX_BLENDMODE_MUL, 255);

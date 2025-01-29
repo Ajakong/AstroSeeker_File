@@ -26,10 +26,10 @@ public:
 	Kuribo(Vec3 pos);
 	virtual ~Kuribo();
 
-	void Init();
-	void Update();
-	void SetMatrix();
-	void Draw();
+	virtual void Init();
+	virtual void Update();
+	virtual void SetMatrix();
+	virtual void Draw();
 
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
@@ -39,7 +39,7 @@ public:
 	using MoveState_t = void(Kuribo::*)();
 	MoveState_t m_moveUpdate;
 
-private:
+protected:
 	/// <summary>
 	/// アイドル時
 	/// </summary>
@@ -67,7 +67,7 @@ private:
 	/// <summary>
 	/// 死亡時
 	/// </summary>
-	void DeathUpdate();
+	virtual void DeathUpdate();
 
 	//アニメーションの進行
 	//ループしたかどうかを返す
@@ -78,7 +78,7 @@ private:
 	template <typename T>
 	void DeleteObject(std::vector<std::shared_ptr<T>>& objects);
 
-private:
+protected:
 	Vec3 m_vec;
 	Vec3 m_attackDir;
 	Vec3 m_moveShaftPos;

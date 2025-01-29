@@ -16,12 +16,15 @@ public:
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerExit(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	
+	void ModelRotation(int dir=1);
+	void IntroPlanet();
 protected:
 
 	int m_enemyCount;
 	int m_color;
 	int m_modelHandle;
 
+	float m_rotationAngle;
 
 };
 

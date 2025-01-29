@@ -34,6 +34,7 @@ int SoundManager::GetSoundData(const char* soundname)
 	{
 		SoundInfo m = SoundInfo();
 		string fileName = "Data/Sound/";
+
 		m.handle = DxLib::LoadSoundMem((fileName + (string)soundname).c_str() );
 		m.used = false;
 		m_pathAndSoundInfoes[soundname] = m;

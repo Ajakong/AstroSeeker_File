@@ -291,24 +291,26 @@ Vec3 GetClosestPointOnTriangle(Vec3& spherePos, Vec3& A, Vec3& B, Vec3& C)
 	// 球の中心から三角形面への垂直に投影した点を計算
 	Vec3 projection = spherePos - normal * dist;
 
+	// 数値誤差を考慮するための許容値
+	
+
 	// 投影された点が三角形内部かどうかを確認
-	if (IsPointInsideTriangle(projection, A, B, C))
-	{
+	if (IsPointInsideTriangle(projection, A, B, C)) {
 		// 投影点が三角形内部にある場合、その点が最近接点
 		return projection;
 	}
-	else
-	{
-		// 投影点が三角形外部の場合、辺上の最近接点を計算
+	else {
+		// 投影点が三角形外部の場合、各辺上の最近接点を計算
 		Vec3 edgeAB = GetClosestPointOnLineSegment(spherePos, A, B);
 		Vec3 edgeBC = GetClosestPointOnLineSegment(spherePos, B, C);
 		Vec3 edgeCA = GetClosestPointOnLineSegment(spherePos, C, A);
 
 		// 辺上の最近接点を比較して最小距離を求める
-		float distAB = (spherePos - edgeAB).Length();
-		float distBC = (spherePos - edgeBC).Length();
-		float distCA = (spherePos - edgeCA).Length();
+		float distAB = (spherePos - edgeAB).SqLength();
+		float distBC = (spherePos - edgeBC).SqLength();
+		float distCA = (spherePos - edgeCA).SqLength();
 
+		// 距離が最小の点を返す
 		if (distAB <= distBC && distAB <= distCA)
 			return edgeAB;
 		else if (distBC <= distAB && distBC <= distCA)
@@ -320,12 +322,10 @@ Vec3 GetClosestPointOnTriangle(Vec3& spherePos, Vec3& A, Vec3& B, Vec3& C)
 
 Vec3 GetClosestPointOnLineSegment(Vec3& P, Vec3& A, Vec3& B)
 {
-	Vec3 AB = B - A;
-	Vec3 AP = P - A;
-	float t = Dot(AP,AB) / Dot(AB,AB);
-	if (t < 0.0f) return A;  // Bが最寄り
-	else if (t > 1.0f) return B;  // Cが最寄り
-	else return B + AB * t;  // BC上の最寄り点
+	Vec3 segment = B - A;
+	float t = Dot(P - A, segment) / segment.SqLength();
+	t = std::clamp(t, 0.0f, 1.0f); // tを[0, 1]の範囲にクランプ
+	return A + segment * t;
 }
 
 bool IsPointInsideTriangle(Vec3& point, Vec3& v0, Vec3& v1, Vec3& v2)
@@ -344,7 +344,7 @@ bool IsPointInsideTriangle(Vec3& point, Vec3& v0, Vec3& v1, Vec3& v2)
 	Vec3 cross2 = Cross(edge2, c2);
 
 	// すべてのクロス積が同じ方向（同じ符号）であれば点は内部にある
-	if (Dot(cross0, cross1) >= 0.0f && Dot(cross1, cross2) >= 0.0f && Dot(cross2, cross0) >= 0.0f) {
+	if (Dot(cross0, cross1) >= -1e-6f && Dot(cross1, cross2) >= 0.0f && Dot(cross2, cross0) >= 0.0f) {
 		return true;
 	}
 

@@ -23,7 +23,7 @@ namespace
 	constexpr int kChaseMaxFrame = 200;
 
 	constexpr float kAwayStrength = 0.6f;
-	const char* kModelFileName = "Kuribo.mv1";
+	const char* kModelFileName = "Kuribo";
 
 	constexpr float kScaleMag = 0.03f;
 
@@ -44,7 +44,7 @@ float GetVec2Angle(Vec3 a, Vec3 b)
 	return rad;
 }
 
-Kuribo::Kuribo(Vec3 pos):Enemy(Priority::Low,ObjectTag::Kuribo),
+Kuribo::Kuribo(Vec3 pos) :Enemy(Priority::Low, ObjectTag::Kuribo),
 m_attackDir(0,0,1),
 m_chaseFrameCount(0),
 m_stanCount(0)
@@ -304,6 +304,8 @@ void Kuribo::CrushUpdate()
 
 void Kuribo::DeathUpdate()
 {
+	SetAntiGravity(true);
+	m_bodyCol->radius = -1;
 	m_state = "Death";
 	m_userData->dissolveY -= 0.01f;
 	float animFrame = MV1GetAttachAnimTime(m_modelHandle,m_currentAnimNo);

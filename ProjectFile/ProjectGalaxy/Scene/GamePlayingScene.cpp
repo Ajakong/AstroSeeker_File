@@ -13,7 +13,7 @@
 #include"SoundManager.h"
 #include"ModelManager.h"
 #include"GraphManager.h"
-
+#include"UI.h"
 
 #include"GameManager.h"
 
@@ -38,9 +38,9 @@ GamePlayingScene::GamePlayingScene(SceneManager& manager) :
 
 GamePlayingScene::~GamePlayingScene()
 {
-	SoundManager::GetInstance().Clear();
-	GraphManager::GetInstance().Clear();
-	ModelManager::GetInstance().Clear();
+	//SoundManager::GetInstance().Clear();
+	//GraphManager::GetInstance().Clear();
+	//ModelManager::GetInstance().Clear();
 }
 
 void GamePlayingScene::Load()
@@ -114,6 +114,7 @@ void GamePlayingScene::FadeOutUpdate()
 
 void GamePlayingScene::ChangeScene(std::shared_ptr<Scene> nextScene)
 {
+	UI::GetInstance().Init();
 	m_manager.ChangeScene(nextScene);
 	MyEngine::Physics::GetInstance().Clear();
 }

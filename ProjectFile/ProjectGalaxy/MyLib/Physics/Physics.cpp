@@ -23,8 +23,6 @@ namespace
 	constexpr float CHECK_COLLIDE_SQ_LENDGHT = CHECK_COLLIDE_LENDGHT * CHECK_COLLIDE_LENDGHT*10;
 }
 
-Vec3 closestPointOnCubeAndSphere(const Vec3& cubeCenter, Vec3 size, const Vec3& sphereCenter, double sphereRadius);
-
 Physics::Physics()
 {
 }
@@ -56,13 +54,14 @@ void Physics::Entry(const std::shared_ptr<Collidable>& collidable)
 	}
 	else if (!isFound)
 	{
+	
 		m_stageCollidables.emplace_back(collidable);
 		m_collidables.emplace_back(collidable);
 	}
 	// 登録済みなら無視
 	else
 	{
-		assert(false);
+		//assert(false);
 	}
 	collidable->Init();
 }
@@ -70,6 +69,19 @@ void Physics::Entry(const std::shared_ptr<Collidable>& collidable)
 void Physics::Exit(const std::shared_ptr<Collidable>& collidable)
 {
 	auto it = std::find(m_collidables.begin(), m_collidables.end(), collidable);
+	auto stageit = std::find(m_stageCollidables.begin(), m_stageCollidables.end(), collidable);
+
+	if (stageit != m_stageCollidables.end())
+	{
+		int index = static_cast<int>(std::distance(m_stageCollidables.begin(), stageit));
+		auto iterater = m_stageCollidables.begin();
+		for (int i = 0; i < index; i++)
+		{
+			iterater++;
+		}
+		m_stageCollidables.erase(iterater);
+	}
+
 	// 登録済みなら削除
 	if (it != m_collidables.end())
 	{
@@ -94,8 +106,10 @@ void Physics::Update()
 	std::reverse_iterator<std::vector<int>::iterator> rit;
 	for (auto& item : std::vector<std::shared_ptr<MyEngine::Collidable>>(m_collidables.rbegin(),m_collidables.rend()))//途中で要素を削除してもいいように逆順
 	{
+		if (!item->GetIsActive())continue;
 		item->Update();
 	}
+
 
 	// 通知リストのクリア・更新
 	m_onCollideInfo.clear();
@@ -130,12 +144,17 @@ void Physics::Update()
 		OnCollideInfo(item.own, item.send, item.ownTag,item.sendTag, item.hitPos, item.kind);
 	}
 	
+	for (auto& item : std::vector<std::shared_ptr<MyEngine::Collidable>>(m_collidables.rbegin(), m_collidables.rend()))//途中で要素を削除してもいいように逆順
+	{
+		if (item->IsDestroy())Exit(item);
+	}
 }
 
 void MyEngine::Physics::Draw()
 {
 	for (const auto& obj : m_collidables)
 	{
+		if (!obj->GetIsActive())continue;
 		obj->Draw();
 	}
 }
@@ -160,6 +179,7 @@ void MyEngine::Physics::Gravity()
 		// それぞれが持つ判定全てを比較
 		for (auto& object : m_collidables)
 		{
+			if (!object->GetIsActive())continue;
 			if (object->IsAntiGravity())continue;
 			for (auto& col : object->m_colliders)
 			{
@@ -242,6 +262,7 @@ void MyEngine::Physics::Friction()
 		// それぞれが持つ判定全てを比較
 		for (auto& object : m_collidables)
 		{
+			if (!object->GetIsActive())continue;
 			if (object->IsAntiGravity())continue;
 			for (auto& col : object->m_colliders)
 			{
@@ -401,6 +422,7 @@ void MyEngine::Physics::CheckCollide()
 		auto objA = colVec[i * 2];
 		auto objB = colVec[i * 2 + 1];
 
+		if (!objA->GetIsActive()||!objB->GetIsActive())continue;
 		// それぞれが持つ判定全てを比較
 		for (int i = 0; i < objA->m_colliders.size(); ++i)
 		{
@@ -592,12 +614,9 @@ MyEngine::Physics::CollideHitInfo Physics::IsCollide(const std::shared_ptr<Rigid
 
 			// 衝突結果を設定
 			info.isHit = isCollision || isInside;  // 衝突または内部判定が真なら衝突
-
+			DrawSphere3D(closestHitPos.VGet(), 7, 7, 0xff000, 0xffffff, false);
 			info.hitPos = closestHitPos;  // 常に最も近い点を格納
-			info.Norm = (spherePos-info.hitPos).GetNormalized(); // 最近接点からsphereへの向き
-
-			// デバッグ用表示
-			DrawSphere3D(info.hitPos.VGet(), 8, 8, isCollision ? 0xff0000 : 0x00ff00, 0x00ff00, false);
+			info.Norm = closestNormal; // 最近接点からsphereへの向き
 		}
 		if (kindB == ColliderBase::Kind::Line)
 		{
@@ -731,11 +750,8 @@ MyEngine::Physics::CollideHitInfo Physics::IsCollide(const std::shared_ptr<Rigid
 		// 衝突結果を設定
 		info.isHit = isCollision || isInside;  // 衝突または内部判定が真なら衝突
 		info.hitPos = closestHitPos;  // 常に最も近い点を格納
-
-		info.Norm = (spherePos - info.hitPos).GetNormalized(); //最近接点からsphereへの向き
-
-		// デバッグ用表示
-		DrawSphere3D(info.hitPos.VGet(), 8, 8, isCollision ? 0xff0000 : 0x00ff00, 0x00ff00, false);
+		DrawSphere3D(closestHitPos.VGet(), 7, 7, 0xff000, 0xffffff, false);
+		info.Norm = closestNormal; //最近接点からsphereへの向き
 	}
 	if (kindA == ColliderBase::Kind::Line && kindB == ColliderBase::Kind::Sphere)
 	{
@@ -822,7 +838,7 @@ void MyEngine::Physics::FixNextPos(const std::shared_ptr<Rigidbody> primaryRigid
 		if (secondaryKind == ColliderBase::Kind::Polygons)
 		{
 			//今回のプロジェクトではポリゴンの当たり判定を持っているオブジェクトは動かさないので割愛
-			int a = 0;
+			assert(0&&"ポリゴンモデルが衝突相手として入っています");
 		}
 	}
 	//primaryKind=立方体の位置補正

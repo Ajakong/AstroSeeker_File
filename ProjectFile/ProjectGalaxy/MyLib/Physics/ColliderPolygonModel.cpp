@@ -51,6 +51,7 @@ void MyEngine::ColliderPolygonModel::Init(int modelHandle, float scale)
 
 void MyEngine::ColliderPolygonModel::DebugDraw()
 {
+#ifdef DEBUG
     for (const auto& triangle : m_triangles) {
         // 三角形の3辺を描画
         DrawLine3D(triangle.vertex[0].VGet(), triangle.vertex[1].VGet(),0xffff00); // 辺 v0 → v1
@@ -60,4 +61,5 @@ void MyEngine::ColliderPolygonModel::DebugDraw()
         Vec3 center = (triangle.vertex[0] + triangle.vertex[1] + triangle.vertex[2]) / 3;
         DrawLine3D(center.VGet(), (center+triangle.Normal()).VGet(), 0xff0000); // 辺 v2 → v0
     }
+#endif
 }

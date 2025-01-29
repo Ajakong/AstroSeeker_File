@@ -9,7 +9,7 @@ class Player;
 class Camera
 {
 public:
-	Camera();							// コンストラクタ.
+	Camera(Vec3 pos= { 100.0f,200.0f, 300.0f });							// コンストラクタ.
 	~Camera();							// デストラクタ.
 
 	void Update(Vec3 LookPoint);	// 更新.

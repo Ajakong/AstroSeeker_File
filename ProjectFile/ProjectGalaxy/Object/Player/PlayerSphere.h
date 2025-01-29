@@ -16,7 +16,7 @@ public:
 
 	virtual void Effect();
 
-	bool GetStickFlag() { return m_stickFlag; }
+	virtual bool GetStickFlag() { return m_stickFlag; }
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);

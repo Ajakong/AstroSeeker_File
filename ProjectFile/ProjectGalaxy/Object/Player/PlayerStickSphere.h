@@ -12,7 +12,6 @@ public:
 
 	void Effect();
 
-	bool GetStickFlag() { return m_stickFlag; }
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
@@ -26,7 +25,7 @@ protected:
 protected:
 	Vec3 m_sideVec;
 	int m_lifeTime;
-	bool m_stickFlag;
+	int m_pushCount;
 	/// <summary>
 	/// 接触しているオブジェクトを動かせるか
 	/// </summary>

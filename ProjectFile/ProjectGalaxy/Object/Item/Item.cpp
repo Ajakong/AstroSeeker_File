@@ -65,7 +65,7 @@ void Item::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,C
 	
 	if (colider->GetTag() == ObjectTag::Player)
 	{
-		m_deleteFlag = true;
+		m_isDestroyFlag = true;
 	}
 }
 

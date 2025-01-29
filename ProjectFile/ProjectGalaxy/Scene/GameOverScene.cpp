@@ -4,6 +4,7 @@
 #include"Vec3.h"
 #include"Pad.h"
 #include"DxLib.h"
+#include"UI.h"
 
 GameOverScene::GameOverScene(SceneManager& mgr) :
 	Scene(mgr)
@@ -23,8 +24,10 @@ void GameOverScene::Load()
 
 void GameOverScene::Update()
 {
+	UI::GetInstance().Update();
 	(this->*m_updateFunc)();
 
+	
 
 	Pad::Update();
 }
@@ -32,10 +35,14 @@ void GameOverScene::Update()
 void GameOverScene::Draw()
 {
 	(this->*m_drawFunc)();
-	if (Pad::IsTrigger(PAD_INPUT_1))
+
+	if (Pad::IsTrigger(PAD_INPUT_1)&&Pad::GetState()=="PlayerInput")
 	{
+		
 		ChangeScene(std::make_shared<GamePlayingScene>(m_manager));
 	}
+
+	UI::GetInstance().Draw();
 }
 
 void GameOverScene::FadeInUpdate()
@@ -44,6 +51,7 @@ void GameOverScene::FadeInUpdate()
 
 	if (m_frame <= 0)
 	{
+		UI::GetInstance().InText("おぉ死んでしまうとはなさけない");
 		m_updateFunc = &GameOverScene::NormalUpdate;
 		m_drawFunc = &GameOverScene::NormalDraw;
 	}
@@ -52,6 +60,7 @@ void GameOverScene::FadeInUpdate()
 void GameOverScene::NormalUpdate()
 {
 	
+
 }
 
 void GameOverScene::FadeOutUpdate()

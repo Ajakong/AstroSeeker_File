@@ -1,10 +1,14 @@
 ﻿#pragma once
 #include "Scene.h"
+#include"Vec3.h"
 #include <string>
 #include <vector>
 #include <map>
 
 class SceneMain;
+class TitlePlayer;
+class SpherePlanet;
+class Camera;
 
 
 class TitleScene : public Scene
@@ -30,6 +34,28 @@ private:
 
     bool m_isGamePlaying = false;
 
+    int m_titleHandle = 0;
+    int m_titleBGMHandle;
+    int m_gameStartSEHandle;
+    
+	int m_stickOSTHandle = 0;
+    int m_count;
+
+
+
+    //ハンドル集
+    int m_skyDomeH;
+    float m_skyDomeRotationAngle;
+
+    std::shared_ptr<TitlePlayer> player;
+	std::shared_ptr<SpherePlanet> planet;
+    std::shared_ptr<SpherePlanet> nextPlanet;
+    std::shared_ptr<SpherePlanet> emeraldPlanet;
+    std::shared_ptr<SpherePlanet> redPlanet;
+	std::shared_ptr<Camera> camera;
+
+    Vec3 positioningPlayerToCamera;
+
     // メンバ関数ポインタの宣言
     using UpdateFunc_t = void (TitleScene::*)();
     using DrawFunc_t = void (TitleScene::*)();
@@ -42,6 +68,8 @@ private:
     void FadeInUpdate();
     void NormalUpdate();
     void FadeOutUpdate();
+    void DirectionUpdate();
+    void LoadingUpdate();
 
     void ChangeScene(std::shared_ptr<Scene> next);
 

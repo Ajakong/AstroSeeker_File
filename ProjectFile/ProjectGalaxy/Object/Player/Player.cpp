@@ -11,7 +11,7 @@
 #include"ModelManager.h"
 #include"GraphManager.h"
 #include"Planet.h"
-
+#include"UI.h"
 #include"Easing.h"
 
 #include"Physics.h"
@@ -67,7 +67,7 @@ namespace
 
 	const char* kGetSearchSEName = "Search.mp3";
 	const char* name = "Player";
-	const char* kFileName = "SpaceHarrier.mv1";
+	const char* kFileName = "SpaceHarrier";
 
 	//照準
 	const char* kAimGraphFileName = "Elements_pro.png";
@@ -82,7 +82,7 @@ void MTransCopy(MATRIX& in, const MATRIX& src) {
 }
 
 
-Player::Player(int modelhandle) : Collidable(Priority::High, ObjectTag::Player),
+Player::Player(int modelhandle, Vec3 pos) : Collidable(Priority::High, ObjectTag::Player),
 m_modelHandle(MV1DuplicateModel(ModelManager::GetInstance().GetModelData(kFileName))),
 m_parrySEHandle(SoundManager::GetInstance().GetSoundData(kOnParrySEName)),
 m_getItemHandle(SoundManager::GetInstance().GetSoundData(kGetItemSEName)),
@@ -93,8 +93,8 @@ m_postUpVec(Vec3::Up()),
 m_shotDir(Vec3::Front()),
 m_moveDir(Vec3::Front()),
 m_frontVec(Vec3::Front()),
-m_playerUpdate(&Player::NeutralUpdate),
-m_prevUpdate(&Player::NeutralUpdate),
+m_playerUpdate(&Player::StartUpdate),
+m_prevUpdate(&Player::StartUpdate),
 m_hp(kPlayerHPMax),
 m_radius(kNeutralRadius),
 m_damageFrame(0),
@@ -114,10 +114,14 @@ m_landingStanFrame(0),
 m_modelBodyRotate(m_frontVec),
 m_inputVec(Vec3::Front()*-1),
 m_postMoveDir(Vec3::Front()),
-m_modelDirAngle(0)
+m_modelDirAngle(0),
+m_currentOxygen(0),
+m_shotAnimCount(0),
+m_shotAnimFlag(false),
+m_titleUpdateNum(0)
 {
 	m_postUpVec = m_upVec;
-	m_rigid->SetPos(Vec3(0, 0, 0));
+	m_rigid->SetPos(pos);
 	{
 		AddCollider(MyEngine::ColliderBase::Kind::Sphere, ColideTag::Head);
 		m_headCol = dynamic_pointer_cast<MyEngine::ColliderSphere>(m_colliders.back()->col);
@@ -143,12 +147,12 @@ m_modelDirAngle(0)
 
 	m_shotUpdate = &Player::ShotTheStickStar;
 
-	m_cameraEasingSpeed = 15.f;
+	m_cameraEasingSpeed = 5.f;
 	
 	AddThroughTag(ObjectTag::PlayerBullet);
 
 	DxLib::MV1SetScale(m_modelHandle, VGet(0.005f, 0.005f, 0.005f));
-	ChangeAnim(AnimNum::AnimationNumIdle);
+	//ChangeAnim(AnimNum::AnimationNumIdle);
 
 	SetMatrix();
 	m_initMat = MV1GetLocalWorldMatrix(m_modelHandle);
@@ -157,6 +161,7 @@ m_modelDirAngle(0)
 
 	m_jumpActionUpdate = &Player::JumpingSpinUpdate;
 	m_dropAttackUpdate = &Player::NormalDropAttackUpdate;
+	m_spinAttackUpdate = &Player::SpiningUpdate;
 }
 
 Player::~Player()
@@ -174,6 +179,12 @@ void Player::Update()
 	m_isSearchFlag = false;
 	m_radius = 0;
 	
+	if (!Pad::IsState("PlayerInput"))
+	{
+		//ChangeAnim(AnimNum::AnimationNumIdle);
+		m_playerUpdate = &Player::TalkingUpdate;
+	}
+	
 	(this->*m_playerUpdate)();
 
 
@@ -185,6 +196,8 @@ void Player::Update()
 		}
 		else
 		{
+			m_shotDir = m_frontVec;
+			
 			m_isAimFlag = true;
 		}
 	}
@@ -202,7 +215,20 @@ void Player::Update()
 
 	if (Pad::IsTrigger(PAD_INPUT_3))
 	{
+		m_shotAnimFlag = true;
+		m_rigid->SetVelocity(Vec3::Zero());
+		ChangeAnim(AnimNum::AnimationNumShotPose);
 		(this->*m_shotUpdate)();
+	}
+	if (m_shotAnimFlag)
+	{
+		m_shotAnimCount++;
+		if (m_shotAnimCount > 10)
+		{
+			m_shotAnimFlag = false;
+			m_shotAnimCount = 0;
+			ChangeAnim(MV1GetAttachAnim(m_modelHandle, m_prevAnimNo));
+		}
 	}
 
 	for (auto& item : m_sphere)
@@ -315,9 +341,9 @@ void Player::SetMatrix()
 	m_bodyCol->SetShiftPosNum(m_upVec * (m_footCol->GetRadius() * 2 + m_bodyCol->GetRadius()));
 	m_footCol->SetShiftPosNum(m_upVec * m_footCol->GetRadius());
 	//m_spinCol->SetShiftPosNum(m_upVec * (m_footCol->GetRadius()*2+m_bodyCol->GetRadius()));
-	m_lookPoint = m_rigid->GetPos();
+	m_lookPoint = m_rigid->GetPos()+m_upVec*10;
 
-	m_postPos = m_rigid->GetPos();
+	
 }
 
 void Player::Draw()
@@ -407,9 +433,15 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag
 		printf("Stage\n");
 		m_spinCount = 0;
 		m_isOperationFlag = false;
+		m_isJumpFlag = false;
 		if (m_playerUpdate == &Player::DropAttackUpdate)
 		{
 			PlaySoundMem(SoundManager::GetInstance().GetSoundData(kJumpDropGroundSEName), DX_PLAYTYPE_BACK);
+		}
+		if (m_playerUpdate == &Player::BoostUpdate)
+		{
+			ChangeAnim(AnimationNumIdle);
+			m_playerUpdate = &Player::JumpingUpdate;
 		}
 	}
 	if (colider->GetTag() == ObjectTag::Crystal)
@@ -570,7 +602,11 @@ void Player::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 	printf("TriggerEnter\n");
 	if (colider->GetTag() == ObjectTag::Stage)
 	{
-		
+		if (m_playerUpdate == &Player::BoostUpdate)
+		{
+			ChangeAnim(AnimationNumIdle);
+			m_playerUpdate = &Player::JumpingUpdate;
+		}
 		m_nowPlanet = std::dynamic_pointer_cast<Planet>(colider);
 		
 	}
@@ -626,6 +662,29 @@ Vec3 Player::GetCameraToPlayer() const
 	return m_cameraToPlayer;
 }
 
+void Player::InitDush()
+{
+	ChangeAnim(AnimNum::AnimationNumRun, kDashMag);
+	m_playerUpdate = &Player::DashUpdate;
+}
+
+void Player::TitleDush()
+{
+
+}
+
+void Player::InitJump()
+{
+	ChangeAnim(AnimNum::AnimationNumJump);
+	m_isJumpFlag = true;
+	m_playerUpdate = &Player::JumpingUpdate;
+}
+
+void Player::TitleJump()
+{
+
+}
+
 bool Player::UpdateAnim(int attachNo)
 {
 	//アニメーションが設定されていないので終了
@@ -674,11 +733,16 @@ void Player::ChangeAnim(int animIndex, float speed)
 	DxLib::MV1SetAttachAnimBlendRate(m_modelHandle, m_currentAnimNo, m_animBlendRate);
 }
 
+void Player::TitleUpdate()
+{
+}
+
 void Player::StartUpdate()
 {
 	m_state = "Start";
-
-	m_playerUpdate = &Player::NeutralUpdate;
+	ChangeAnim(AnimNum::AnimationNumJumpAttack);
+	m_rigid->SetVelocity(Vec3::Zero());
+	m_playerUpdate = &Player::DropAttackUpdate;
 	m_regeneRange += 0.01f;
 	if (m_regeneRange > 2)
 	{
@@ -690,6 +754,7 @@ void Player::NeutralUpdate()
 {
 	m_state = "Neutral";
 
+	
 	//アナログスティックを使って移動
 
 	Vec3 move = Move();
@@ -710,9 +775,8 @@ void Player::NeutralUpdate()
 	if (Pad::IsTrigger(PAD_INPUT_B))//XBoxの
 	{
 		ChangeAnim(AnimNum::AnimationNumSpin,5.f);
-		m_attackRadius = kNeutralSpinRadius;
 		m_isSpinFlag = true;
-		m_playerUpdate = &Player::SpiningUpdate;
+		m_playerUpdate = &Player::SpinActionUpdate;
 	}
 
 	m_rigid->AddVelocity(move);
@@ -754,7 +818,7 @@ void Player::WalkingUpdate()
 	{
 		ChangeAnim(AnimNum::AnimationNumSpin,5.f);
 		m_isSpinFlag = true;
-		m_playerUpdate = &Player::SpiningUpdate;
+		m_playerUpdate = &Player::SpinActionUpdate;
 	}
 
 	m_rigid->AddVelocity(ans);
@@ -805,9 +869,8 @@ void Player::DashUpdate()
 	{
 		m_cameraEasingSpeed = 15.f;
 		ChangeAnim(AnimNum::AnimationNumSpin, 5.f);
-		m_attackRadius =kNeutralSpinRadius;
 		m_isSpinFlag = true;
-		m_playerUpdate = &Player::SpiningUpdate;
+		m_playerUpdate = &Player::SpinActionUpdate;
 	}
 
 	m_rigid->AddVelocity(ans*kDashMag);
@@ -845,6 +908,7 @@ void Player::JumpingUpdate()
 
 	if (m_footCol->OnHit())
 	{
+		m_moveDir = Cross(m_upVec,GetCameraRightVector());
 		ChangeAnim(AnimNum::AnimationNumIdle);
 		m_playerUpdate = &Player::NeutralUpdate;
 	}
@@ -959,7 +1023,7 @@ void Player::AimingUpdate()
 		ChangeAnim(AnimNum::AnimationNumSpin);
 		m_isSpinFlag = true;
 		ChangeAnim(AnimNum::AnimationNumSpin);
-		m_playerUpdate = &Player::SpiningUpdate;
+		m_playerUpdate = &Player::SpinActionUpdate;
 	}
 	if (Pad::IsTrigger(PAD_INPUT_Y))
 	{
@@ -969,6 +1033,11 @@ void Player::AimingUpdate()
 	
 	m_rigid->AddVelocity(move);
 	
+}
+
+void Player::SpinActionUpdate()
+{
+	(this->*m_spinAttackUpdate)();
 }
 
 void Player::SpiningUpdate()
@@ -990,6 +1059,19 @@ void Player::SpiningUpdate()
 		m_isSpinFlag = false;
 		m_playerUpdate = &Player::NeutralUpdate;
 		m_spinAngle = 0;
+	}
+}
+
+void Player::RollingAttackUpdate()
+{
+	m_frontVec = Cross(m_sideVec, m_upVec);
+	m_rigid->SetVelocity(m_frontVec);
+	if (Pad::IsTrigger(PAD_INPUT_B))//XBoxの
+	{
+		m_cameraEasingSpeed = 15.f;
+		ChangeAnim(AnimNum::AnimationNumIdle);
+		m_isSpinFlag = true;
+		m_playerUpdate = &Player::NeutralUpdate;
 	}
 }
 
@@ -1045,6 +1127,7 @@ void Player::OperationUpdate()
 	m_state = "NowControl";
 	m_moveDir = m_rigid->GetPos() - m_postPos;
 	m_moveDir.Normalize();
+	m_postPos = m_rigid->GetPos();
 	m_sideVec = Cross(m_upVec, m_moveDir);
 	if (!m_isOperationFlag)
 	{
@@ -1068,7 +1151,7 @@ Vec3 Player::Move()
 	// アナログスティックの入力を反映
 	m_sideVec = GetCameraRightVector();
 	m_frontVec = Cross(m_sideVec, m_upVec).GetNormalized();
-
+	m_sideVec = Cross(m_upVec, m_frontVec).GetNormalized();
 	ans = m_frontVec * static_cast<float>(analogY);
 	ans += m_sideVec * static_cast<float>(analogX);
 	modelDir = m_frontVec * static_cast<float>(analogY);
@@ -1152,14 +1235,51 @@ void Player::AvoidUpdate()
 
 void Player::SetShotDir()
 {
+	// 入力された左スティック方向
 	int directX = 0, directY = 0;
 	GetJoypadAnalogInputRight(&directX, &directY, DX_INPUT_PAD1);
-	directY = -directY;
+	directY = -directY; // Y軸反転
 
-	m_shotDir = m_sideVec*static_cast<float>(directX) * 0.0001f;
-	m_shotDir = m_shotDir+(m_upVec*static_cast<float>(directY) * 0.0001f);
-	m_shotDir = m_shotDir + m_frontVec;
-	m_shotDir = m_shotDir.GetNormalized();
+	// 静的変数で入力時間を記録
+	static float inputDuration = 0.0f; // 入力が続いた時間（秒）
+	static const float deltaTime = 0.016f; // フレーム時間（例: 60FPS）
+
+	// 左スティック方向をベクトルに変換
+	Vec3 inputDir = m_sideVec * static_cast<float>(directX) * 0.001f;
+	inputDir += m_upVec * static_cast<float>(directY) * 0.001f;
+
+	// 入力された方向ベクトルの正規化と入力時間の管理
+	if (inputDir.Length() > 1e-6f) {
+		inputDir = inputDir.GetNormalized();
+		inputDuration += deltaTime; // 入力がある間、時間を加算
+	}
+	else {
+		inputDir = m_moveDir; // 初期値として前方ベクトルを使用
+		inputDuration = 0.0f; // 入力がない場合、時間をリセット
+	}
+
+	// 入力の強度を計算（0～1の範囲）
+	float inputStrength = std::clamp(
+		sqrt(static_cast<float>(directX * directX + directY * directY)) * 0.001f,0.0f, 1.0f);
+
+	// m_frontVecとの角度を計算
+	float dotProduct = std::clamp(Dot(m_moveDir, inputDir), -1.0f, 1.0f);
+	float angle = acos(dotProduct); // 安全な角度計算
+
+	// 60度（ラジアンで計算）を超えないように制限
+	float maxAngle = 60.0f * (3.14159f / 180.0f); // 60度をラジアンに変換
+	if (angle > maxAngle) {
+		Vec3 clampedDir = m_moveDir * cos(maxAngle) + (inputDir - m_moveDir * dotProduct).GetNormalized() * sin(maxAngle);
+		inputDir = clampedDir.GetNormalized();
+	}
+
+	// `m_shotDir`を入力方向に徐々に向かせる
+	float lerpSpeed = 0.1f * inputStrength; // 入力強度に応じて補間速度を変化
+
+	// 短時間入力時の速度調整
+	lerpSpeed *= std::clamp(inputDuration / 0.5f, 0.0f, 1.0f); // 0.5秒以内の入力で速度を抑制
+
+	m_shotDir = m_shotDir * (1.0f - lerpSpeed) + inputDir * lerpSpeed;
 }
 
 void Player::DeleteManage()
@@ -1179,5 +1299,72 @@ void Player::DeleteManage()
 		int a = 0;
 	}
 	m_sphere.erase(result, m_sphere.end());
+}
+
+void Player::TalkingUpdate()
+{
+	m_state = "Talking";
+	if (Pad::IsState("PlayerInput"))
+	{
+		m_playerUpdate = &Player::JumpingUpdate;
+	}
+}
+
+void Player::MoveToTargetWithStickStar(Vec3 targetPos)
+{
+	if (m_titleUpdateNum == 1)
+	{
+		if (m_sphere.size() == 0)
+		{
+			Vec3 targetVec = (targetPos - m_rigid->GetPos()).GetNormalized();
+			Vec3 shotPos = MV1GetFramePosition(m_modelHandle, m_handFrameIndex);
+			m_sphere.push_back(std::make_shared<PlayerStickSphere>(Priority::Low, ObjectTag::PlayerBullet, shared_from_this(), shotPos, targetVec, m_sideVec, 1, 0xff0000));
+			MyEngine::Physics::GetInstance().Entry(m_sphere.back());
+			m_sphere.back()->Init();
+
+			m_playerUpdate = &Player::NeutralUpdate;
+		}
+		else
+		{
+			auto colidFlag = m_sphere.back()->GetStickFlag();
+			if (colidFlag)
+			{
+				m_titleUpdateNum = 2;
+				m_sphere.back()->Effect();
+
+			}
+		}
+
+	}
+	
+	if (m_titleUpdateNum == 0)
+	{
+		if (m_sphere.size() == 0)
+		{
+			Vec3 targetVec = (targetPos - m_rigid->GetPos()).GetNormalized();
+			Vec3 shotPos = MV1GetFramePosition(m_modelHandle, m_handFrameIndex);
+			m_sphere.push_back(std::make_shared<PlayerStickSphere>(Priority::Low, ObjectTag::PlayerBullet, shared_from_this(), shotPos, targetVec, m_sideVec, 1, 0xff0000));
+			MyEngine::Physics::GetInstance().Entry(m_sphere.back());
+			m_sphere.back()->Init();
+
+			MV1SetScale(m_modelHandle, VGet(0.01f, 0.01f, 0.01f));
+			m_moveDir = Cross(GetCameraRightVector(), m_upVec);
+			ChangeAnim(AnimNum::AnimationNumIdle);
+			m_playerUpdate = &Player::NeutralUpdate;
+		}
+		else
+		{
+
+			auto colidFlag = m_sphere.back()->GetStickFlag();
+			if (colidFlag)
+			{
+				m_titleUpdateNum = 1;
+				m_sphere.back()->Effect();
+
+			}
+		}
+	}
+	
+
 }
 

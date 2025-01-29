@@ -42,22 +42,44 @@ class GalaxyCreater
 		std::string tag;
 		Vec3 pos;
 	};
+	struct KeyLockObject
+	{
+		std::string name;
+		std::string tag;
+		Vec3 pos;
+		int connectObjectNumber;
+	};
+	struct LockedObject
+	{
+		std::string name;
+		std::string tag;
+		Vec3 pos;
+		
+	};
 public:
-	GalaxyCreater(std::string galaxyname);
+	GalaxyCreater();
 	virtual ~GalaxyCreater();
+
+	static GalaxyCreater& GetInstance();
 
 	void ObjectCreate(std::shared_ptr<Player> player);
 	void SeekerLineCreate();
 	void PlanetCreate();
 	std::vector<std::shared_ptr<Enemy>> EnemyCreate(std::shared_ptr<Player>player);
-
+	void LockedObjectCreate();
+	std::vector<std::shared_ptr<Enemy>> KeyLockObjectCreate();
+	void Clear();
+	int GetSize() { return m_lockedObjects.size(); }
+	std::shared_ptr<MyEngine::Collidable> GetCollidable(int connectNumber) { return m_lockedObjects[connectNumber]; }
 	
 private:
-	std::string m_galaxyName;
 	std::vector<Location> m_objectData;
 	std::vector<LocationPlanet> m_planetData;
 	std::vector<int> m_planetModelData;
-	//std::vector<LocationSeekerLine> m_seekerLineData;
 	std::vector<StandardObject> m_enemyData;
+	std::vector<KeyLockObject> m_keyLockObjectData;
+
+	std::vector<LockedObject> m_lockedData;
+	std::vector<std::shared_ptr<MyEngine::Collidable>> m_lockedObjects;
 };
 
