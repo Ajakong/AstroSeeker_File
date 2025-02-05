@@ -49,8 +49,8 @@ namespace
     constexpr int kTitleGraphY = 150;
     constexpr int kTitleGraphWidth = 800;
     constexpr int kTitleGraphHeight = 600;
-    constexpr int kTitleTextX = 350;
-    constexpr int kTitleTextY = 600;
+    constexpr int kTitleTextX = 650;
+    constexpr int kTitleTextY = 700;
   
     constexpr int kFadeBoxColor = 0x001111;
     constexpr int kLineColor = 0x44ffff;

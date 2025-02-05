@@ -6,6 +6,7 @@
 #include"DxLib.h"
 #include"UI.h"
 #include"SoundManager.h"
+#include"Game.h"
 
 namespace
 {
@@ -59,9 +60,6 @@ void GameOverScene::FadeInUpdate()
 
 	if (m_frame <= 0)
 	{
-		UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
-		UI::GetInstance().InText("しかたない・・・あの時間からやり直す。");
-		UI::GetInstance().InText("君の力を借してくれ。");
 
 		m_updateFunc = &GameOverScene::NormalUpdate;
 		m_drawFunc = &GameOverScene::NormalDraw;
@@ -87,15 +85,15 @@ void GameOverScene::ChangeScene(std::shared_ptr<Scene> nextScene)
 
 void GameOverScene::FadeDraw()
 {
-	DrawFormatString(0, 0, 0xffdddd, "GameOver");
+	DrawFormatString(Game::kScreenWidth/2-100, Game::kScreenHeight, 0xffdddd, "Aでもう一度プレイする");
 }
 
 void GameOverScene::FadeOutDraw()
 {
-	DrawFormatString(0, 0, 0xffdddd, "GameOver");
+	DrawFormatString(Game::kScreenWidth / 2 - 100, Game::kScreenHeight, 0xffdddd, "Aでもう一度プレイする");
 }
 
 void GameOverScene::NormalDraw()
 {
-	DrawFormatString(0, 0, 0xffdddd, "GameOver");
+	DrawFormatString(Game::kScreenWidth / 2 - 100, Game::kScreenHeight, 0xffdddd, "Aでもう一度プレイする");
 }

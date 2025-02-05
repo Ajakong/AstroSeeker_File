@@ -139,6 +139,7 @@ private:
 	bool m_onColStage;
 	bool m_isWakeUp;
 	bool m_isTalk;
+	bool m_isNoDamage;
 
 	std::shared_ptr<Player> m_player;
 	std::shared_ptr<Planet> m_nowPlanet;

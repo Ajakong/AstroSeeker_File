@@ -47,7 +47,7 @@ Boss::Boss(Vec3 pos, std::shared_ptr<Player>player):Enemy(Priority::Boss,ObjectT
 	m_isHit(false),
 	m_isTalk(false),
 	m_onColStage(false),
-	
+	m_isNoDamage(false),	
 	m_knockBackFrame(0),
 	m_runningFrame(0),
 	m_damageSoundHandle(SoundManager::GetInstance().GetSoundData(kDamageSEName)),
@@ -569,13 +569,25 @@ void Boss::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag,
 			m_actionFrame = -m_hp-200;
 			m_bossUpdate = &Boss::LandingUpdate;
 		}
-		if (state == State::Land && colider->GetState() == State::Spin)
+		else if (state == State::Land && colider->GetState() == State::Spin)
 		{
 			m_rigid->SetVelocity(m_upVec * 3);
 			m_hp -= 20;
 			m_color = 0xff00ff;
 			m_bossUpdate = &Boss::NeutralUpdate;
 			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
+		}
+		else if (!m_isNoDamage)
+		{
+			m_isNoDamage = true;
+			UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
+			UI::GetInstance().InText("全然効かねぇぜ");
+			UI::GetInstance().SetNextTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+			UI::GetInstance().InNextText("ただ攻撃するだけではダメージを与えられないようだ");
+
+			std::list<std::string> text1;
+			text1.push_back("今は衝撃波をジャンプでよけて耐えしのげ！");
+			UI::GetInstance().InNextTexts(text1);
 		}
 	}
 }

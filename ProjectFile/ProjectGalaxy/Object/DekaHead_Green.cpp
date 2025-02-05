@@ -42,8 +42,8 @@ std::list<std::list<std::string>> DekaHead_Green::GetTexts()
 
 		std::list<std::string> three;
 		three.push_back("あのての生き物は踏みつけたら");
-		two.push_back("つぶれていなくなるんだけど、僕の体重じゃ軽くて無理なんだ");
-		talkText.push_back(two);
+		three.push_back("つぶれていなくなるんだけど、僕の体重じゃ軽くて無理なんだ");
+		talkText.push_back(three);
 	}
 	else
 	{
