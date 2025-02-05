@@ -163,7 +163,7 @@ public:
 	}
 
 
-	Vec3 Move(Vec3& m_pos, Vec3& _vec)
+	Vec3 Move(Vec3 m_pos, Vec3 _vec)
 	{
 		Quaternion qPos, qInv,Qu;
 		Vec3 vPos;

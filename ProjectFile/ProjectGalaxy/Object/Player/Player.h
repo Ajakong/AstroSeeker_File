@@ -17,7 +17,6 @@ public:
 	enum AnimNum : int
 	{
 		
-		
 		AnimationNumEmpty,
 		AnimationNumTpose,
 		AnimationNumDeath,
@@ -34,7 +33,9 @@ public:
 		AnimationNumShotPose
 	};
 
-	Player(int modelhandle,Vec3 pos=Vec3::Zero());
+	
+
+	Player(Vec3 pos=Vec3::Zero());
 	~Player();
 
 	void Init();
@@ -42,14 +43,27 @@ public:
 	void Update();
 	void SetMatrix();
 	void Draw();
+	void SetVelocity(Vec3 pos) { m_velocity = pos; m_rigid->SetVelocity(pos); }
+	void AddVelocity(Vec3 pos) { m_rigid->AddVelocity(pos); }
+	void SetSideVec(Vec3 right) { m_sideVec = right; }
+	void SetFrontVec(Vec3 front) { m_frontVec = front; }
+	void SetPos(Vec3 pos) { m_rigid->SetPos(pos); }
+	void SetCameraToPlayer(Vec3 cameraToPlayer);
+	/// <param name="sideVec">加速させる方向の横ベクトル</param>
+	void SetBoost(Vec3 sideVec);
+	void SetIsOperation(bool flag);
+	void SetCameraAngle(float cameraAngle);
+	void IsWarp() { m_isJumpFlag = true; }
+	
+	void InitDush();
+	void InitJump();
+
+	void Landing(int recast=15);
+
 
 	Vec3 GetPos() const { return  m_rigid->GetPos(); }
 	Vec3 GetLeftHandPos() { return Vec3(MV1GetFramePosition(m_modelHandle, m_handFrameIndex)); }
-	void SetVelocity(Vec3 pos) { m_velocity = pos; m_rigid->SetVelocity(pos); }
-	void AddVelocity(Vec3 pos) { m_rigid->AddVelocity(pos); }
-	void SetPos(Vec3 pos) { m_rigid->SetPos(pos); }
 	
-	void SetCameraToPlayer(Vec3 cameraToPlayer);
 	Vec3 GetOnPlanetPos() { return m_nowPlanet->GetRigidbody()->GetPos(); }
 	Vec3 GetVelocity() const { return m_rigid->GetVelocity(); }
 	Vec3 GetMoveDir() const{ return m_moveDir; }
@@ -62,36 +76,26 @@ public:
 	Vec3 GetInputRightVec()const { return m_inputRightVec; }
 	Vec3 GetShotDir()const { return m_shotDir; }
 	Vec3 GetLookPoint() const{ return m_lookPoint; }
+	
 	float GetRegenerationRange() const{ return m_regeneRange; }
 	float GetCameraEasingSpeed()const { return m_cameraEasingSpeed; }
-	int WatchHp()const { return static_cast<int>(m_hp); }
 	float GetHp() { return m_hp; }
+	
 	bool GetOperationFlag()const { return m_playerUpdate==&Player::OperationUpdate; }
 	bool GetBoostFlag() const{ return m_playerUpdate==&Player::BoostUpdate; }
-	bool OnAiming() { return m_isAimFlag; }
+	bool GetIsAiming() { return m_isAimFlag; }
 	bool GetFootOnHit() { return m_footCol->OnHit(); }
-	//bool GetNowFootOnHit() { return m_footCol->NowOnHit(); }
-	//bool GetPreFootOnHit() { return m_footCol->PreOnHit(); }
-	/// <param name="sideVec">加速させる方向の横ベクトル</param>
-	void SetBoost(Vec3 sideVec);
-	void SetIsOperation(bool flag);
-	void SetCameraAngle(float cameraAngle);
-	void SetSideVec(Vec3 right) { m_sideVec = right; }
-	void SetFrontVec(Vec3 front) { m_frontVec = front; }
-	void IsWarp() { m_isJumpFlag = true;}
+	bool IsSearch() { return m_isSearchFlag; }
+	bool OnDamage() { return m_playerUpdate == &Player::DamegeUpdate; }
+	bool IsClear() { return m_isClearFlag; }
+	bool GetJumpFlag() const { return m_isJumpFlag; }
+	bool GetSpinFlag() const { return m_isSpinFlag; }
+	bool GetDeathFlag() const { return m_isDeathFlag; }
+	
+	int WatchHp()const { return static_cast<int>(m_hp); }
 	int GetPlayerModelhandle() const { return m_modelHandle; }
 	int GetTitleMoveNum() { return m_titleUpdateNum; }
-	bool IsSearch() { return m_isSearchFlag; }
-	bool OnDamage() { return m_playerUpdate==&Player::DamegeUpdate; }
-	bool IsClear() { return m_isClearFlag; }
 	int GetDamageFrame() const { return m_damageFrame; }
-	//int GetSearchRemainTime() { return m_searchRemainTime; }
-	bool GetJumpFlag() const { return m_isJumpFlag; }
-
-	void InitDush();
-	void TitleDush();
-	void InitJump();
-	void TitleJump();
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnCollideStay(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
@@ -100,6 +104,7 @@ public:
 	virtual void OnTriggerStay(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
 	//メンバ関数ポインタ
 	using playerState_t = void(Player::*)();
+	playerState_t m_postUpdate;
 	playerState_t m_playerUpdate;
 
 	playerState_t m_prevUpdate;
@@ -126,14 +131,16 @@ public:
 	void CommandJump();
 	void BoostUpdate();
 	void OperationUpdate();
-
 	void MoveToTargetWithStickStar(Vec3 targetPos);
+
+	//TitlePlayerからポインタを通してアクセスするためPublic
+	void ShotTheStar();
+	void ShotTheStickStar();
 
 protected:
 	Vec3 Move();
 
-	void ShotTheStar();
-	void ShotTheStickStar();
+	
 
 	//アニメーションの進行
 	//ループしたかどうかを返す
@@ -143,7 +150,6 @@ protected:
 
 	//状態別関数(ポインタで呼び出す)
 	/*m_playerUpdateで使う*/
-	void TitleUpdate();
 	/// <summary>
 	/// 開始直後に呼ばれる
 	/// </summary>
@@ -178,6 +184,10 @@ protected:
 	/// ジャンプ中
 	/// </summary>
 	void JumpingUpdate();
+	/// <summary>
+	/// ダッシュジャンプ中
+	/// </summary>
+	void DashJumpUpdate();
 	
 	//ジャンプ中の特殊アクション
 	/*m_jumpActionUpdateで使う*/
@@ -228,6 +238,10 @@ protected:
 	/// </summary>
 	void AvoidUpdate();
 
+	/// <summary>
+	/// 死亡
+	/// </summary>
+	void DeathUpdate();
 	void SetShotDir();
 	/// <summary>
 	/// 弾の削除処理
@@ -267,7 +281,6 @@ protected:
 	std::shared_ptr<MyEngine::ColliderSphere> m_bodyCol;
 	
 	int m_modelHandle = 0;
-	int m_aimGraphHandle = 0;
 	int m_handFrameIndex;
 	int m_shotAnimCount;
 
@@ -283,11 +296,27 @@ protected:
 	/// 行動のフレームを管理する
 	/// </summary>
 	int m_actionFrame = 0;
+
+	int m_fragmentCount;
+	int m_coinCount;
+
 	int m_pointLightHandle = -1;
+
+
+	//音
 	int m_hitSEHandle;
+	int m_elecSEHandle;
 	int m_parrySEHandle;
 	int m_searchSEHandle;
+	int m_shotStickStarSEHandle;
+	int m_shotTheStarSEHandle;
 	int m_getItemHandle;
+	int m_specialItemGetSEHandle;
+	int m_powerUpItemGetSEHandle;
+
+	//エフェクト
+	int m_starEffect;
+
 	int m_color;
 	int m_spinCount;
 
@@ -305,6 +334,7 @@ protected:
 
 	bool m_isOnDamageFlag;
 	bool m_isSpinFlag;
+	bool m_isDeathFlag;
 
 	float m_regeneRange;
 	float m_angle;
@@ -317,6 +347,7 @@ protected:
 
 	Quaternion m_myQ;
 	Quaternion m_rotateYQ;
+
 	MATRIX m_initMat;
 	Vec3 m_cameraToPlayer;
 	Vec3 m_cameraPos;

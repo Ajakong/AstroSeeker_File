@@ -26,4 +26,6 @@ public:
 	/// <param name="fonttype">フォントのタイプ</param>
 	/// <returns></returns>
 	int GetFontData(const char* fontfilename, const char* fontname, int size = 60, int thick = 7, int fonttype = DX_FONTTYPE_NORMAL);
+
+	void Clear();
 };

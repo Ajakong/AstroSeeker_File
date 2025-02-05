@@ -77,7 +77,7 @@ Vec3 PolygonModelPlanet::GravityEffect(std::shared_ptr<Collidable> obj)
 	Vec3 toObj = objPos - m_rigid->GetPos();
 	toObj = toObj.GetNormalized();
 	Vec3 GravityDir = NearestNormVec(objPos,obj->GetUpVec()) * -1;
-	obj->SetUpVec(GravityDir*-1);
+	obj->SetNextUpVec(GravityDir*-1);
 
 	if (obj->IsAntiGravity())
 	{
@@ -150,7 +150,7 @@ Vec3 PolygonModelPlanet::NearestNormVec(Vec3 pos, Vec3 upVec)
 
 void PolygonModelPlanet::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
 {
-	colider->SetUpVec(NearestNormVec(colider->GetRigidbody()->GetPos(), colider->GetUpVec()));
+	colider->SetNextUpVec(NearestNormVec(colider->GetRigidbody()->GetPos(), colider->GetUpVec()));
 }
 
 void PolygonModelPlanet::OnTriggerExit(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)

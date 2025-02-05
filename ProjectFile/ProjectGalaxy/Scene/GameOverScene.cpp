@@ -5,10 +5,18 @@
 #include"Pad.h"
 #include"DxLib.h"
 #include"UI.h"
+#include"SoundManager.h"
+
+namespace
+{
+	const char* kAstroSeekerThemeName = "AstroSeeker_Theme.mp3";
+	//const char* kAstroSeekerRevivalBGMName=""
+}
 
 GameOverScene::GameOverScene(SceneManager& mgr) :
 	Scene(mgr)
 {
+	m_themeHandle = SoundManager::GetInstance().GetSoundData(kAstroSeekerThemeName);
 	Vec3 centerPos = Vec3(800, 450, 0);
 	m_updateFunc = &GameOverScene::FadeInUpdate;
 	m_drawFunc = &GameOverScene::FadeDraw;
@@ -51,7 +59,10 @@ void GameOverScene::FadeInUpdate()
 
 	if (m_frame <= 0)
 	{
-		UI::GetInstance().InText("おぉ死んでしまうとはなさけない");
+		UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+		UI::GetInstance().InText("しかたない・・・あの時間からやり直す。");
+		UI::GetInstance().InText("君の力を借してくれ。");
+
 		m_updateFunc = &GameOverScene::NormalUpdate;
 		m_drawFunc = &GameOverScene::NormalDraw;
 	}
@@ -70,6 +81,7 @@ void GameOverScene::FadeOutUpdate()
 
 void GameOverScene::ChangeScene(std::shared_ptr<Scene> nextScene)
 {
+	//StopSoundMem(m_themeHandle);
 	m_manager.ChangeScene(nextScene);
 }
 

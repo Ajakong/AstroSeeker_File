@@ -1,11 +1,16 @@
 ﻿#include "Boss.h"
 #include"Planet.h"
+#include"Player.h"
 #include"Physics.h"
+#include"SoundManager.h"
 #include"Easing.h"
+
+#include"GalaxyCreater.h"
+#include"UI.h"
 namespace
 {
-	constexpr int kHPFull = 60;
-	constexpr float kBodyRadiusSize = 20.f;
+	constexpr int kHPFull = 150;
+	constexpr float kBodyRadiusSize = 10.f;
 	constexpr int kKnockBackFrameMax = 50;
 
 	constexpr float kAnimFrameSpeed = 30.0f;//アニメーション進行速度
@@ -15,15 +20,42 @@ namespace
 	constexpr float kAnimChangeRateSpeed = 1.0f / kAnimChangeFrame;
 
 	constexpr float kFrameParSecond = 60.0f;
+	constexpr float kRunningSpeed = 3.0f;
 
+	constexpr float kOnPhaseTwoHp = 100;
+
+
+	constexpr int kTackleMaxChargeFrame = 80;
+	constexpr int kRunningFrameMax = 400;
+	constexpr int kCreateShotFrame = 60;
 	constexpr int kActionFrame = 100;
+
+	constexpr int kTackleTime = 50;
+	constexpr int kTackleSpeed = 2;
+
+	constexpr int kTackleLength = kTackleSpeed *kTackleTime;
+
+	const char* kDamageSEName = "Parry.mp3";
+	const char* kCriticalHitSEName = "CounterHit.mp3";
+	const char* kDropSEName = "BossDropSE.mp3";
+
 }
-Boss::Boss(Vec3 pos):Enemy(Priority::Boss,ObjectTag::Enemy),
+Boss::Boss(Vec3 pos, std::shared_ptr<Player>player):Enemy(Priority::Boss,ObjectTag::Boss),
 	m_jumpCount(0),
 	m_actionFrame(0),
+	m_tackleChargeFrame(0),
 	m_isHit(false),
-	m_knockBackFrame(0)
+	m_isTalk(false),
+	m_onColStage(false),
+	
+	m_knockBackFrame(0),
+	m_runningFrame(0),
+	m_damageSoundHandle(SoundManager::GetInstance().GetSoundData(kDamageSEName)),
+	m_criticalHandle(SoundManager::GetInstance().GetSoundData(kCriticalHitSEName)),
+	m_dropSoundHandle(SoundManager::GetInstance().GetSoundData(kDropSEName)),
+	m_shotCreateFrame(0)
 {
+	m_player = player;
 	m_hp = kHPFull;
 	m_rigid->SetPos(pos);
 	AddCollider(MyEngine::ColliderBase::Kind::Sphere, ColideTag::Body);
@@ -31,7 +63,8 @@ Boss::Boss(Vec3 pos):Enemy(Priority::Boss,ObjectTag::Enemy),
 	m_collision->radius = kBodyRadiusSize;
 
 	m_color = 0xff00ff;
-	m_bossUpdate = &Boss::NeutralUpdate;
+	m_bossUpdate = &Boss::InitUpdate;
+	m_phaseUpdate = &Boss::PhaseOneUpdate;
 }
 
 Boss::~Boss()
@@ -40,12 +73,13 @@ Boss::~Boss()
 
 void Boss::Init()
 {
+	m_runawayPos = Vec3(562, 650, 1953);
 }
 
 void Boss::Update()
 {
 	//上方向ベクトルをいい感じに線形保管
-	m_upVec = Slerp(m_upVec, m_nextUpVec, 1.f);
+	//m_upVec = Slerp(m_upVec, m_nextUpVec, 1.f);
 	(this->*m_bossUpdate)();
 	if (m_isHit)
 	{
@@ -55,15 +89,27 @@ void Boss::Update()
 	if (m_knockBackFrame > 30)
 	{
 		m_isHit = false;
-		m_color = 0xff00ff;
 	}
 	if (m_hp <= 0)
 	{
 		m_dropItem = std::make_shared<ClearObject>(m_rigid->GetPos(), true);
 		Physics::GetInstance().Entry(m_dropItem);
 		m_isDestroyFlag = true;
+		UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
+		std::list<std::string> text1;
+		text1.push_back("ばかなぁこのおれが。。。");
+		UI::GetInstance().InTexts(text1);
+
+		UI::GetInstance().SetNextTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+		UI::GetInstance().InNextText("やったぞ！お前の勝ちだ！");
+
+		std::list<std::string> text2;
+		text2.push_back("さぁ奴が吐き出したスーパーマテリアルを取り返すんだ！");
+		UI::GetInstance().InNextTexts(text2);
 	}
 	DeleteObject(m_impacts);
+
+	m_onColStage = false;
 }
 
 void Boss::Draw()
@@ -72,16 +118,7 @@ void Boss::Draw()
 	
 }
 
-void Boss::InitUpdate()
-{
-}
-
-void Boss::RestUpdate()
-{
-
-}
-
-void Boss::NeutralUpdate()
+void Boss::PhaseOneUpdate()
 {
 	m_actionFrame++;
 	if (m_actionFrame < kActionFrame)return;
@@ -97,7 +134,183 @@ void Boss::NeutralUpdate()
 		m_bossUpdate = &Boss::FullpowerJumpUpdate;
 		break;
 	}
+
+	if (m_hp <= kOnPhaseTwoHp)
+	{
+		auto obj = GalaxyCreater::GetInstance().GetCollidable(1);
+		obj->SetIsActive(true);
+
+		UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
+
+		std::list<std::string> texts1;
+		texts1.push_back("くそぉ！おまえなんなんだよ！");
+		texts1.push_back("スーパーマテリアルは渡さねぇぞ！");
+		UI::GetInstance().InTexts(texts1);
+
+		UI::GetInstance().InText("逃げるってわけじゃねぇからな！");
+
+		m_phaseUpdate = &Boss::PhaseTwoUpdate;
+		m_bossUpdate = &Boss::RunawayUpdate;
+	}
+}
+
+void Boss::PhaseTwoUpdate()
+{
+	m_actionFrame++;
+	if (m_actionFrame < kActionFrame)return;
+	m_actionFrame = 0;
+	Vec3 ToTargetVec = (m_player->GetPos() - m_rigid->GetPos());
+	if (ToTargetVec.Length() < kTackleLength)
+	{
+		//m_bossUpdate = &Boss::TackleUpdate;
+		switch (GetRand(3))
+		{
+		case(0):
+			m_bossUpdate = &Boss::TackleUpdate;
+			break;
+		case(1):
+			/*m_runningDir=ToTargetVec.GetNormalized();
+			m_bossUpdate = &Boss::RunningUpdate;*/
+			m_bossUpdate = &Boss::TackleUpdate;
+			break;
+		case(2):
+			m_rigid->AddVelocity(m_upVec * 2);
+			m_bossUpdate = &Boss::JumpingUpdate;
+			break;
+		case(3):
+			m_rigid->AddVelocity(m_upVec * 4);
+			m_bossUpdate = &Boss::FullpowerJumpUpdate;
+			break;
+		}
+	}
+	else
+	{
+		switch (GetRand(1))
+		{
+		case(0):
+			m_rigid->AddVelocity(m_upVec * 2);
+			m_bossUpdate = &Boss::JumpingUpdate;
+			break;
+		case(1):
+			m_rigid->AddVelocity(m_upVec * 4);
+			m_bossUpdate = &Boss::FullpowerJumpUpdate;
+			break;
+		}
+	}
 	
+
+}
+
+void Boss::PhaseThreeUpdate()
+{
+	m_actionFrame++;
+	if (m_actionFrame < kActionFrame)return;
+	m_actionFrame = 0;
+	Vec3 ToTargetVec = (m_player->GetPos() - m_rigid->GetPos());
+	if (ToTargetVec.Length() < kTackleLength)
+	{
+		switch (GetRand(3))
+		{
+		case(0):
+			m_bossUpdate = &Boss::TackleUpdate;
+			break;
+		case(1):
+			/*m_runningDir = ToTargetVec.GetNormalized();
+			m_bossUpdate = &Boss::RunningUpdate;*/
+			m_bossUpdate = &Boss::TackleUpdate;
+			break;
+		case(2):
+			m_rigid->AddVelocity(m_upVec * 2);
+			m_bossUpdate = &Boss::JumpingUpdate;
+			break;
+		case(3):
+			m_rigid->AddVelocity(m_upVec * 4);
+			m_bossUpdate = &Boss::FullpowerJumpUpdate;
+			break;
+		}
+	}
+	else
+	{
+		switch (GetRand(1))
+		{
+		case(0):
+			m_rigid->AddVelocity(m_upVec * 2);
+			m_bossUpdate = &Boss::JumpingUpdate;
+			break;
+		case(1):
+			m_rigid->AddVelocity(m_upVec * 4);
+			m_bossUpdate = &Boss::FullpowerJumpUpdate;
+			break;
+		}
+	}
+}
+
+void Boss::InitUpdate()
+{
+	//今は簡単にプレイヤーとの距離をみて起動
+
+	float lenge = (m_player->GetRigidbody()->GetPos() - m_rigid->GetPos()).Length();
+	m_isWakeUp = lenge < 100;
+	if (m_isWakeUp)
+	{
+		if (m_phaseUpdate == &Boss::PhaseOneUpdate)
+		{
+			UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
+			std::list<std::string> text1;
+			text1.push_back("やっと来たか。");
+			text1.push_back("お前だな、俺様のことをこそこそかぎまわってる奴は");
+			UI::GetInstance().InTexts(text1);
+
+			UI::GetInstance().SetNextTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+			UI::GetInstance().InNextText("なに！？気づかれていたのか！");
+
+			UI::GetInstance().SetNextTalkObjectHandle(UI::TalkGraphKind::Boss);
+
+			std::list<std::string> text2;
+			text2.push_back("めざわりなんだよ！");
+			text2.push_back("消えてもらうぜ");
+			UI::GetInstance().InNextTexts(text2);
+
+			UI::GetInstance().SetNextTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+			UI::GetInstance().InNextText("ドレイク！ヤツは戦うつもりみたいだ");
+			UI::GetInstance().InNextText("ここで決めてしまうぞ！");
+			m_bossUpdate = &Boss::NeutralUpdate;
+		}
+		if (m_phaseUpdate == &Boss::PhaseTwoUpdate)
+		{
+			UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
+			std::list<std::string> text1;
+			text1.push_back("しつけぇ奴らだな");
+			text1.push_back("今度は本気の本気で消えてもらう");
+			UI::GetInstance().InTexts(text1);
+
+			UI::GetInstance().SetNextTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+			std::list<std::string> text2;
+			text2.push_back("ドレイク！ここが決戦の場になる。");
+			text2.push_back("ここでヤツを倒してスーパーマテリアルを取り返せ！");
+			UI::GetInstance().InNextTexts(text2);
+
+			UI::GetInstance().SetNextTalkObjectHandle(UI::TalkGraphKind::Boss);
+
+			std::list<std::string> text3;
+			text3.push_back("さっきみたいに甘くはやらねぇぞ！");
+			UI::GetInstance().InNextTexts(text3);
+
+			UI::GetInstance().SetNextTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+			UI::GetInstance().InNextText("すべてを出し切るぞ！");
+			m_bossUpdate = &Boss::NeutralUpdate;
+		}
+	}
+}
+
+void Boss::RestUpdate()
+{
+
+}
+
+void Boss::NeutralUpdate()
+{
+	(this->*m_phaseUpdate)();
 }
 
 void Boss::AnglyUpdate()
@@ -110,7 +323,8 @@ void Boss::DestroyPlanetUpdate()
 
 void Boss::KnockBackUpdate()
 {
-	m_color = 0xff0000;
+	m_color = 0xffff00;
+	m_state = State::Attack;
 	m_knockBackFrame++;
 	if (m_knockBackFrame > kKnockBackFrameMax)
 	{
@@ -122,9 +336,11 @@ void Boss::KnockBackUpdate()
 
 void Boss::JumpingUpdate()
 {
-	
-	if (m_collision->OnHit())
+	m_color = 0xffff00;
+	m_state = State::Attack;
+	if (m_onColStage)
 	{
+		PlaySoundMem(m_dropSoundHandle, DX_PLAYTYPE_BACK);
 		if (m_jumpCount > 2)
 		{
 			m_jumpCount = 0;
@@ -143,7 +359,7 @@ void Boss::JumpingUpdate()
 		else
 		{
 			m_jumpCount++;
-			m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() + m_upVec * -kBodyRadiusSize, m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::EnemyAttack));
+			m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() + m_upVec * -kBodyRadiusSize, m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::Electronic));
 			MyEngine::Physics::GetInstance().Entry(m_impacts.back());
 			m_rigid->AddVelocity(m_upVec * 2);
 		}
@@ -154,27 +370,126 @@ void Boss::JumpingUpdate()
 
 void Boss::FullpowerJumpUpdate()
 {
-	if (m_collision->OnHit())
+	m_color = 0xffff00;
+	m_state = State::Attack;
+	if (m_onColStage)
 	{
-		m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() + m_upVec * -kBodyRadiusSize, m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::EnemyAttack,2.f));
+		PlaySoundMem(m_dropSoundHandle, DX_PLAYTYPE_BACK);
+
+		m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() + m_upVec * -kBodyRadiusSize, m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::Electronic,2.f));
 		MyEngine::Physics::GetInstance().Entry(m_impacts.back());
 
 		//HPが少ないほど隙がなくなる
-		m_actionFrame = -m_hp;
+		m_actionFrame = -m_hp-20;
 		m_bossUpdate = &Boss::LandingUpdate;
 
 	}
 }
 
+void Boss::TackleUpdate()
+{
+	m_color = 0xffff00;
+	m_state = State::Tackle;
+
+	Vec3 targetDir = m_player->GetPos() - m_rigid->GetPos();
+	targetDir.Normalize();
+
+	m_tackleChargeFrame++;
+	m_rigid->SetVelocity(m_upVec * 0.5f);
+	if (m_tackleChargeFrame > kTackleMaxChargeFrame)
+	{
+		
+		m_rigid->SetVelocity(targetDir * kTackleSpeed);
+		if (m_tackleChargeFrame - kTackleMaxChargeFrame > kTackleTime)
+		{
+			m_tackleChargeFrame = 0;
+			//HPが少ないほど隙がなくなる
+			m_actionFrame = -m_hp;
+			m_bossUpdate = &Boss::LandingUpdate;
+		}
+	}
+}
+
+void Boss::RunningUpdate()
+{
+	m_color = 0xffff00;
+	m_state = State::Running;
+
+	m_sideVec = Cross(m_upVec, m_runningDir);
+	m_rigid->SetVelocity(m_sideVec*kRunningSpeed);
+
+	m_runningFrame++;
+	if (m_runningFrame > kRunningFrameMax / 2)
+	{
+		m_rigid->SetVelocity(m_rigid->GetVelocity() * -1);
+	}
+	if (m_runningFrame > kRunningFrameMax)
+		m_runningFrame = 0;
+	{
+		//HPが少ないほど隙がなくなる
+		m_actionFrame = -m_hp;
+		m_bossUpdate = &Boss::LandingUpdate;
+	}
+
+}
+
 void Boss::LandingUpdate()
 {
-	m_actionFrame++;
 	m_color = 0x00ff00;
+	m_state = State::Land;
+
+	if (!m_isTalk)
+	{
+		m_isTalk = true;
+		UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
+		UI::GetInstance().InText("はぁはぁ(*´Д｀)");
+
+		UI::GetInstance().SetNextTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+		UI::GetInstance().InNextText("なんだ、敵の様子がおかしいぞ！");
+
+		std::list<std::string> text1;
+		text1.push_back("緑になった時がヤツの防御が低くなった合図だ！");
+		text1.push_back("なぜかわからんが、俺の直感がそう言っている。");
+		UI::GetInstance().InNextTexts(text1);
+
+		std::list<std::string> text2;
+		text2.push_back("敵が緑色になった時に");
+		text2.push_back("近づいてスピンで攻撃するか、");
+		text2.push_back("L1で狙ってXで遠距離から攻撃するんだ！");
+		UI::GetInstance().InNextTexts(text2);
+
+	}
+
+	m_actionFrame++;
 	if (m_actionFrame > 0)
 	{
-		m_color = 0xff00ff;;
+		m_color = 0xff00ff;
 		m_bossUpdate = &Boss::NeutralUpdate;
 	}
+}
+
+void Boss::RunawayUpdate()
+{
+	Vec3 velo = m_runawayPos - m_rigid->GetPos();
+	if (velo.Length() < 15)
+	{
+		m_rigid->SetVelocity(Vec3::Zero());
+		m_bossUpdate = &Boss::InitUpdate;
+		
+	}
+	velo.Normalize();
+	m_rigid->SetVelocity(velo*3);
+	
+}
+
+void Boss::BallAttackUpdate()
+{
+	m_color = 0xffff00;
+	m_state = State::Attack;
+
+	m_shotCreateFrame++;
+
+	//if(m_shotCreateFrame>)
 }
 
 
@@ -228,9 +543,40 @@ void Boss::ChangeAnim(int animIndex, int speed)
 
 void Boss::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
 {
-	if (colider->GetTag() == ObjectTag::PlayerBullet)
+	if (colider->GetTag() == ObjectTag::Stage)
 	{
-		m_isHit = true;
+		m_onColStage = true;
+	}
+	if (m_bossUpdate == &Boss::LandingUpdate)
+	{
+		if (colider->GetTag() == ObjectTag::PlayerBullet)
+		{
+			m_isHit = true;
+			PlaySoundMem(m_damageSoundHandle, DX_PLAYTYPE_BACK);
+			m_hp -= 1;
+		}
+	}
+	if (colider->GetTag() == ObjectTag::Player)
+	{
+		auto state = GetState();
+		if ((state == State::Running || state == State::Tackle) && colider->GetState() == State::Spin)
+		{
+			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
+			Vec3 dir = colider->GetRigidbody()->GetPos();
+			dir.Normalize();
+			m_rigid->SetVelocity((dir + m_upVec) * 2);
+			//HPが少ないほど隙がなくなる
+			m_actionFrame = -m_hp-200;
+			m_bossUpdate = &Boss::LandingUpdate;
+		}
+		if (state == State::Land && colider->GetState() == State::Spin)
+		{
+			m_rigid->SetVelocity(m_upVec * 3);
+			m_hp -= 20;
+			m_color = 0xff00ff;
+			m_bossUpdate = &Boss::NeutralUpdate;
+			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
+		}
 	}
 }
 
@@ -244,15 +590,15 @@ void Boss::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag,
 	{
 		if (colider->GetTag() == ObjectTag::PlayerImpact)
 		{
-			m_rigid->AddVelocity(m_upVec * 4);
-			m_bossUpdate = &Boss::KnockBackUpdate;
+			m_rigid->SetVelocity(m_upVec * 3);
 			m_hp -= 20;
+			m_color = 0xff00ff;
+			m_bossUpdate = &Boss::NeutralUpdate;
+			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
 		}
 		if (colider->GetTag() == ObjectTag::PlayerBullet)
 		{
-			m_knockBackFrame = 44;
-			m_bossUpdate = &Boss::KnockBackUpdate;
-			m_hp -= 2;
+			m_hp -= 1;
 		}
 	}
 }

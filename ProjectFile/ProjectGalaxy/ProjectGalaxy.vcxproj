@@ -150,6 +150,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Game\DebugGalaxy.cpp" />
     <ClCompile Include="Game\Galaxy.cpp" />
@@ -185,6 +186,8 @@
     <ClCompile Include="MyLib\Vec3.cpp" />
     <ClCompile Include="Object\Base\SphereBase.cpp" />
     <ClCompile Include="Object\Camera\Camera.cpp" />
+    <ClCompile Include="Object\Cannon.cpp" />
+    <ClCompile Include="Object\CannonSphere.cpp" />
     <ClCompile Include="Object\ClearObject\ClearObject.cpp" />
     <ClCompile Include="Object\DekaHead_Blue.cpp" />
     <ClCompile Include="Object\DekaHead_Green.cpp" />
@@ -193,6 +196,7 @@
     <ClCompile Include="Object\DekaHead_Yellow.cpp" />
     <ClCompile Include="Object\Enemy\BigKuribo.cpp" />
     <ClCompile Include="Object\Enemy\Boss.cpp" />
+    <ClCompile Include="Object\Enemy\DecoyBoss.cpp" />
     <ClCompile Include="Object\Enemy\Enemy.cpp" />
     <ClCompile Include="Object\Enemy\EnemyManager.cpp" />
     <ClCompile Include="Object\Enemy\EnemySphere.cpp" />
@@ -204,12 +208,14 @@
     <ClCompile Include="Object\Enemy\SpaceEmperor.cpp" />
     <ClCompile Include="Object\Enemy\StampImpact.cpp" />
     <ClCompile Include="Object\Enemy\Takobo.cpp" />
+    <ClCompile Include="Object\Enemy\TalkEnemy.cpp" />
     <ClCompile Include="Object\Enemy\WickedMagician.cpp" />
     <ClCompile Include="Object\Gimmick\Crystal.cpp" />
     <ClCompile Include="Object\Gimmick\Invisible.cpp" />
     <ClCompile Include="Object\Gimmick\SeekerLine.cpp" />
     <ClCompile Include="Object\Gimmick\StarCapture.cpp" />
     <ClCompile Include="Object\Item\Coin.cpp" />
+    <ClCompile Include="Object\Item\FragmentOfStar.cpp" />
     <ClCompile Include="Object\Item\FullPowerDropItem.cpp" />
     <ClCompile Include="Object\Item\Item.cpp" />
     <ClCompile Include="Object\Item\Key.cpp" />
@@ -239,9 +245,11 @@
     <ClCompile Include="TextManager.cpp" />
     <ClCompile Include="UI.cpp" />
     <ClCompile Include="util\GameStopManager.cpp" />
+    <ClCompile Include="util\UtilFunc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Effect.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Game\DebugGalaxy.h" />
     <ClInclude Include="Game\Galaxy.h" />
@@ -278,6 +286,8 @@
     <ClInclude Include="MyLib\Vec3.h" />
     <ClInclude Include="Object\Base\SphereBase.h" />
     <ClInclude Include="Object\Camera\Camera.h" />
+    <ClInclude Include="Object\Cannon.h" />
+    <ClInclude Include="Object\CannonSphere.h" />
     <ClInclude Include="Object\ClearObject\ClearObject.h" />
     <ClInclude Include="Object\DekaHead_Blue.h" />
     <ClInclude Include="Object\DekaHead_Green.h" />
@@ -286,6 +296,7 @@
     <ClInclude Include="Object\DekaHead_Yellow.h" />
     <ClInclude Include="Object\Enemy\BigKuribo.h" />
     <ClInclude Include="Object\Enemy\Boss.h" />
+    <ClInclude Include="Object\Enemy\DecoyBoss.h" />
     <ClInclude Include="Object\Enemy\Enemy.h" />
     <ClInclude Include="Object\Enemy\EnemyManager.h" />
     <ClInclude Include="Object\Enemy\EnemySphere.h" />
@@ -296,12 +307,14 @@
     <ClInclude Include="Object\Enemy\SpaceEmperor.h" />
     <ClInclude Include="Object\Enemy\StampImpact.h" />
     <ClInclude Include="Object\Enemy\Takobo.h" />
+    <ClInclude Include="Object\Enemy\TalkEnemy.h" />
     <ClInclude Include="Object\Enemy\WickedMagician.h" />
     <ClInclude Include="Object\Gimmick\Crystal.h" />
     <ClInclude Include="Object\Gimmick\Invisible.h" />
     <ClInclude Include="Object\Gimmick\SeekerLine.h" />
     <ClInclude Include="Object\Gimmick\StarCapture.h" />
     <ClInclude Include="Object\Item\Coin.h" />
+    <ClInclude Include="Object\Item\FragmentOfStar.h" />
     <ClInclude Include="Object\Item\FullPowerDropItem.h" />
     <ClInclude Include="Object\Item\Item.h" />
     <ClInclude Include="Object\Item\Key.h" />
@@ -332,6 +345,7 @@
     <ClInclude Include="TextManager.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="util\GameStopManager.h" />
+    <ClInclude Include="util\UtilFunc.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ProjectGalaxy.rc" />

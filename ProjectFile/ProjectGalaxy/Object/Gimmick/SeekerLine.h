@@ -17,10 +17,12 @@ public:
 
 private:
 	std::vector<Vec3> m_points;
-	std::shared_ptr<Player> m_player;
+	std::weak_ptr<Player> m_player;
 	Vec3 m_playerStartPos;
 	Vec3 m_velocity;
 
+	int m_endPointSoundHandle;
+	int m_movePlayerSoundHandle;
 
 	int m_color;
 	int m_hitPointNum;

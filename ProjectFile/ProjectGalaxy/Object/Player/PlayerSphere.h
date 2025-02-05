@@ -20,7 +20,7 @@ public:
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
-	std::shared_ptr<Player>m_player;
+	std::weak_ptr<Player>m_player;
 
 protected:
 	virtual void  StraightUpdate();//球を直線状に飛ばす

@@ -4,8 +4,7 @@
 class Planet : public MyEngine::Collidable
 {
 public:
-	Planet();
-	Planet(int modelHandle);
+	Planet(int modelHandle=-1);
 	virtual ~Planet();
 
 	virtual void Init();
@@ -18,6 +17,8 @@ public:
 	bool GetClearFlag() { return clearFlag; }
 	virtual void SetIsSearch(bool flag) { m_isSearch=flag; }
 	virtual float GetScale() { return m_scale*50; }
+
+	int GetModelHandle() { return modelH; }
 protected:
 	float m_coefficientOfFriction;//摩擦係数
 	int modelH;

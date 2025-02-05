@@ -5,6 +5,11 @@
 #include <array>
 #include<windows.h>
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
+
 namespace MyEngine
 {
 	int DrawGraph(float x, float y, int handle, int psH, int secondH = -1, int thirdH = -1, int forthH = -1, bool isTrans = false)
@@ -76,20 +81,12 @@ namespace MyEngine
 	}
 }
 
-#include "Quaternion.h"
-
 // プログラムは WinMain から始まります
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_  HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd) 
 {
-	//Quaternion rot;
-	//Quaternion rot1 = AngleAxis(45, Vec3::Up());
-	//Quaternion rot2 = AngleAxis(30, Vec3::Up());
-	//Quaternion rot3 = AngleAxis(0, Vec3::Up());
-
-	//rot = rot1 * rot;
-	//rot = rot2 * rot;
-	//rot = rot3 * rot;
-
+	// メモリリーク検出を有効にする
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	
 	
 	Application& application = Application::GetInstance();
 

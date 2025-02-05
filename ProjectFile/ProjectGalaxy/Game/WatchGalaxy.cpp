@@ -6,7 +6,9 @@
 
 using namespace std;
 
-WatchGalaxy::WatchGalaxy(std::shared_ptr<Player> playerPointer):Galaxy(playerPointer)
+WatchGalaxy::WatchGalaxy(std::shared_ptr<Player> playerPointer): World::Galaxy(playerPointer),
+m_managerUpdate(nullptr),
+m_managerDraw(nullptr)
 {
 	player = playerPointer;
 	planet.push_back(make_shared<DumbbellPlanet>(Vec3(0, 0, 0), 0xffff00, -1));

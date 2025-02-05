@@ -417,6 +417,27 @@
     <ClCompile Include="Object\DekaHead_White.cpp">
       <Filter>ソース ファイル\Object\TalkingHead</Filter>
     </ClCompile>
+    <ClCompile Include="Object\Enemy\TalkEnemy.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Cannon.cpp">
+      <Filter>ソース ファイル\Object\Gimmick</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\CannonSphere.cpp">
+      <Filter>ソース ファイル\Object\Gimmick</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Enemy\DecoyBoss.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="util\UtilFunc.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Object\Item\FragmentOfStar.cpp">
+      <Filter>ソース ファイル\Object\Item</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -691,6 +712,27 @@
     </ClInclude>
     <ClInclude Include="Object\DekaHead_White.h">
       <Filter>ヘッダー ファイル\Object\TalkObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Enemy\TalkEnemy.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Cannon.h">
+      <Filter>ヘッダー ファイル\Object\Gimmick</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\CannonSphere.h">
+      <Filter>ヘッダー ファイル\Object\Gimmick</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Enemy\DecoyBoss.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="util\UtilFunc.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Object\Item\FragmentOfStar.h">
+      <Filter>ヘッダー ファイル\Object\Item</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

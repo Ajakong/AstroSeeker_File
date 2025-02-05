@@ -13,6 +13,7 @@
 #include"ModelManager.h"
 
 using namespace std;
+using namespace World;
 
 namespace
 {
@@ -71,7 +72,9 @@ namespace
 	const char* kMiniMapScreenName = "MiniMap";
 }
 
-DebugGalaxy::DebugGalaxy(std::shared_ptr<Player> playerPointer) : Galaxy(playerPointer)
+DebugGalaxy::DebugGalaxy(std::shared_ptr<Player> playerPointer) : Galaxy(playerPointer),
+m_managerUpdate(nullptr),
+m_managerDraw(nullptr)
 {
 	m_ui = make_shared<UI>();
 	player = playerPointer;
@@ -124,7 +127,7 @@ void DebugGalaxy::Init()
 void DebugGalaxy::Update()
 {
 	camera->SetEasingSpeed(player->GetCameraEasingSpeed());
-	if (player->OnAiming())camera->Update(player->GetShotDir());
+	if (player->GetIsAiming())camera->Update(player->GetShotDir());
 	else camera->Update(player->GetLookPoint());
 
 	//Vec3 planetToPlayer = player->GetPos() - player->GetNowPlanetPos();
@@ -133,37 +136,28 @@ void DebugGalaxy::Update()
 
 	//相対的な軸ベクトルの設定
 
-	//player->SetUpVec(planetToPlayer);
-
-	camera->SetBoost(player->GetBoostFlag());
+	camera->Setting(player->GetBoostFlag(),player->GetIsAiming());
 	//本当はカメラとプレイヤーの角度が90度以内になったときプレイヤーの頭上を見たりできるようにしたい。
 	camera->SetUpVec(player->GetNormVec());
 
-	////エネミー
-	//for (auto& item : kuribo) { item->Update(); }
-
-
-	//for (auto& item : planet)item->Update();//ステージの更新
-	////位置固定ギミック
-	//for (auto& item : booster) { item->Update(); }
-	//for (auto& item : starCapture) { item->Update(); }
-	//for (auto& item : seekerLine) { item->Update(); }
-	//for (auto& item : crystal) { item->Update();}
-	//for (auto& item : coin)item->Update();
-
-
+	//PlayerがBoost中の時は
 	if (player->GetBoostFlag())
 	{
+		//カメラの位置を遠ざける
 		camera->SetCameraPoint(player->GetPos() + player->GetNormVec().GetNormalized() * (kCameraDistanceUp - 40) - front * ((kCameraDistanceFront - 70) + kCameraDistanceAddFrontInJump * player->GetJumpFlag()));
 	}
+	//そうではないとき
 	else
 	{
-		if (player->OnAiming())
+		//もしエイム中なら
+		if (player->GetIsAiming())
 		{
+			///カメラの位置をPlayerの近くに
 			camera->SetCameraPoint(player->GetPos() + player->GetShotDir() * -5 + player->GetNormVec() * 8 + player->GetSideVec() * 2);
 		}
 		else
 		{
+			//そうでもないなら通常モード
 			camera->SetCameraPoint(player->GetPos() + player->GetNormVec().GetNormalized() * kCameraDistanceUp - front * (kCameraDistanceFront + kCameraDistanceAddFrontInJump * player->GetJumpFlag()));
 		}
 	}
@@ -177,9 +171,6 @@ void DebugGalaxy::Update()
 
 void DebugGalaxy::Draw()
 {
-	if (player->OnAiming())camera->SetDebugCameraPoint();
-
-
 	for (auto& item : m_planet)
 
 	{
@@ -226,7 +217,7 @@ void DebugGalaxy::Draw()
 
 
 	DrawFormatString(0, 25 * 6, 0xffffff, "PlayerPos(%f,%f,%f)", player->GetPos().x, player->GetPos().y, player->GetPos().z);
-	DrawFormatString(0, 25 * 7, 0xffffff, player->GetState().c_str());
+	DrawFormatString(0, 25 * 7, 0xffffff, player->GetStateName().c_str());
 	DrawFormatString(0, 25 * 8, 0xffffff, "EasingSpeed:%f", player->GetCameraEasingSpeed());
 	DrawFormatString(0, 25 * 9, 0xffffff, "FootNowOnHit:%d", player->GetFootOnHit());
 	DrawFormatString(0, 25 * 10, 0xffffff, "PlayerVelocity(%f,%f,%f)", player->GetRigidbody()->GetVelocity().x, player->GetRigidbody()->GetVelocity().y, player->GetRigidbody()->GetVelocity().z);

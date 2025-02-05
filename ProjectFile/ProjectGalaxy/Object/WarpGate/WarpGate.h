@@ -15,8 +15,6 @@ public:
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 private:
 	Vec3 m_warpPos;
-	int m_emitterHandle;
-	int m_effectPlayHandle;
 	Vec3 m_nowPlanetPos;
 	int m_gaussScreenHandle;
 	int m_colorScreenHandle;

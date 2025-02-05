@@ -8,7 +8,9 @@
 #include"Collidable.h"
 #include"Enemy.h"
 
+class Camera;
 class Player;
+
 
 class GalaxyCreater
 {
@@ -27,7 +29,7 @@ class GalaxyCreater
 		int color;
 		float gravityPower;
 		std::string modelName;
-		float coefficientOfFriction;
+		float coefficientOfFriction=1;
 		float scale;
 	};
 	struct LocationSeekerLine
@@ -47,7 +49,7 @@ class GalaxyCreater
 		std::string name;
 		std::string tag;
 		Vec3 pos;
-		int connectObjectNumber;
+		int connectObjectNumber=-1;
 	};
 	struct LockedObject
 	{
@@ -56,23 +58,35 @@ class GalaxyCreater
 		Vec3 pos;
 		
 	};
+	struct TalkObject
+	{
+		std::string name;
+		std::string tag;
+		Vec3 pos;
+	};
 public:
 	GalaxyCreater();
 	virtual ~GalaxyCreater();
 
 	static GalaxyCreater& GetInstance();
 
+	void SetCamera(std::shared_ptr<Camera>camera) { m_camera = camera; };
 	void ObjectCreate(std::shared_ptr<Player> player);
 	void SeekerLineCreate();
 	void PlanetCreate();
-	std::vector<std::shared_ptr<Enemy>> EnemyCreate(std::shared_ptr<Player>player);
+	void TalkObjectCreate();
 	void LockedObjectCreate();
+
+
+	std::vector<std::shared_ptr<Enemy>> EnemyCreate(std::shared_ptr<Player>player);
 	std::vector<std::shared_ptr<Enemy>> KeyLockObjectCreate();
+	
 	void Clear();
-	int GetSize() { return m_lockedObjects.size(); }
-	std::shared_ptr<MyEngine::Collidable> GetCollidable(int connectNumber) { return m_lockedObjects[connectNumber]; }
+	int GetSize() { return static_cast<int>(m_lockedObjects.size()); }
+	std::shared_ptr<MyEngine::Collidable> GetCollidable(int connectNumber);
 	
 private:
+	std::shared_ptr<Camera> m_camera;
 	std::vector<Location> m_objectData;
 	std::vector<LocationPlanet> m_planetData;
 	std::vector<int> m_planetModelData;
@@ -81,5 +95,8 @@ private:
 
 	std::vector<LockedObject> m_lockedData;
 	std::vector<std::shared_ptr<MyEngine::Collidable>> m_lockedObjects;
+
+
+	int m_createObjectSEHandle;
 };
 

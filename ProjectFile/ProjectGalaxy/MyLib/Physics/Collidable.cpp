@@ -14,6 +14,7 @@ Collidable::Collidable(Priority priority, ObjectTag tag) :
 	m_isDestroyFlag(false),
 	m_upVec(Vec3::Up()),
 	m_postUpVec(Vec3::Up()),
+	m_nextUpVec(Vec3::Up()),
 	m_frontVec(Vec3::Front()),
 	m_sideVec(Vec3::Left())
 {

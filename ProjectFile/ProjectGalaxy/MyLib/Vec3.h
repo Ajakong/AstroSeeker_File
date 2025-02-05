@@ -60,6 +60,7 @@ public:
 float Dot(const Vec3& item1, const Vec3& item2);
 // 外積
 Vec3 Cross(const Vec3& item1, const Vec3& item2);
+
 // 射影
 Vec3 Projection(const Vec3& projection, const Vec3& base);
 

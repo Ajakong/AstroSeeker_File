@@ -3,7 +3,7 @@
 class Camera;
 class Planet;
 
-class WatchGalaxy : public Galaxy
+class WatchGalaxy : public World::Galaxy
 {
 public:
 	WatchGalaxy(std::shared_ptr<Player> playerPointer);

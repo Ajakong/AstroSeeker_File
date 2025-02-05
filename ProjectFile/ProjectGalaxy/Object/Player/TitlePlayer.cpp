@@ -17,14 +17,20 @@
 #include"Physics.h"
 
 
-TitlePlayer::TitlePlayer(int modelhandle) : Player(modelhandle)
+TitlePlayer::TitlePlayer() : Player()
 {
-	//ChangeAnim(AnimationNumRun);
+	ChangeAnim(AnimNum::AnimationNumIdle);
 	m_titlePlayerUpdate = &TitlePlayer::IdleUpdate;
+	m_shotUpdate = &Player::ShotTheStickStar;
 }
 
 TitlePlayer::~TitlePlayer()
 {
+	for (auto& item : m_sphere)
+	{
+		MyEngine::Physics::GetInstance().Exit(item);
+	}
+	m_sphere.clear();
 }
 
 bool TitlePlayer::MoveToTargetPosWithSticker(Vec3 targetPos)
@@ -38,6 +44,15 @@ bool TitlePlayer::MoveToTargetPosWithSticker(Vec3 targetPos)
 		return true;
 	}
 	return false;
+}
+
+void TitlePlayer::SetShot()
+{
+	if (MV1GetAttachAnimTotalTime(m_modelHandle, m_currentAnimNo) != 120)
+	{
+		ChangeAnim(AnimNum::AnimationNumShotPose);
+	}
+	
 }
 
 void TitlePlayer::Update()
@@ -76,16 +91,25 @@ void TitlePlayer::Update()
 
 void TitlePlayer::IdleUpdate()
 {
-	m_state = "Idle";
+	m_upVec = Vec3::Up();
+
+	m_stateName = "Idle";
+	m_state = State::Neutral;
 
 }
 
 void TitlePlayer::StopUpdate()
 {
+	m_upVec = Vec3::Up();
 	m_rigid->SetVelocity(Vec3::Zero());
 }
 
 void TitlePlayer::DoNotMove()
 {
 	m_titlePlayerUpdate = &TitlePlayer::StopUpdate;
+}
+
+void TitlePlayer::Move()
+{
+	m_titlePlayerUpdate = &TitlePlayer::OperationUpdate;
 }

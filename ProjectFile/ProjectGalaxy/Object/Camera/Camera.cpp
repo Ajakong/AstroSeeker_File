@@ -1,5 +1,6 @@
 ﻿#include "Camera.h"
 #include"Pad.h"
+#include"Easing.h"
 #include <math.h>
 
 
@@ -18,7 +19,7 @@ namespace
 	constexpr float kcameraRotateSpeed = 0.05f;
 
 	constexpr float kOneRapAngle = 360.f;
-	constexpr float kWatchThisTime = 120.f;
+	constexpr float kWatchThisTime = 200.f;
 }
 
 Camera::Camera(Vec3 pos):
@@ -26,7 +27,9 @@ Camera::Camera(Vec3 pos):
 	m_watchCount(0),
 	m_isFirstPerson(0),
 	m_isBoost(false),
-	m_upVec(Vec3(0,1,0))
+	m_isAim(false),
+	m_upVec(Vec3(0,1,0)),
+	m_easingSpeed(-1)
 {
 	
 	m_cameraUpdate = &Camera::NeutralUpdate;
@@ -58,6 +61,14 @@ Camera::~Camera()
 
 void Camera::Update(Vec3 LookPoint)
 {
+	if (m_cameraUpdate != &Camera::WatchThisUpdate)
+	{
+		if (m_isAim)
+		{
+			m_cameraUpdate = &Camera::AimingUpdate;
+		}
+	}
+	
 	if (m_isBoost)
 	{
 		// FOV(視野角)を60度に
@@ -72,7 +83,7 @@ void Camera::Update(Vec3 LookPoint)
 	}
 	
 	(this->*m_cameraUpdate)(LookPoint);
-
+	
 	//オーディオリスナーの位置の更新
 	Set3DSoundListenerPosAndFrontPosAndUpVec(m_pos.VGet(), Vec3(m_pos + GetCameraFrontVector()).VGet(), m_upVec.VGet());
 }
@@ -148,14 +159,15 @@ void Camera::AimingUpdate(Vec3 LookPoint)
 
 void Camera::WatchThisUpdate(Vec3 LookPoint)
 {
+	m_upVec=Slerp(m_upVec, m_nextUpVec, 0.1f);
 	m_watchCount++;
 
 	SetLightPositionHandle(m_lightHandle, m_pos.VGet());
 	SetLightDirectionHandle(m_lightHandle, GetCameraFrontVector());
 	Vec3 velocity;
-	velocity.x = (m_cameraPoint.x - m_pos.x) / m_easingSpeed;
-	velocity.y = (m_cameraPoint.y - m_pos.y) / m_easingSpeed;
-	velocity.z = (m_cameraPoint.z - m_pos.z) / m_easingSpeed;
+	velocity.x = (m_watchThisPos.x - m_pos.x) / m_easingSpeed;
+	velocity.y = (m_watchThisPos.y - m_pos.y) / m_easingSpeed;
+	velocity.z = (m_watchThisPos.z - m_pos.z) / m_easingSpeed;
 	m_pos += velocity;//イージング
 	
 	SetCameraPositionAndTargetAndUpVec(m_pos.VGet(),Vec3(m_lookPoint + m_upVec.GetNormalized() * 10.0f).VGet(), m_upVec.VGet());
@@ -163,6 +175,7 @@ void Camera::WatchThisUpdate(Vec3 LookPoint)
 	if (m_watchCount > kWatchThisTime)
 	{
 		m_watchCount = 0;
+		m_easingSpeed = m_postEasingSpeed;
 		if(m_isFirstPerson)m_cameraUpdate = &Camera::SetCameraFirstPersonPos;
 		else { m_cameraUpdate = &Camera::NeutralUpdate; }
 	}
@@ -173,7 +186,7 @@ void Camera::SetCameraFirstPersonPos(Vec3 LookPoint)
 	SetLightPositionHandle(m_lightHandle, Vec3(LookPoint + m_upVec * 12).VGet());
 	SetLightDirectionHandle(m_lightHandle, (m_upVec * -1).VGet());
 
-	if (Pad::IsTrigger(PAD_INPUT_Y))//XBoxコントローラーのL
+	if (Pad::IsTrigger(PAD_INPUT_Y))
 	{
 		m_cameraUpdate = &Camera::NeutralUpdate;
 	}
@@ -189,16 +202,22 @@ void Camera::SetCameraThirdPersonPos(Vec3 LookPoint)
 	SetCameraPositionAndTargetAndUpVec(m_pos.VGet(), LookPoint.VGet(), m_upVec.VGet());
 }
 
-void Camera::SetDebugCameraPoint()
+void Camera::Setting(bool boost, bool aim)
 {
-	//SetCameraPositionAndTargetAndUpVec(VGet(0, 400, -500), VGet(0, 0, 0), m_upVec.VGet());
+	m_isBoost = boost;
+	m_isAim = aim;
 }
 
-void Camera::WatchThis(Vec3 lookpoint, Vec3 cameraPos, Vec3 upVec)
+void Camera::WatchThis(Vec3 lookpoint, Vec3 cameraPos, Vec3 upVec,float easingspeed)
 {
+	
+	m_postEasingSpeed = m_easingSpeed;
+	m_easingSpeed = easingspeed;
+	
 	m_cameraUpdate = &Camera::WatchThisUpdate;
 	m_lookPoint = lookpoint;
-	m_cameraPoint = cameraPos;
-	m_upVec = upVec;
+	m_watchThisPos = cameraPos;
+	m_nextUpVec = upVec;
+
 	WatchThisUpdate(lookpoint);
 }

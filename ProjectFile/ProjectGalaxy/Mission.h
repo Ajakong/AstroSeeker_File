@@ -1,5 +1,8 @@
 ﻿#pragma once
 #include<vector>
+#include<memory>
+
+class Player;
 
 class Mission
 {
@@ -8,11 +11,30 @@ public:
 	virtual ~Mission();
 
 	static Mission& GetInstance();
+
 	void UpDate();
 	void Draw();
 
+	void SetPlayer(std::shared_ptr<Player> pPlayer) {  m_player = pPlayer; };
+
 	void MoveUpdate();
 	void MoveDraw();
+
+	void JumpUpdate();
+	void JumpDraw();
+
+	void DashUpdate();
+	void DashDraw();
+
+	void DashJumpUpdate();
+	void DashJumpDraw();
+
+	void SpinUpdate();
+	void SpinDraw();
+
+	void EmptyUpdate();
+	void EmptyDraw();
+
 	void MissionClear() { m_missionFlag = true; }
 	bool Clear() { return m_missionFlag; }
 
@@ -21,7 +43,11 @@ public:
 	missionState_t m_missionUpdate;
 	missionState_t m_missionDraw;
 
+	std::shared_ptr<Player> m_player;
+
 	bool m_missionFlag;
+
+	int m_moveFrame;
 
 };
 

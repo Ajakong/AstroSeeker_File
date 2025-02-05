@@ -27,7 +27,7 @@ namespace
 
 	constexpr float kScaleMag = 0.03f;
 
-	constexpr int kStanCountMax = 1000;
+	constexpr int kStanCountMax = 200;
 	constexpr int kDeathCountMax = 200;
 
 }
@@ -47,7 +47,8 @@ float GetVec2Angle(Vec3 a, Vec3 b)
 Kuribo::Kuribo(Vec3 pos) :Enemy(Priority::Low, ObjectTag::Kuribo),
 m_attackDir(0,0,1),
 m_chaseFrameCount(0),
-m_stanCount(0)
+m_stanCount(0),
+m_speed(1)
 {
 	m_comebackPoint = pos;
 	m_rigid->SetPos(pos);
@@ -87,8 +88,6 @@ void Kuribo::Init()
 
 void Kuribo::Update()
 {
-	//ローカル上方向ベクトルをいい感じ線形保管
-	m_upVec = Slerp(m_upVec, m_nextUpVec, 1.f);
 
 	(this->*m_moveUpdate)();
 	UpdateAnim(m_currentAnimNo);
@@ -165,6 +164,13 @@ void Kuribo::Draw()
 	
 }
 
+void Kuribo::Stan(int stanCount)
+{
+	ChangeAnim(AnimNum::AnimationNumSleep);
+	m_moveUpdate = &Kuribo::StanUpdate;
+	m_stanCount = stanCount;
+}
+
 void Kuribo::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag)
 {
 	if (colider->GetTag() == ObjectTag::Stage)
@@ -177,17 +183,8 @@ void Kuribo::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag
 	}
 	if (colider->GetTag() == ObjectTag::Player)
 	{
-		if (m_moveUpdate == &Kuribo::StanUpdate)
-		{
-			ChangeAnim(AnimNum::AnimationNumRoar);
-			m_moveUpdate = &Kuribo::DeathUpdate;
-		}
-		if (targetTag == ColideTag::Spin)
-		{
-			m_rigid->SetVelocity(m_attackDir * -kAwayStrength + m_upVec * kAwayStrength * 1.5f);
-			m_moveUpdate = &Kuribo::StanUpdate;
-		}
-		else if (targetTag == ColideTag::Foot)
+		
+		if (targetTag == ColideTag::Foot)
 		{
 			MV1SetScale(m_modelHandle, VGet(kScaleMag, 0, kScaleMag));
 			ChangeAnim(AnimNum::AnimationNumRoar);
@@ -221,7 +218,8 @@ void Kuribo::OnTriggerStay(std::shared_ptr<Collidable> colider,ColideTag ownTag,
 
 void Kuribo::SearchUpdate()
 {
-	m_state = "Search";
+	m_stateName = "Search";
+	m_state = State::Search;
 	if (!m_player.get())return;
 	m_rigid->SetVelocity(m_upVec);
 	
@@ -234,7 +232,8 @@ void Kuribo::SearchUpdate()
 
 void Kuribo::JumpUpdate()
 {
-	m_state = "Jump";
+	m_stateName = "Jump";
+	m_state = State::Jump;
 	m_initTime++;
 	if (m_initTime >= 60)
 	{
@@ -244,7 +243,8 @@ void Kuribo::JumpUpdate()
 
 void Kuribo::ChaseUpdate()
 {
-	m_state = "Chase";
+	m_stateName = "Chase";
+	m_state = State::Chase;
 	m_chaseFrameCount++;
 	//ターゲット位置が正反対の時動かなくなるバグ
 	m_attackDir = m_targetPoint - m_rigid->GetPos();
@@ -252,7 +252,7 @@ void Kuribo::ChaseUpdate()
 	m_sideVec = Cross(m_attackDir, m_upVec).GetNormalized();
 	m_attackDir = Cross(m_upVec, m_sideVec).GetNormalized();
 	m_frontVec = m_attackDir;
-	m_rigid->SetVelocity(m_attackDir * kChaseSpeed);
+	m_rigid->SetVelocity(m_attackDir * kChaseSpeed*m_speed);
 	if (m_chaseFrameCount > kChaseMaxFrame)
 	{
 		m_chaseFrameCount = 0;
@@ -264,12 +264,13 @@ void Kuribo::ChaseUpdate()
 
 void Kuribo::ComebackUpdate()
 {
-	m_state = "Comeback";
+	m_stateName = "Comeback";
+	m_state = State::ComeBack;
 	Vec3 vec = m_comebackPoint - m_rigid->GetPos();
 	vec.Normalize();
 	m_frontVec = vec;
 	m_rigid->AddVelocity(vec*kChaseSpeed);
-	if ((m_comebackPoint - m_rigid->GetPos()).Length() <= 3)
+	if ((m_comebackPoint - m_rigid->GetPos()).Length() < 5)
 	{
 		ChangeAnim(AnimNum::AnimationNumIdle);
 		m_moveUpdate = &Kuribo::SearchUpdate;
@@ -287,6 +288,8 @@ void Kuribo::ComebackUpdate()
 
 void Kuribo::StanUpdate()
 {
+	m_stateName = "Stan";
+	m_state = State::Stan;
 	m_stanCount++;
 
 	if (m_stanCount > kStanCountMax)
@@ -304,9 +307,11 @@ void Kuribo::CrushUpdate()
 
 void Kuribo::DeathUpdate()
 {
+	m_rigid->SetVelocity(Vec3::Zero());
 	SetAntiGravity(true);
 	m_bodyCol->radius = -1;
-	m_state = "Death";
+	m_stateName = "Death";
+	m_state = State::Death;
 	m_userData->dissolveY -= 0.01f;
 	float animFrame = MV1GetAttachAnimTime(m_modelHandle,m_currentAnimNo);
 	if (m_userData->dissolveY<0)

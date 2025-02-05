@@ -17,5 +17,7 @@ public:
 
     virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 
+private:
+    int m_getSoundEffectHandle;
 };
 

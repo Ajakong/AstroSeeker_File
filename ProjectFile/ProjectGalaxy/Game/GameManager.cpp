@@ -14,10 +14,12 @@ namespace
 }
 
 GameManager::GameManager() : 
+	m_managerUpdate(nullptr),
+	m_managerDraw(nullptr),
 	m_updateStopFrame(0),
-	player(std::make_shared<Player>(ModelManager::GetInstance().GetModelData(kPlayerFileName),Vec3(0,20,0)))
+	m_player(std::make_shared<Player>(Vec3(0,20,0)))
 {
-	galaxy.push_back(std::make_shared<SerialPlanetGalaxy>(player));
+	m_galaxy.push_back(std::make_shared<SerialPlanetGalaxy>(m_player));
 	
 }
 
@@ -28,7 +30,7 @@ GameManager::~GameManager()
 void GameManager::Init()
 {
 	GameStopManager::GetInstance().SetGameManager(shared_from_this());
-	galaxy.back()->Init();
+	m_galaxy.back()->Init();
 }
 
 void GameManager::Update()
@@ -37,33 +39,35 @@ void GameManager::Update()
 	m_updateStopFrame--;
 	if (m_updateStopFrame < 0&&UI::GetInstance().GetState()!=&UI::TextBoxUpdate)
 	{
-		galaxy.back()->Update();
+		m_galaxy.back()->Update();
 
 	}
 	
-	if (galaxy.back()->GetGameOver())
+	if (m_galaxy.back()->GetGameOver())
 	{
 		m_isGameOverFlag = true;
 	}
-	if (galaxy.back()->GetClear())
+	if (m_galaxy.back()->GetClear())
 	{
 		m_isClearFlag = true;
 		
 		//galaxy.push_back();/*ここでステージ選択のフィールドを入れなおす*/
 	}
-	if (galaxy.size() == 0)
+	if (m_galaxy.size() == 0)
 	{
 		m_isClearFlag = true;
-		galaxy.pop_back();
+		m_galaxy.pop_back();
 	}
 	
 }
 
 void GameManager::Draw()
 {
-	galaxy.back()->Draw();
+	m_galaxy.back()->Draw();
+	float hp = m_player->GetHp();
+	bool aim = m_player->GetIsAiming();
 
-	UI::GetInstance().Draw((player->GetHp()));
+	UI::GetInstance().Draw(hp, aim);
 }
 
 void GameManager::IntroUpdate()

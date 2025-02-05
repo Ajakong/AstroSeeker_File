@@ -2,10 +2,10 @@
 #include"Vec3.h"
 #include<memory>
 #include<vector>
+#include"SerialPlanetGalaxy.h"
 
 
 class Vec3;
-class Galaxy;
 class Player;
 
 class GameManager : public std::enable_shared_from_this<GameManager>
@@ -38,8 +38,8 @@ private:
 
 private:
 
-	std::vector<std::shared_ptr<Galaxy>> galaxy;
-	std::shared_ptr<Player> player;
+	std::vector<std::shared_ptr<World::Galaxy>> m_galaxy;
+	std::shared_ptr<Player> m_player;
 
 	int m_updateStopFrame;
 	//このフラグを見てシーンを移行する

@@ -43,3 +43,12 @@ int FontManager::GetFontData(const char* fontfilename,const char* fontname,int s
 		return m_pathAndFontInfoes[fontname].handle;
 	}
 }
+
+void FontManager::Clear()
+{
+	for (auto& info : m_pathAndFontInfoes)
+	{
+		DeleteFontToHandle(info.second.handle);
+	}
+	m_pathAndFontInfoes.clear();
+}

@@ -21,6 +21,7 @@
 #include"Gorori.h"
 #include"Kuribo.h"
 #include"Item.h"
+#include"Cannon.h"
 #include"StickStarItem.h"
 #include"FullPowerDropItem.h"
 #include"Coin.h"
@@ -35,6 +36,8 @@
 #include"ModelManager.h"
 #include"GalaxyCreater.h"
 #include"Game.h"
+
+#include"Mission.h"
 
 #include"TalkObject.h"
 #include"DekaHead_Red.h"
@@ -105,12 +108,15 @@ namespace
 
 SerialPlanetGalaxy::SerialPlanetGalaxy(std::shared_ptr<Player> playerPointer) : Galaxy(playerPointer),
 m_bgmHandle(SoundManager::GetInstance().GetSoundData("WarOfAstron_Intro.mp3")),
-m_bossBattleBgmHandle(SoundManager::GetInstance().GetSoundData("SpaceEmperor_battle.mp3"))
+m_bossBattleBgmHandle(SoundManager::GetInstance().GetSoundData("SpaceEmperor_battle.mp3")),
+m_warpEffectHandle(-1)
 {
-
+	m_camera = make_shared<Camera>();
+	m_camera->SetCameraPoint(player->GetPos() + player->GetNormVec().GetNormalized() * kCameraDistanceUp - player->GetFrontVec() * (kCameraDistanceFront));
+	m_camera->SetAimCamera(Vec3(0, 0, 0));
 	MyEngine::Physics::GetInstance().Entry(player);//物理演算クラスに登録
 
-	
+	GalaxyCreater::GetInstance().SetCamera(m_camera);
 	
 	//惑星の配置
 	GalaxyCreater::GetInstance().PlanetCreate();
@@ -121,8 +127,8 @@ m_bossBattleBgmHandle(SoundManager::GetInstance().GetSoundData("SpaceEmperor_bat
 	//その他オブジェクトの配置
 	GalaxyCreater::GetInstance().LockedObjectCreate();
 	m_keyLockEnemies=GalaxyCreater::GetInstance().KeyLockObjectCreate();
+	GalaxyCreater::GetInstance().TalkObjectCreate();
 
-	m_planet.push_back(make_shared<PolygonModelPlanet>(ModelManager::GetInstance().GetModelData("UFO_GreenMan"), Vec3(0, -1000, 200), 1, 1.0f, 5.f));
 #ifdef _DEBUG
 
 	//オブジェクトやギミックの配置(のちのちUnityのデータを読み込んで配置するので今は仮配置)
@@ -130,89 +136,21 @@ m_bossBattleBgmHandle(SoundManager::GetInstance().GetSoundData("SpaceEmperor_bat
 	////ギミック
 	////ブースター
 
-
-	//m_booster.push_back(make_shared<Booster>(Vec3(0,15,0),Vec3(0,1,1).GetNormalized(), -1,4.5f));
-	//MyEngine::Physics::GetInstance().Entry(m_booster.back());
-	//m_booster.push_back(make_shared<Booster>(Vec3(0, -20, 53), Vec3(0,1,0).GetNormalized(), -1));
-	//MyEngine::Physics::GetInstance().Entry(m_booster.back());
-
-	m_warpGate.push_back(make_shared<WarpGate>(Vec3(0, -50, -70), Vec3(-200, -300, 0), -1));
-	MyEngine::Physics::GetInstance().Entry(m_warpGate.back());
+	//m_warpGate.push_back(make_shared<WarpGate>(Vec3(0, -50, -70), Vec3(-200, -300, 0), -1));
+	//MyEngine::Physics::GetInstance().Entry(m_warpGate.back());
 	//スターキャプチャー
-	m_starCapture.push_back(make_shared<StarCapture>(Vec3(0, 50, 40)));
-	MyEngine::Physics::GetInstance().Entry(m_starCapture.back());
-
-	////シーカーライン
-	//std::vector<Vec3>seekerLine1Points;
-	//seekerLine1Points.push_back(Vec3(-50, -25,0));
-	//seekerLine1Points.push_back(Vec3(-20, 50, 0));
-	//seekerLine1Points.push_back(Vec3(-20, 100, 0));
-	//seekerLine1Points.push_back(Vec3(0, 30, 0));
-	//seekerLine1Points.push_back(Vec3(100, 200, 0));
-	//seekerLine1Points.push_back(Vec3(50, 450, 100));
-	//m_seekerLine.push_back(make_shared<SeekerLine>(seekerLine1Points,0x00aaff));
-
-	//MyEngine::Physics::GetInstance().Entry(m_seekerLine.back());
-
-
-	//クリスタル
-	//m_crystal.push_back(make_shared<Crystal>(Vec3(0, 0, 20),Vec3(0,1,0) ,Vec3(10, 10, 10)));
-	//MyEngine::Physics::GetInstance().Entry(m_crystal.back());
+	//m_starCapture.push_back(make_shared<StarCapture>(Vec3(0, 50, 40)));
+	//MyEngine::Physics::GetInstance().Entry(m_starCapture.back());
 
 #endif
-	
-	m_talkObjects.push_back(std::make_shared<DekaHead_Red>(Vec3(-10, 0, 50)));
-	MyEngine::Physics::GetInstance().Entry(m_talkObjects.back());
-
-	m_talkObjects.push_back(std::make_shared<DekaHead_Green>(Vec3(0, -300, 50)));
-	MyEngine::Physics::GetInstance().Entry(m_talkObjects.back());
-
-	m_talkObjects.push_back(std::make_shared<DekaHead_Blue>(Vec3(-123, 481, 1463)));
-	MyEngine::Physics::GetInstance().Entry(m_talkObjects.back());
-
-	m_camera = make_shared<Camera>();
-	m_camera->SetCameraPoint(player->GetPos() + player->GetNormVec().GetNormalized() * kCameraDistanceUp - player->GetFrontVec() * (kCameraDistanceFront));
-	m_camera->SetAimCamera(Vec3(0, 0, 0));
-	/*m_planet.push_back(std::make_shared<SpherePlanet>(Vec3(0, -50, 0), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData("GoldenBall.mv1")));
-	m_planet.push_back(std::make_shared<SpherePlanet>(Vec3(-100, 50, 400), 0xaa0000, 3.f, ModelManager::GetInstance().GetModelData("Sphere/planet_daia.mv1"),4));
-	m_planet.push_back(std::make_shared<SpherePlanet>(Vec3(-200, -300, 0), 0xaa0000, 3.f, ModelManager::GetInstance().GetModelData("Sphere/planet_daia.mv1")));
-	m_planet.push_back(std::make_shared<BoxPlanet>(Vec3(0, -50, 200), 0x00ffff, 1.0f, Vec3(30, 30, 50)));
-	m_planet.push_back(std::make_shared<SpherePlanet>(Vec3(0, 500, 0), 0xaa0000, 3.f, ModelManager::GetInstance().GetModelData("Sphere/planet_daia.mv1")));
-	m_planet.push_back(std::make_shared<SpherePlanet>(Vec3(300, 200, 100), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData("Sphere/planet_red.mv1")));
-	*/
-
 
 	m_skyDomeH = ModelManager::GetInstance().GetModelData("Skybox");
 
-	////エネミー
-	//m_kuribo.push_back(make_shared<Kuribo>(Vec3(0, 0, 30)));
-	//
-	//MyEngine::Physics::GetInstance().Entry(m_kuribo.back());
-	//m_takobo.push_back(make_shared<Takobo>(Vec3(0, 500, -60), player));
-	//MyEngine::Physics::GetInstance().Entry(m_takobo.back());
-	//m_takobo.push_back(make_shared<Takobo>(Vec3(0, 500, 60), player));
-	//MyEngine::Physics::GetInstance().Entry(m_takobo.back());
-	//m_takobo.push_back(make_shared<Takobo>(Vec3(60, 500, -10), player));
-	//MyEngine::Physics::GetInstance().Entry(m_takobo.back());
-	//m_boss.push_back(make_shared<Boss>(Vec3(300, 250, 100)));
-	//MyEngine::Physics::GetInstance().Entry(m_boss.back());
-	
-
 	MV1SetScale(m_skyDomeH, VGet(1.3f, 1.3f, 1.3f));
 
-	////アイテム
-	//m_coin.push_back(make_shared<Coin>(Vec3(0, -105, 0), true));
-	//MyEngine::Physics::GetInstance().Entry(m_coin.back());
-	//m_item.push_back(make_shared<StickStarItem>(Vec3(0, 450, 0),true));
-	//m_item.push_back(make_shared <FullPowerDropItem>(Vec3(-550, 300, 0),true));
-	
 	m_managerUpdate = &SerialPlanetGalaxy::GamePlayingUpdate;
 	m_managerDraw = &SerialPlanetGalaxy::GamePlayingDraw;
 
-	//for (auto& item : m_planet)
-	//{
-	//	MyEngine::Physics::GetInstance().Entry(item);//物理演算クラスに登録
-	//}
 	for (auto& item : m_item)
 	{
 		MyEngine::Physics::GetInstance().Entry(item);
@@ -223,25 +161,28 @@ m_bossBattleBgmHandle(SoundManager::GetInstance().GetSoundData("SpaceEmperor_bat
 	m_modelScreenHandle = ScreenManager::GetInstance().GetScreenData(kModelScreenName, Game::kScreenWidth, Game::kScreenHeight);
 	std::list<std::string> m_texts;
 	
-	/*UI::GetInstance().InText("隊長！Astro Seeker　諜報部隊が入手した情報によると");
-	UI::GetInstance().InText("宇宙帝国の軍勢が我々の拠点に迫っているとのことです");
-	UI::GetInstance().InText("我々の拠点を守るためには宇宙帝国の軍勢を撃退する必要があります");
-	
-	UI::GetInstance().InText("ともに");
-	UI::GetInstance().InText("宇宙帝国の軍勢を撃退しましょう");*/
 
 	UI::GetInstance().Init();
-	UI::GetInstance().InText("そういえば久しぶりの実働任務になるな");
-	UI::GetInstance().InText("体がなまってるんじゃないか？");
+	UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+	UI::GetInstance().InText("よし、現地に着いたようだな。ドレイク");
+	
+	std::list<std::string> texts1;
+	texts1.push_back("そういえばドレイク、貴様は軍から抜けて長いだろう");
+	texts1.push_back("体がなまってるんじゃないか？");
+
+
+	UI::GetInstance().InTexts(texts1);
 
 	std::list<std::string> mission;
-	mission.push_back("目の前に謎の金色の球があるだろう");
-	mission.push_back("道順においてあるはずだから順にとってみろ");
+	mission.push_back("鍛えなおしてやる");
+	mission.push_back("まずは左スティックを動かして歩いてみろ");
 	UI::GetInstance().InTexts(mission);
 
-	/*UI::GetInstance().InText("赤いヤツがキーを持ってる");
-	UI::GetInstance().InText("Aでジャンプしてヤツを踏みつけてキーを奪い取れ");
-	UI::GetInstance().InText("加速装置が見えるようになるはずだ");*/
+	std::list<std::string> panparn;
+	panparn.push_back("赤いパンパーンには都合上、まだ話しかけるなよ");
+	UI::GetInstance().InTexts(panparn);
+
+
 
 	
 
@@ -256,13 +197,13 @@ SerialPlanetGalaxy::~SerialPlanetGalaxy()
 	m_warpGate.clear();
 	m_talkObjects.clear();
 
-	GalaxyCreater::GetInstance().Clear();
+	
 }
 
 void SerialPlanetGalaxy::Init()
 {
 	ChangeVolumeSoundMem(100, m_bgmHandle);
-	PlaySoundMem(m_bgmHandle, DX_PLAYTYPE_LOOP);
+	//PlaySoundMem(m_bgmHandle, DX_PLAYTYPE_LOOP);
 	SetGlobalAmbientLight(GetColorF(1.0f, 1.0f, 1.0f, 1.0f));
 
 	player->SetMatrix();//モデルに行列を反映
@@ -287,6 +228,7 @@ void SerialPlanetGalaxy::Init()
 
 void SerialPlanetGalaxy::Update()
 {
+	Mission::GetInstance().UpDate();
 	(this->*m_managerUpdate)();
 	
 }
@@ -306,38 +248,16 @@ void SerialPlanetGalaxy::IntroDraw()
 
 void SerialPlanetGalaxy::GamePlayingUpdate()
 {
-	m_camera->SetEasingSpeed(player->GetCameraEasingSpeed());
-	
-	if (player->OnAiming())m_camera->Update(player->GetShotDir());
-	else m_camera->Update(player->GetLookPoint());
-
-	//Vec3 planetToPlayer = player->GetPos() - player->GetNowPlanetPos();
-	Vec3 sideVec = player->GetSideVec();
-	Vec3 front = player->GetFrontVec();//-1をかけて逆ベクトルにしている
-
 	//相対的な軸ベクトルの設定
 
 	//player->SetUpVec(planetToPlayer);
 
-	m_camera->SetBoost(player->GetBoostFlag());
 	//本当はカメラとプレイヤーの角度が90度以内になったときプレイヤーの頭上を見たりできるようにしたい。
-	m_camera->SetUpVec(player->GetNormVec());
-
-	////エネミー
-	//for (auto& item : m_kuribo) { item->Update(); }
-
-
-	//for (auto& item : planet)item->Update();//ステージの更新
-	////位置固定ギミック
-	//for (auto& item : m_booster) { item->Update(); }
-	//for (auto& item : m_starCapture) { item->Update(); }
-	//for (auto& item : m_seekerLine) { item->Update(); }
-	//for (auto& item : m_crystal) { item->Update();}
-	//for (auto& item : m_coin)item->Update();
-
-	userData->dissolveY = player->GetRegenerationRange();//シェーダー用プロパティ
-
-	
+	m_camera->SetUpVec(player->GetUpVec());
+	//Vec3 planetToPlayer = player->GetPos() - player->GetNowPlanetPos();
+	Vec3 sideVec = player->GetSideVec();
+	Vec3 front = player->GetFrontVec();//-1をかけて逆ベクトルにしている
+	m_camera->Setting(player->GetBoostFlag(), player->GetIsAiming());
 
 	if (player->GetBoostFlag())
 	{
@@ -347,7 +267,7 @@ void SerialPlanetGalaxy::GamePlayingUpdate()
 	else
 	{
 		Vec3 upVec = player->GetNormVec().GetNormalized();
-		if (player->OnAiming())
+		if (player->GetIsAiming())
 		{
 			m_camera->SetCameraPoint(player->GetPos() + player->GetShotDir() * -5 + player->GetNormVec() * 8 + player->GetSideVec() * 2);
 		}
@@ -357,12 +277,19 @@ void SerialPlanetGalaxy::GamePlayingUpdate()
 		}*/
 		else
 		{
-			m_camera->SetCameraPoint(player->GetPos() + player->GetNormVec().GetNormalized() * kCameraDistanceUp - front * (kCameraDistanceFront + kCameraDistanceAddFrontInJump * player->GetJumpFlag()));
+			m_camera->SetCameraPoint(player->GetPos() + player->GetUpVec()* kCameraDistanceUp - front * (kCameraDistanceFront + kCameraDistanceAddFrontInJump * player->GetJumpFlag()));
 			//m_camera->SetCameraPoint(player->GetPos() + Vec3::Left() * 30);
 		}
 	}
 
-	if (player->GetHp()<=0)
+
+	if(m_camera->m_cameraUpdate!=&Camera::WatchThisUpdate)m_camera->SetEasingSpeed(player->GetCameraEasingSpeed());
+	if (player->GetIsAiming())m_camera->Update(player->GetShotDir());
+	else m_camera->Update(player->GetLookPoint());
+
+	userData->dissolveY = player->GetRegenerationRange();//シェーダー用プロパティ
+
+	if (player->GetDeathFlag())
 	{
 		m_isGameOverFlag = true;
 	}
@@ -376,10 +303,11 @@ void SerialPlanetGalaxy::GamePlayingUpdate()
 	for (auto& item : m_enemies) { item->SetMatrix(); }
 	for (auto& item : m_keyLockEnemies) { item->SetMatrix(); }
 	for (auto& item : m_talkObjects) { item->SetMatrix(); }
+	for (auto& item : m_cannon) { item->SetMatrix(); }
 	//敵の削除管理
 	DeleteObject(m_enemies);
 	DeleteObject(m_item);
-	/*for (auto& item : m_kuribo) { item->SetMatrix(); }
+    /*for (auto& item : m_kuribo) { item->SetMatrix(); }
 	for (auto& item : m_takobo) { item->SetMatrix(); }
 	for (auto& item : m_spaceEmperor) { item->SetMatrix(); }
 	DeleteObject(m_kuribo);
@@ -449,7 +377,7 @@ void SerialPlanetGalaxy::GamePlayingDraw()
 	DrawFormatString(0, 25 * 6, 0xffffff, "CameraNearFar(%f,%f)", cameraNear, cameraFar);
 	
 	DrawFormatString(0, 25*7, 0xffffff, "PlayerPos(%f,%f,%f)", player->GetPos().x, player->GetPos().y, player->GetPos().z);
-	DrawFormatString(0, 25*8, 0xffffff, player->GetState().c_str());
+	DrawFormatString(0, 25*8, 0xffffff, player->GetStateName().c_str());
 	DrawFormatString(0, 25*9, 0xffffff, "EasingSpeed:%f", player->GetCameraEasingSpeed());
 	DrawFormatString(0, 25 * 10, 0xffffff, "FootNowOnHit:%d", player->GetFootOnHit());
 	DrawFormatString(0, 25 * 11, 0xffffff, "PlayerVelocity(%f,%f,%f)", player->GetRigidbody()->GetVelocity());
@@ -458,9 +386,10 @@ void SerialPlanetGalaxy::GamePlayingDraw()
 	DrawFormatString(0, 25 * 13, 0xffffff, "JumpFlag:%d", player->GetJumpFlag());
 
 	DrawFormatString(0, 25 * 14, 0xffffff, Pad::GetState().c_str());
-#endif
+	DrawFormatString(0, 25 * 15, 0xffffff, "CameraPoint(%f,%f,%f)", m_camera->GetCameraPoint().x, m_camera->GetCameraPoint().y, m_camera->GetCameraPoint().z);
+	DrawFormatString(0, 25 * 17, 0xffffff, "state:%d", player->GetPostState());
 
-	SetCameraNearFar(1.0f, 30000.0f);
+#endif
 	//
 	//SetScreenFlipTargetWindow(NULL);
 

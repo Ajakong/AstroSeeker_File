@@ -2,6 +2,7 @@
 #include<string>
 #include<memory>
 #include<list>
+#include<vector>
 class TextManager;
 class TalkObject;
 class UI
@@ -10,10 +11,21 @@ class UI
 public:
 	struct UIinfo
 	{
-		float x;
-		float y;
-		float width;
-		float height;
+		int x;
+		int y;
+		int width;
+		int height;
+	};
+
+	enum class TalkGraphKind
+	{
+		TakasakiTaisa,
+		Dekahead_Red,
+		Dekahead_Green,
+		Dekahead_Yellow,
+		Dekehead_Blue,
+		Dekahead_White,
+		Boss
 	};
 	UI();
 	virtual ~UI();
@@ -22,24 +34,43 @@ public:
 	void Update();
 	
 	
-	void Draw(float m_hp=0);
+	void Draw(float hp=0.f,bool aimFlag=false);
 	
+	/// <summary>
+	/// 話すオブジェクトのハンドルを設定
+	/// </summary>
+	/// <param name="handle"></param>
+	void SetTalkObjectHandle(TalkGraphKind obj);
+
+	void SetNextTalkObjectHandle(TalkGraphKind obj);
+
 	/// <summary>
 	/// 新しいテキストをぶち込む
 	/// </summary>
 	/// <param name="text">1行で表示したいテキスト</param>
 	void InText(const std::string text);
 	/// <summary>
+	/// テキストデータ群に次に表示したいテキストをぶち込む(全角でぶち込んでください)
+	/// </summary>
+	/// <param name="text">表示したいテキスト</param>
+	void InNextText(const std::string text);
+
+	/// <summary>
 	/// 新しいテキスト群をぶち込む
 	/// </summary>
 	/// <param name="texts">同じテキストボックス内で表示したいテキスト</param>
 	void InTexts(const std::list<std::string> texts);
 	/// <summary>
+	/// 同じテキストボックス内に次に表示したいテキスト群をぶち込む
+	/// </summary>
+	/// <param name="text">表示したいテキスト群</param>
+	void InNextTexts(const std::list<std::string> text);
+
+	/// <summary>
 	/// TalkObjectが話す
 	/// </summary>
 	/// <param name="obj">話させたいオブジェクト</param>
-	/// <param name="graphHandle">オブジェクトの画像</param>
-	void WannaTalk(std::shared_ptr<TalkObject> obj, int graphHandle);
+	void WannaTalk(std::shared_ptr<TalkObject> obj);
 	/// <summary>
 	/// 会話にならない
 	/// </summary>
@@ -82,18 +113,34 @@ private:
 	/// </summary>
 	void NormalMode();
 
-	//通常モード用
+	/// <summary>
+	/// 通常モード用
+	/// </summary>
 	void NormalUpdate();
 	void NormalDraw();
-	//フェード用
+	
+	/// <summary>
+	/// フェード用
+	/// </summary>
 	void AppaerUpdate();
 	void FadeOutUpdate();
-	//Aボタン表示用
+
+	/// <summary>
+	/// Aボタン表示用
+	/// </summary>
 	void InputAFadeDraw();
 	void InputADraw();
-	//テキスト表示用
+	
+	/// <summary>
+	/// テキスト表示用
+	/// </summary>
 	void TextBoxFadeDraw();
 	void TextBoxDraw();
+	/// <summary>
+	/// ミッション描画用
+	/// </summary>
+	void MissionUpdate();
+	void MissionDraw();
 
 	float m_playerHp;
 
@@ -101,13 +148,57 @@ private:
 
 	int m_fadeSpeed;
 
-	int m_talkingCharaHandle;
-	int m_takasakiTaisaHandle;
+	int m_HPColor;
 
+	/// <summary>
+	/// 今話している人の顔画像ハンドル
+	/// </summary>
+	int m_uiTalkingCharaHandle;
+	/// <summary>
+	/// しゃべる人のハンドル順
+	/// </summary>
+	std::list<int>m_uiNextTalkCharaHandle;
+
+	/// <summary>
+	/// 大佐の顔画像ハンドル
+	/// </summary>
+	int m_uiTakasakiTaisaHandle;
+	
+	int m_uiDekahead_RedHandle;
+	int m_uiDekahead_GreenHandle;
+	int m_uiDekahead_YellowHandle;
+	int m_uiDekahead_BlueHandle;
+	int m_uiDekahead_WhiteHandle;
+
+	int m_uiBossHandle;
+
+	/// <summary>
+	/// 常駐UIアセットハンドル
+	/// </summary>
 	int m_uiAssetHandle;
+	/// <summary>
+	/// Aボタン画像ハンドル
+	/// </summary>
 	int m_uiInputAHandle;
+	/// <summary>
+	/// 照準画像ハンドル
+	/// </summary>
+	int m_uiAimGraphHandle;
 
+	/// <summary>
+	/// テキストボックス出現音
+	/// </summary>
 	int m_textBoxSEHandle;
+
+	/// <summary>
+	/// 会話UI出現音
+	/// </summary>
+	int m_chatAppearSEHandle;
+	/// <summary>
+	/// HPが少ないことを知らせる音
+	/// </summary>
+	int m_hpLowerSEHandle;
+
 
 	std::shared_ptr<TextManager> m_textManager;
 	std::shared_ptr<TalkObject> m_nowTalkObject;

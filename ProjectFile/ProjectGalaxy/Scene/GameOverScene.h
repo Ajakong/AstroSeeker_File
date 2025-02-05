@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Scene.h"
 #include <vector>
 
@@ -18,7 +18,7 @@ public:
 
     void SetMaterialXNum(int num) { m_materialXNum = num; }
 private:
-    float m_angle;//sinƒJ[ƒu‚Ì‚½‚ß‚¾‚¯
+    float m_angle;//sinã‚«ãƒ¼ãƒ–ã®ãŸã‚ã ã‘
 
     int m_materialXNum = 0;
     int m_btnFrame = 0;
@@ -29,23 +29,25 @@ private:
     int m_selectNumber = 0;
     int m_fontHandle;
 
+    int m_themeHandle;
+
     int m_modelHandle = -1;
     int m_frameHandle;
 
-    // ƒƒ“ƒoŠÖ”ƒ|ƒCƒ“ƒ^‚ÌéŒ¾
+    // ãƒ¡ãƒ³ãƒé–¢æ•°ãƒã‚¤ãƒ³ã‚¿ã®å®£è¨€
     using UpdateFunc_t = void (GameOverScene::*)();
     using DrawFunc_t = void (GameOverScene::*)();
     UpdateFunc_t m_updateFunc;
     DrawFunc_t m_drawFunc;
 
-    // XVó‘Ô‚ğ•\‚·ŠÖ”
+    // æ›´æ–°çŠ¶æ…‹ã‚’è¡¨ã™é–¢æ•°
     void FadeInUpdate();
     void NormalUpdate();
     void FadeOutUpdate();
 
     void ChangeScene(std::shared_ptr<Scene> nextScene);
 
-    // •`‰æó‘Ô‚ğ•\‚·ŠÖ”
+    // æç”»çŠ¶æ…‹ã‚’è¡¨ã™é–¢æ•°
     void FadeDraw();
     void FadeOutDraw();
     void NormalDraw();

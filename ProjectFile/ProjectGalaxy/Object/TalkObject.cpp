@@ -1,6 +1,6 @@
 ﻿#include "TalkObject.h"
 #include"ColliderSphere.h"
-#include"UI.h"
+
 #include"Easing.h"
 
 namespace
@@ -10,12 +10,11 @@ namespace
 
 }
 
-TalkObject::TalkObject(Vec3 pos, int modelHandle, int graphHandle) : Collidable(Priority::Static, ObjectTag::TalkObject),
+TalkObject::TalkObject(Vec3 pos, int modelHandle) : Collidable(Priority::Static, ObjectTag::TalkObject),
 m_canTalk(false)
 {
 	SetAntiGravity(true);
 	m_modelHandle = modelHandle;
-	m_graphHandle = graphHandle;
 	MV1SetScale(m_modelHandle, VGet(0.5f, 0.5f,0.5f));
 	MV1SetPosition(m_modelHandle, m_rigid->GetPos().VGet());
 	m_rigid->SetPos(pos);
@@ -32,15 +31,11 @@ m_canTalk(false)
 		item->m_isTrigger = true;
 		
 	}
-	//ローカル上方向ベクトルをいい感じ線形保管
-	m_upVec = Slerp(m_upVec, m_nextUpVec, 1.f);
+	
 
 	m_update = &TalkObject::WaitingUpdate;
 	m_draw = &TalkObject::NormalDraw;
 
-	
-
-	SetMatrix();
 }
 
 TalkObject::~TalkObject()
@@ -53,7 +48,10 @@ void TalkObject::Init()
 
 void TalkObject::Update()
 {
+	//ローカル上方向ベクトルをいい感じ線形保管
+	m_upVec = Slerp(m_upVec, m_nextUpVec, 1.f);
 	(this->*m_update)();
+	SetMatrix();
 }
 
 void TalkObject::Draw()
@@ -98,6 +96,8 @@ void TalkObject::SetMatrix()
 
 	m_postUpVec = m_upVec;//上方向ベクトルを前のフレームの上方向ベクトルにする
 
+	MV1SetRotationZYAxis(m_modelHandle, (m_frontVec * -1).VGet(), m_upVec.GetNormalized().VGet(), 0);
+
 	//MV1SetRotationMatrix(m_modelHandle, rotatemat);//回転行列を反映
 	MV1SetPosition(m_modelHandle, m_rigid->GetPos().VGet());
 
@@ -138,7 +138,7 @@ void TalkObject::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag o
 {
 	if (colider->GetTag() == ObjectTag::Player)
 	{
-		UI::GetInstance().WannaTalk(std::dynamic_pointer_cast<TalkObject>(shared_from_this()),m_graphHandle);
+		UI::GetInstance().WannaTalk(std::dynamic_pointer_cast<TalkObject>(shared_from_this()));
 		m_canTalk = true;
 
 	}

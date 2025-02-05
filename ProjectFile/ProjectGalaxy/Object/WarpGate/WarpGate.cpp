@@ -6,35 +6,23 @@
 #include"EffectManager.h"
 #include"ScreenManager.h"
 
+#include"Effect.h"
+
 namespace
 {
 	const char* kGaussScreenName = "Gauss";
 	const char* kColorScreenName = "Color";
 	const char* kBrightScreenName = "HighBright";
 }
-
-Effekseer::Matrix43 GetEffMatrix(DxLib::MATRIX mat)
-{
-	Effekseer::Matrix43 res;
-	for (int y = 0; y < 4; ++y)
-	{
-		for (int x = 0; x < 3; ++x)
-		{
-			res.Value[y][x] = mat.m[y][x];
-		}
-	}
-	return res;
-}
-
 namespace
 {
 	const char* name = "warpGate";
 	const char* effectname = "warpEffect.efk";
 }
 
-WarpGate::WarpGate(Vec3 pos,Vec3 warpPos,int handle):Collidable(Priority::Static, ObjectTag::WarpGate),
-m_emitterHandle(EffectManager::GetInstance().GetEffectData(effectname))
+WarpGate::WarpGate(Vec3 pos,Vec3 warpPos,int handle):Collidable(Priority::Static, ObjectTag::WarpGate)
 {
+	
 	SetAntiGravity(true);
 	m_warpPos = warpPos;
 	AddCollider(MyEngine::ColliderBase::Kind::Sphere, ColideTag::Body);//ここで入れたのは重力の影響範囲
@@ -42,7 +30,8 @@ m_emitterHandle(EffectManager::GetInstance().GetEffectData(effectname))
 	item->radius = 6;
 	m_rigid->SetPos(pos);
 
-	m_effectPlayHandle=PlayEffekseer3DEffect(m_emitterHandle);
+	
+	
 	m_gaussScreenHandle = ScreenManager::GetInstance().GetScreenData(kGaussScreenName, 1600, 900);
 	m_colorScreenHandle = ScreenManager::GetInstance().GetScreenData(kColorScreenName, 1600, 900);
 
@@ -51,12 +40,13 @@ m_emitterHandle(EffectManager::GetInstance().GetEffectData(effectname))
 
 WarpGate::~WarpGate()
 {
-	StopEffekseer3DEffect(m_effectPlayHandle);
-	EffectManager::GetInstance().DeleteEffectData(effectname);
+	
+	
 }
 
 void WarpGate::Init()
 {
+	EffectManager::GetInstance().PlayEffect(effectname, true, 0,shared_from_this());
 }
 
 void WarpGate::Update()
@@ -75,8 +65,8 @@ void WarpGate::SetEffectPos()
 	mat = MGetRotAxis(axis.VGet(), acos(Dot(Vec3::Up(), m_upVec)));
 
 	mat = MMult(mat,MGetTranslate(Vec3(m_rigid->GetPos()+m_upVec*20).VGet()));
-	auto effect = GetEffekseer3DManager();
-	effect->SetBaseMatrix(m_effectPlayHandle,GetEffMatrix(mat));
+	/*auto effect = GetEffekseer3DManager();
+	effect->SetBaseMatrix(m_effectPlayHandle,Effect::GetEffMatrix(mat));*/
 }
 
 void WarpGate::Draw()

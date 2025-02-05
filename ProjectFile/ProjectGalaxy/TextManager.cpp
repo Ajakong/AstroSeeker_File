@@ -1,18 +1,19 @@
 ﻿#include "TextManager.h"
 #include"FontManager.h"
 #include"SoundManager.h"
+#include"Game.h"
 #include<tchar.h>
 
 namespace
 {
-	constexpr int kFontSize = 20;
-    constexpr int kTextHeightDistance = 5;
+	constexpr int kFontSize = 28;
+    constexpr int kTextHeightDistance = 16;
 
     const char* InputTextSEName = "InputText.mp3";
 }
 
 TextManager::TextManager()
-	:m_fontHandle(FontManager::GetInstance().GetFontData("SF_font.ttf","廻想体 ネクスト UP B",20)),
+	:m_fontHandle(FontManager::GetInstance().GetFontData("SF_font.ttf","廻想体 ネクスト UP B",kFontSize)),
 	m_drawTextLength(0),
 	m_drawTextFrame(0),
     m_inputTextSEHandle(SoundManager::GetInstance().GetSoundData(InputTextSEName)),
@@ -90,7 +91,7 @@ void TextManager::Draw()
     // テキストを描画
     for (auto text = drawText.begin(); text != drawText.end();)
     {
-        DrawFormatStringFToHandle(300, 200 + listIndex * (kFontSize+ kTextHeightDistance), 0xffffff, m_fontHandle, text->c_str());
+        DrawFormatStringFToHandle((Game::kScreenWidth/2)-Game::kScreenWidth*0.25f, 200 + listIndex * (kFontSize+ kTextHeightDistance), 0xffffff, m_fontHandle, text->c_str());
         listIndex++;
         text++;
     }
@@ -113,16 +114,42 @@ void TextManager::InText(const std::string text)
 	m_texts.push_back(strings);
 }
 
+void TextManager::InNextText(const std::string text)
+{
+    std::list<std::string> string;
+    string.push_back(text);
+    std::list<std::list<std::string>> strings;
+    strings.push_back(string);
+    m_nextTexts.push_back(strings);
+}
+
 void TextManager::InTexts(const std::list<std::string> text)
 {
 	m_texts.push_back(text);
 }
 
+void TextManager::InNextTexts(const std::list<std::string> text)
+{
+    std::list<std::list<std::string>> strings;
+    strings.push_back(text);
+
+    m_nextTexts.push_back(strings);
+}
+
+void TextManager::SetTexts(const std::list<std::list<std::string>> texts)
+{
+    m_texts = texts;
+}
+void TextManager::SetNextTexts(const std::list<std::list<std::string>> texts)
+{
+    m_nextTexts.push_back(texts);
+}
 void TextManager::DeleteText()
 {
 	m_drawTextLength = 0;
     m_postFrameTextSize = 0;
 	m_texts.pop_front();
+   
 }
 
 

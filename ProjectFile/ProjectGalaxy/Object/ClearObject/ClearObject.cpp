@@ -24,7 +24,7 @@ void ClearObject::Init()
 	SetObjectTag(ObjectTag::ClearObject);
 	AddCollider(MyEngine::ColliderBase::Kind::Sphere,ColideTag::Body);
 	auto item = dynamic_pointer_cast<MyEngine::ColliderSphere>(m_colliders.back()->col);
-	item->radius = 25;
+	item->radius = 5;
 	item->m_isTrigger = true;
 }
 
@@ -34,7 +34,7 @@ void ClearObject::Draw()
 	m_rigid->SetVelocity(Vec3(0, 0, 0));
 	Vec3 offSetVec = GetCameraRightVector();
 	offSetVec -= GetCameraUpVector();
-	offSetVec *= 9;
+	offSetVec *= 9/5;
 	Quaternion myQ;
 	angle += 0.05f;
 
@@ -44,15 +44,15 @@ void ClearObject::Draw()
 		myQ.SetQuaternion(offSetVec);
 		myQ.SetMove(DX_PI_F * 2 / 3 * i + angle, front);
 		Vec3 offSet = myQ.Move(offSetVec, zero);
-		DrawSphere3D((m_rigid->GetPos() + offSet).VGet(), 10, 8, 0xffffff, 0xff00ff, false);
+		DrawSphere3D((m_rigid->GetPos() + offSet).VGet(), 1, 8, 0xffffff, 0xff00ff, false);
 	}
 	for (int i = 0; i < 6; i++)
 	{
 		myQ.SetQuaternion(offSetVec*2);
 		myQ.SetMove(DX_PI_F * 1 / 3 * i + angle, front);
 		Vec3 offSet = myQ.Move(offSetVec, zero);
-		DrawSphere3D((m_rigid->GetPos() + offSet).VGet(), 10, 8, 0x0000ff, 0xff00ff, false);
+		DrawSphere3D((m_rigid->GetPos() + offSet).VGet(), 1, 8, 0x0000ff, 0xff00ff, false);
 	}
 
-	DrawSphere3D(m_rigid->GetPos().VGet(), 50, 8, 0x00ff00, 0xffff00, false);
+	DrawSphere3D(m_rigid->GetPos().VGet(), 5, 8, 0x00ff00, 0xffff00, false);
 }

@@ -91,7 +91,7 @@ void StarCapture::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag o
 
 		auto sphere = dynamic_pointer_cast<PlayerSphere>(colider);
 
-		m_player = sphere->m_player;
+		m_player = sphere->m_player.lock();
 	}
 
 	if (m_colliders.size() <= 1)return;
@@ -100,7 +100,7 @@ void StarCapture::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag o
 	{
 		m_isCapturePlayer = true;
 		RemoveCollider(m_captureCol);
-		m_player->SetIsOperation(false);
+		m_player.lock()->SetIsOperation(false);
 		
 	}
 }
@@ -111,7 +111,7 @@ void StarCapture::OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag o
 	{
 		m_ratio = 0;
 		m_playerStartPos = colider->GetRigidbody()->GetPos();
-		m_player->SetIsOperation(true);
+		m_player.lock()->SetIsOperation(true);
 	}
 }
 
@@ -119,14 +119,14 @@ void StarCapture::OnTriggerStay(std::shared_ptr<Collidable> colider,ColideTag ow
 {
 	if (colider->GetTag() == ObjectTag::Player)
 	{
-		float lenge = (m_rigid->GetPos() - m_player->GetPos()).Length();
+		float lenge = (m_rigid->GetPos() - m_player.lock()->GetPos()).Length();
 		float ratio = ((static_cast<float>(m_captureRadius) -lenge) / static_cast<float>(m_captureRadius));
 		m_ratio+=0.002f;
 		if (m_ratio > 1)
 		{
 			m_ratio = 1;
 		}
-		m_player->AddVelocity(EaseInOut(m_playerStartPos, m_rigid->GetPos(), m_ratio,2)-m_player->GetPos());
+		m_player.lock()->AddVelocity(EaseInOut(m_playerStartPos, m_rigid->GetPos(), m_ratio, 2) - m_player.lock()->GetPos());
 	}
 }
 

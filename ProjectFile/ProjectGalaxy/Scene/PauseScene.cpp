@@ -173,7 +173,7 @@ void PauseScene::NormalDraw()
 		0x888888, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
-	DrawRotaString(670, 300, 6, 6, 0, 0, 0, 0xffffbb, 0, 0, "Pause");
+	DrawRotaString(Game::kScreenWidth-130, 300, 6, 6, 0, 0, 0, 0xffffbb, 0, 0, "Pause");
 
 	DrawExtendFormatStringToHandle(750, 500,0.3f,0.3f,  0xffffff,m_fontHandle,"ゲームに戻る");
 	DrawExtendFormatStringToHandle(770, 600, 0.3f, 0.3f, 0xffffff,m_fontHandle, "操作説明");

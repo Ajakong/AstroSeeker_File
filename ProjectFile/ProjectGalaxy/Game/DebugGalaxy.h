@@ -9,7 +9,7 @@ class SamuraiAlter;
 class Boss;
 class UI;
 
-class DebugGalaxy : public Galaxy
+class DebugGalaxy : public World::Galaxy
 {
 public:
 	DebugGalaxy(std::shared_ptr<Player> playerPointer);

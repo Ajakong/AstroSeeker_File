@@ -15,7 +15,7 @@ public:
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
-	std::shared_ptr<Player>m_player;
+	//std::shared_ptr<Player>m_player;
 
 protected:
 	virtual void StraightUpdate();//球を直線状に飛ばす
@@ -26,6 +26,7 @@ protected:
 	Vec3 m_sideVec;
 	int m_lifeTime;
 	int m_pushCount;
+	int m_operationHandle;
 	/// <summary>
 	/// 接触しているオブジェクトを動かせるか
 	/// </summary>

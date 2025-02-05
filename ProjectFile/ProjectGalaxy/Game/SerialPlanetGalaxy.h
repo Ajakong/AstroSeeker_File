@@ -19,6 +19,7 @@ class StarCapture;
 class SeekerLine;
 class Crystal;
 class Item;
+class Cannon;
 
 class Enemy;
 class Takobo;
@@ -29,7 +30,7 @@ class SpaceEmperor;
 class Boss;
 class TalkObject;
 
-class SerialPlanetGalaxy :public Galaxy//GameManagerが管理,惑星やオブジェクトの情報を持っている
+class SerialPlanetGalaxy :public World::Galaxy//GameManagerが管理,惑星やオブジェクトの情報を持っている
 {
 public:
 	SerialPlanetGalaxy(std::shared_ptr<Player> playerPointer);
@@ -105,6 +106,7 @@ private:
 	std::vector<std::shared_ptr<SeekerLine>> m_seekerLine;
 	std::vector<std::shared_ptr<Crystal>> m_crystal;
 	std::vector<std::shared_ptr<Item>> m_poworStone;
+	std::vector<std::shared_ptr<Cannon>>m_cannon;
 	//エネミー
 	std::vector<std::shared_ptr<Enemy>> m_enemies;
 	std::vector<std::shared_ptr<Enemy>> m_keyLockEnemies;

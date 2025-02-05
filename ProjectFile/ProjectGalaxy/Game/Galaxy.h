@@ -5,39 +5,43 @@
 
 class Player;
 
-class Galaxy//GameManagerが管理,惑星やオブジェクトの情報を持っている
+namespace World
 {
-public:
-	Galaxy(std::shared_ptr<Player> player);
-	virtual ~Galaxy();
+	class Galaxy//GameManagerが管理,惑星やオブジェクトの情報を持っている
+	{
+	public:
+		Galaxy(std::shared_ptr<Player> player);
+		virtual ~Galaxy();
 
-	virtual void Init()=0;
-	virtual void Update()=0;
-	virtual void Draw()=0;
-	
-	/// <summary>
-	/// ゲームオーバーフラグを取得する
-	/// </summary>
-	/// <returns>ゲームオーバーフラグ</returns>
-	bool GetGameOver() const { return m_isGameOverFlag; }
-	/// <summary>
-	/// クリアフラグを取得する
-	/// </summary>
-	/// <returns>クリアフラグ</returns>
-	bool GetClear() const { return m_isClearFlag; }
+		virtual void Init() = 0;
+		virtual void Update() = 0;
+		virtual void Draw() = 0;
 
-	using managerState_t = void(Galaxy::*)();
-	managerState_t m_managerUpdate;
+		/// <summary>
+		/// ゲームオーバーフラグを取得する
+		/// </summary>
+		/// <returns>ゲームオーバーフラグ</returns>
+		bool GetGameOver() const { return m_isGameOverFlag; }
+		/// <summary>
+		/// クリアフラグを取得する
+		/// </summary>
+		/// <returns>クリアフラグ</returns>
+		bool GetClear() const { return m_isClearFlag; }
 
-	using managerState_t = void(Galaxy::*)();
-	managerState_t m_managerDraw;
+		using managerState_t = void(Galaxy::*)();
+		managerState_t m_managerUpdate;
 
-protected:
-	std::shared_ptr<Player> player;
-	int m_modelScreenHandle;
+		using managerState_t = void(Galaxy::*)();
+		managerState_t m_managerDraw;
 
-	//このフラグを見てシーンを移行する
-	bool m_isGameOverFlag = false;
-	bool m_isClearFlag = false;	
-};
+	protected:
+		std::shared_ptr<Player> player;
+		int m_modelScreenHandle;
+
+		//このフラグを見てシーンを移行する
+		bool m_isGameOverFlag = false;
+		bool m_isClearFlag = false;
+	};
+}
+
 

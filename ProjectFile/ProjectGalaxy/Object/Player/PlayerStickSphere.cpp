@@ -2,6 +2,7 @@
 #include"ColliderSphere.h"
 #include"Player.h"
 #include"Item.h"
+#include"SoundManager.h"
 
 namespace
 {
@@ -15,16 +16,19 @@ namespace
 	constexpr int kSphereCreateFrame = 50;
 
 	constexpr int kLifeTimeMax = 100;
-	const char* name = "Sphere";
+	const char* kName = "Sphere";
 
+	const char* kOperationSEName = "Fastener.mp3";
 }
 
 PlayerStickSphere::PlayerStickSphere(MyEngine::Collidable::Priority priority, ObjectTag tag, std::shared_ptr<MyEngine::Collidable> player, Vec3 pos, Vec3 velocity, Vec3 sideVec, int moveNum, int color) : PlayerSphere(priority, tag, player, pos, velocity, sideVec, moveNum, color),
-m_player(std::dynamic_pointer_cast<Player>(player)),
 m_sideVec(sideVec),
 m_lifeTime(0),
-m_pushCount(0)
+m_pushCount(0),
+m_operationHandle(SoundManager::GetInstance().GetSoundData(kOperationSEName))
 {
+	
+	m_player.lock() = std::dynamic_pointer_cast<Player>(player);
 	/*m_rigid->SetVelocity(VGet(m_velocity.x * 2, m_velocity.y * 2, m_velocity.z * 2));
 	m_rigid->SetPos(pos);
 	AddCollider(MyEngine::ColliderBase::Kind::Sphere, ColideTag::Body);
@@ -53,7 +57,7 @@ void PlayerStickSphere::Init()
 
 void PlayerStickSphere::Update()
 {
-	m_startPos = m_player->GetLeftHandPos();
+	m_startPos = m_player.lock()->GetLeftHandPos();
 	(this->*m_moveUpdate)();
 }
 
@@ -80,15 +84,17 @@ void PlayerStickSphere::Effect()
 		{
 			m_moveUpdate = &PlayerStickSphere::ComeBackWithObjectUpdate;
 		}
-		else if ((m_player->GetPos() - m_rigid->GetPos()).Length() < 20)
+		else if ((m_player.lock()->GetPos() - m_rigid->GetPos()).Length() < 20)
 		{
 			m_moveUpdate = &PlayerStickSphere::ComeBackUpdate;
 		}
 		else
 		{
+			
+			
 			m_pushCount++;
-			m_player->SetIsOperation(true);
-			m_player->SetVelocity((m_rigid->GetPos() - m_player->GetPos()).GetNormalized() * 3 * m_pushCount);
+			m_player.lock()->SetIsOperation(true);
+			m_player.lock()->SetVelocity((m_rigid->GetPos() - m_player.lock()->GetPos()).GetNormalized() * 3 * m_pushCount);
 		}
 		
 	}
@@ -128,26 +134,31 @@ void PlayerStickSphere::StickUpdate()
 {
 	SetAntiGravity(true);
 	m_rigid->SetVelocity(Vec3::Zero());
+	
 	//m_rigid->SetPos(m_contactedCollidable->GetRigidbody()->GetPos() + m_collidableContactPosition);
 	if ((m_rigid->GetPos() - m_startPos).Length() <= 5.0f)
 	{
-		m_player->SetIsOperation(false);
+		m_player.lock()->SetIsOperation(false);
 		m_moveUpdate = &PlayerStickSphere::ComeBackUpdate;
 	}
 }
 
 void PlayerStickSphere::ComeBackUpdate()
 {
+	
 	float speed = (m_startPos - m_rigid->GetPos()).Length()/10;
 	m_rigid->SetVelocity((m_startPos - m_rigid->GetPos()).GetNormalized() * speed);
 	if ((m_rigid->GetPos() - m_startPos).Length() <= 2.f)
 	{
+
+		StopSoundMem(m_operationHandle);
 		m_isDestroyFlag = true;
 	}
 }
 
 void PlayerStickSphere::ComeBackWithObjectUpdate()
 {
+
 	m_rigid->SetVelocity((m_startPos - m_rigid->GetPos()).GetNormalized() * 3);
 	m_contactedCollidable->GetRigidbody()->SetPos(m_rigid->GetPos()+m_collidableContactPosition);
 	if ((m_rigid->GetPos() - m_startPos).Length() <= 1.2f)

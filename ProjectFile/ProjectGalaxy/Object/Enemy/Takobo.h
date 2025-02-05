@@ -1,9 +1,11 @@
 ﻿#pragma once
 #include "Enemy.h"
 #include"EnemySphere.h"
+#include"Killer.h"
 
 class Player;
 class Item;
+
 
 /// <summary>
 /// 左右に移動し、一定間隔で射撃してくる敵e
@@ -50,6 +52,9 @@ public:
 	void SetTarget(std::shared_ptr<MyEngine::Collidable> target);
 	void SetNormVec(Vec3 norm) { m_normVec = norm; }
 	Vec3 GetShotUpVec() { return m_shotUpVec; }
+
+	//スピンを当てたら死亡
+	void Death();
 	std::list<std::shared_ptr<EnemySphere>> GetAttackObj() { return m_sphere; }
 	
 
@@ -118,5 +123,6 @@ private:
 	std::shared_ptr<Item>m_dropItem;
 
 	std::list<std::shared_ptr<EnemySphere>> m_sphere;
+	std::list<std::shared_ptr<Killer>> m_killer;
 };
 

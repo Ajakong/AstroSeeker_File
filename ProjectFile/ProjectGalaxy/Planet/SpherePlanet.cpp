@@ -16,7 +16,7 @@ namespace
 
 }
 
-SpherePlanet::SpherePlanet(Vec3 pos,int color,float gravity,int modelHandle,float coefficientOfFriction,float scale) :Planet(),
+SpherePlanet::SpherePlanet(Vec3 pos,int color,float gravity,int modelHandle,float coefficientOfFriction,float scale) :Planet(modelHandle),
 m_enemyCount(3),
 m_modelHandle(modelHandle),
 m_rotationAngle(0)
@@ -91,7 +91,8 @@ Vec3 SpherePlanet::GravityEffect(std::shared_ptr<Collidable> obj)//成分ごと�
 	Vec3 toObj = objPos-m_rigid->GetPos();
 	toObj = toObj.GetNormalized();
 	Vec3 GravityDir = toObj * -1;
-	obj->SetUpVec(toObj);
+	///一番重力が強い惑星の影響を受ける
+	obj->AddNextUpVec(toObj* gravityPower);
 	if (obj->IsAntiGravity())
 	{
 		return Vec3::Zero();

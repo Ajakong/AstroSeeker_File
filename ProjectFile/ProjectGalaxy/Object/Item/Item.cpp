@@ -2,6 +2,7 @@
 
 #include"Physics.h"
 #include"Quaternion.h"
+#include"Easing.h"
 
 
 namespace
@@ -36,6 +37,7 @@ void Item::Update()
 	//m_rigid->SetPos(m_rigid->GetPos());
 	//m_upVec = m_upVec * sin(angle) ;
 	//m_rigid->SetVelocity(m_upVec*0.1f);
+	
 }
 
 void Item::Draw()

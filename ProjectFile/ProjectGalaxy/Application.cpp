@@ -13,8 +13,8 @@
 
 namespace
 {
-    constexpr int kScreenWidth = 1600;
-    constexpr int kScreenHeight = 900;
+    constexpr int kScreenWidth = 1920;
+    constexpr int kScreenHeight = 1080;
 
     constexpr int kColorbitDepth = 32;
     constexpr int kIconID = 573;
@@ -70,7 +70,7 @@ bool Application::Init()
 
     
 
-    SetWindowText("なめぇを決めてください");
+    SetWindowText("Astro Seeker");
     if (DxLib_Init() == -1)
     {
         return false;

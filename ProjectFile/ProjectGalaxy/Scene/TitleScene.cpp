@@ -10,32 +10,32 @@
 #include "GraphManager.h"
 #include "SoundManager.h"
 #include "ModelManager.h"
+#include"EffectManager.h"
 #include "TitlePlayer.h"
 #include "Physics.h"
 #include "SpherePlanet.h"
 #include "Camera.h"
 #include"UI.h"
+
 namespace
 {
     constexpr int kFadeFrameMax = 60;
     constexpr int kStandByFrame = 120;
 
-    // 画面の幅と高さ
-    constexpr int screenWidth = 1600;
-    constexpr int screenHeight = 900;
 
     constexpr int kLightningFrameMax = 200;
 
     const char* kTitleGraphName = "galaxy_titleLogo_pro.png";
     const char* kFrameName = "Frame.png";
-    const char* kTitleBGMName = "Title.mp3";
+    const char* kTitleBGMName = "AstroSeeker_Theme.mp3";
+    const char* kTitleFadeSEName = "TitleSE_Fade.mp3";
 
     const char* kStickName = "parry.mp3";
     const char* kGameStartSEName = "StartGame_SE.mp3";
     const char* kGameBGMName = "GamePlaying.mp3";
     const char* kPlayerModelName = "SpaceHarrier";
     const char* kPlanetModelName = "GoldenBall";
-    const char* kNextPlanetModelName = "Moon";
+    const char* kNextPlanetModelName = "Neptune";
 	const char* kEmeraldPlanetModelName = "GreenMoon";
     const char* kRedPlanetModelName = "RedMoon";
     const char* kSkyboxModelName = "Skybox";
@@ -51,15 +51,14 @@ namespace
     constexpr int kTitleGraphHeight = 600;
     constexpr int kTitleTextX = 350;
     constexpr int kTitleTextY = 600;
-    constexpr int kFadeBoxWidth = 1600;
-    constexpr int kFadeBoxHeight = 900;
+  
     constexpr int kFadeBoxColor = 0x001111;
     constexpr int kLineColor = 0x44ffff;
     constexpr int kLineX = 30;
-    constexpr int kLineY = 900;
 
-    const Vec3 cameraFirstPosition = { -200,-45,120 };
-    const Vec3 cameraSecondPosition = { -200,-45,80 };
+    const Vec3 cameraFirstPosition = { -50,0,200 };
+    const Vec3 cameraSecondPosition = { -5,10,10 };
+    const Vec3 cameraThirdPosition = { -200,-45,80 };
 
 }
 
@@ -67,20 +66,21 @@ TitleScene::TitleScene(SceneManager& manager) :
     Scene(manager),
     m_titleBGMHandle(SoundManager::GetInstance().GetSoundData(kTitleBGMName)),
     m_gameStartSEHandle(SoundManager::GetInstance().GetSoundData(kGameStartSEName)),
+    m_fadeSEHandle(SoundManager::GetInstance().GetSoundData(kTitleFadeSEName)),
     m_btnFrame(0),
     m_fadeSpeed(1),
     m_titleHandle(GraphManager::GetInstance().GetGraphData(kTitleGraphName)),
-    player(std::make_shared<TitlePlayer>(ModelManager::GetInstance().GetModelData(kPlayerModelName))),
+    player(std::make_shared<TitlePlayer>()),
     planet(std::make_shared<SpherePlanet>(Vec3(0, -50, 0), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kPlanetModelName), 1.0f, 1)),
     nextPlanet(std::make_shared<SpherePlanet>(Vec3(-300, -50, 200), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kNextPlanetModelName), 1.0f, 1)),
-	emeraldPlanet(std::make_shared<SpherePlanet>(Vec3(400, -50, 200), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kEmeraldPlanetModelName), 1.0f, 1)),
-    redPlanet(std::make_shared<SpherePlanet>(Vec3(200, -150,350), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kRedPlanetModelName), 1.0f, 1)),
+	emeraldPlanet(std::make_shared<SpherePlanet>(Vec3(200, 100, 200), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kEmeraldPlanetModelName), 1.0f, 1)),
+    redPlanet(std::make_shared<SpherePlanet>(Vec3(50, -50,300), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kRedPlanetModelName), 1.0f, 1)),
 	camera(std::make_shared<Camera>(cameraFirstPosition)),
     m_skyDomeH(0),
     m_skyDomeRotationAngle(0),
-	m_count(0)
+	m_count(0),
+    m_cameraRotateAngle(0)
 {
-    
     camera->Update(VGet(0, 0, 150));
 
     PlaySoundMem(m_titleBGMHandle, DX_PLAYTYPE_LOOP);
@@ -102,30 +102,34 @@ TitleScene::TitleScene(SceneManager& manager) :
     MV1SetScale(m_skyDomeH, VGet(kSkyDomeScale, kSkyDomeScale, kSkyDomeScale));
 
     UI::GetInstance().Init();
-    std::list<string> ImTakasaki;
-    ImTakasaki.push_back( "私はタカサキ大佐だ");
-    ImTakasaki.push_back("この通信が届いていたらAボタンで応答してくれ");
+    UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+    std::list<std::string> ImTakasaki;
+    ImTakasaki.push_back( "聞こえるか、ドレイク！　私だ、タカサキ大佐だ。");
+    ImTakasaki.push_back("聞こえていたらAボタンを押してくれ。");
     UI::GetInstance().InTexts(ImTakasaki);
 
-    std::list<string> mainMessage;
-    mainMessage.push_back("よし、届いてるみたいだな");
-    mainMessage.push_back("では本題に移ろう");
+    std::list<std::string> mainMessage;
+    mainMessage.push_back("よし、届いてるみたいだな。");
+    mainMessage.push_back("では本題に移ろう。");
     UI::GetInstance().InTexts(mainMessage);
 
-    UI::GetInstance().InText("Astro Seeker第一部隊隊長である君に宇宙の存亡をかけた超重要任務を授ける");
 
-    std::list<string> yabai;
-    yabai.push_back("諜報部隊が入手した情報によると");
-    yabai.push_back("宇宙最大のエネルギー持つ物体スーパーマテリアルが何者かに盗まれた");
+
+    std::list<std::string> yabai;
+    yabai.push_back("宇宙最大のエネルギー持つ物体、");
+    yabai.push_back("スーパーマテリアルが何者かに盗まれた。");
     UI::GetInstance().InTexts(yabai);
-    UI::GetInstance().InText("この宇宙を守るためにはスーパーマテリアルを取り戻す必要がある");
-    UI::GetInstance().InText("この任務は死線を乗り越えた君にしか成し遂げられないことだと判断した");
-    UI::GetInstance().InText("スーパーマテリアルを取り戻し、全宇宙の平和を取り戻してくれ");
-    UI::GetInstance().InText("君には全宇宙の未来がかかっている");
-    UI::GetInstance().InText("さあ、Astro Seeker第一部隊隊長として宇宙の未来を切り開け！");
+    UI::GetInstance().InText("スーパーマテリアルはこの宇宙の安定には必須のものだ。");
+    std::list < std::string > mission;
+    mission.push_back("頼む、ドレイク。");
+    mission.push_back("スーパーマテリアルを取り戻してくれ！");
+    UI::GetInstance().InTexts(mission);
 
 
-    camera->SetEasingSpeed(15.f);
+
+    camera->SetEasingSpeed(35.f);
+
+    m_cameraRotateAngle = 0.02f;
 }
 
 TitleScene::~TitleScene()
@@ -134,8 +138,7 @@ TitleScene::~TitleScene()
     MyEngine::Physics::GetInstance().Exit(player);
     MyEngine::Physics::GetInstance().Exit(planet);
     MyEngine::Physics::GetInstance().Exit(nextPlanet);
-    MyEngine::Physics::GetInstance().Exit(emeraldPlanet);
-    MyEngine::Physics::GetInstance().Exit(redPlanet);
+    
 
 }
 
@@ -153,10 +156,12 @@ void TitleScene::Update()
     redPlanet->ModelRotation();
     MyEngine::Physics::GetInstance().Update();
     player->SetMatrix();
+    camera->Setting(player->GetBoostFlag(), player->GetIsAiming());
     (this->*m_updateFunc)();
     m_skyDomeRotationAngle += kSkyDomeRotationSpeed;
     MV1SetRotationXYZ(m_skyDomeH, VGet(0, m_skyDomeRotationAngle, 0));
 
+    EffectManager::GetInstance().Update();
     Pad::Update();
 }
 
@@ -172,8 +177,11 @@ void TitleScene::Draw()
     MyEngine::Physics::GetInstance().Draw();
     // シーン固有の描画
     (this->*m_drawFunc)();
+  
+  
 
 }
+
 
 void TitleScene::FadeInUpdate()
 {
@@ -191,14 +199,20 @@ void TitleScene::NormalUpdate()
     m_fps = GetFPS();
 
    
-   
+    
     player->SetMatrix();
+    Quaternion q;
+    q.SetQuaternion(camera->GetPos());
+    q.SetMove(m_cameraRotateAngle, Vec3::Up());
+   
+    camera->SetCameraPoint(q.Move(camera->GetPos(), Vec3::Zero()));
+    camera->Update(VGet(0, 0, 150));
     if (Pad::IsTrigger(PAD_INPUT_1))
     {
-        
+       
         camera->SetCameraPoint(cameraSecondPosition);
-        player->MoveToTargetPosWithSticker(nextPlanet->GetRigidbody()->GetPos());
-        m_updateFunc = &TitleScene::DirectionUpdate;
+        //player->MoveToTargetPosWithSticker(nextPlanet->GetRigidbody()->GetPos());
+        m_updateFunc = &TitleScene::WatchPlayerUpdate;
     }
 
    
@@ -209,10 +223,45 @@ void TitleScene::NormalUpdate()
     if (m_btnFrame < 0)m_fadeSpeed *= -1;
 }
 
+void TitleScene::WatchPlayerUpdate()
+{
+    m_fps = GetFPS();
+
+    player->SetMatrix();
+    Quaternion q;
+   
+
+    q.SetQuaternion(camera->GetPos());
+    q.SetMove(m_cameraRotateAngle, Vec3::Up());
+
+    //camera->SetCameraPoint(q.Move(camera->GetPos(), Vec3::Zero()));
+    camera->Update(player->GetRigidbody()->GetPos());
+    if ((camera->GetPos()-camera->GetCameraPoint()).Length()<=5.f)
+    {
+        player->SetShot();
+        if (player->GetAnimBlendRate() >= 1.f)
+        {
+            MyEngine::Physics::GetInstance().Exit(emeraldPlanet);
+            MyEngine::Physics::GetInstance().Exit(redPlanet);
+            camera->SetCameraPoint(cameraThirdPosition);
+            player->MoveToTargetPosWithSticker(nextPlanet->GetRigidbody()->GetPos());
+            m_updateFunc = &TitleScene::DirectionUpdate;
+        }
+        
+    }
+
+
+
+
+    m_btnFrame += m_fadeSpeed;
+    if (m_btnFrame > kFadeFrameMax)m_fadeSpeed *= -1;
+    if (m_btnFrame < 0)m_fadeSpeed *= -1;
+}
+
 void TitleScene::FadeOutUpdate()
 {
-    camera->Update(player->GetRigidbody()->GetPos());
-    camera->SetCameraPoint(player->GetPos() + positioningPlayerToCamera * 10);
+    /*camera->Update(player->GetRigidbody()->GetPos());
+    camera->SetCameraPoint(player->GetPos() + positioningPlayerToCamera * 10);*/
     player->MoveToTargetWithStickStar(Vec3(0, 0, 0));
     m_fps = GetFPS();
     m_frame++;
@@ -252,6 +301,8 @@ void TitleScene::LoadingUpdate()
         UI::GetInstance().Update();
         if (UI::GetInstance().TextRemaining() == 0)
         {
+            PlaySoundMem(m_fadeSEHandle, DX_PLAYTYPE_BACK);
+            player->Move();
             PlaySoundMem(m_gameStartSEHandle,DX_PLAYTYPE_BACK);
             m_updateFunc = &TitleScene::FadeOutUpdate;
             m_drawFunc = &TitleScene::FadeDraw;
@@ -262,7 +313,7 @@ void TitleScene::LoadingUpdate()
 
 void TitleScene::ChangeScene(std::shared_ptr<Scene> next)
 {
-    StopSoundMem(m_titleBGMHandle);
+    //StopSoundMem(m_titleBGMHandle);
     SetCameraPositionAndTarget_UpVecY(VGet(0, 0, 0), VGet(0, 0, 1));
     m_manager.ChangeScene(next);
 }
@@ -282,14 +333,14 @@ void TitleScene::FadeDraw()
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
         SetDrawBlendMode(DX_BLENDMODE_MULA, alpha);
         DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, 0x000000, true);
-        DrawBox(0, 0, m_frame * kLineX, kFadeBoxWidth, kFadeBoxColor, true);
+        DrawBox(0, 0, m_frame * kLineX, Game::kScreenWidth, kFadeBoxColor, true);
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
     }
 
     SetDrawBlendMode(DX_BLENDMODE_MULA, alpha);
     DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, 0x000000, true);
-    DrawBox(0, 0, m_frame * kLineX, kFadeBoxWidth, kFadeBoxColor, true);
+    DrawBox(0, 0, m_frame * kLineX, Game::kScreenWidth, kFadeBoxColor, true);
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
     if (m_isGamePlaying)
@@ -299,7 +350,7 @@ void TitleScene::FadeDraw()
         Pad::Init();
         ChangeScene(std::make_shared<GamePlayingScene>(m_manager));
     }
-    DrawLine(m_frame * kLineX, 0, m_frame * kLineX, kLineY, kLineColor);
+    DrawLine(m_frame * kLineX, 0, m_frame * kLineX, Game::kScreenHeight, kLineColor);
 }
 
 void TitleScene::NormalDraw()
@@ -307,22 +358,26 @@ void TitleScene::NormalDraw()
     if (!(m_updateFunc == &TitleScene::LoadingUpdate))
     {
         int alpha = static_cast<int>(255 * (static_cast<float>(m_frame) / kFadeFrameMax));
+        if (m_updateFunc == &TitleScene::NormalUpdate)
+        {
+            DrawRotaGraph2(600, 375, 615, 350, 1.f, 0, m_titleHandle, true);
 
-        DrawRotaGraph2(400, 375, 615, 350,0.5f,0, m_titleHandle, true);
-        int btnalpha = static_cast<int>(255 * (static_cast<float>(m_btnFrame) / kFadeFrameMax));
-        SetDrawBlendMode(DX_BLENDMODE_ADD, btnalpha);
 
-        DrawFormatString(kTitleTextX, kTitleTextY, 0xffffff, "Push A to Start");
-        
-        SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+            int btnalpha = static_cast<int>(255 * (static_cast<float>(m_btnFrame) / kFadeFrameMax));
+            SetDrawBlendMode(DX_BLENDMODE_ADD, btnalpha);
+
+            DrawFormatString(kTitleTextX, kTitleTextY, 0xffffff, "Push A to Start");
+
+            SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+        }
         SetDrawBlendMode(DX_BLENDMODE_MULA, alpha);
         DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, 0x000000, true);
-        DrawBox(0, 0, m_frame * kLineX, kFadeBoxWidth, kFadeBoxColor, true);
+        DrawBox(0, 0, m_frame * kLineX, Game::kScreenWidth, kFadeBoxColor, true);
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
     }
    
-    DrawLine(m_frame * kLineX, 0, m_frame * kLineX, kLineY, kLineColor);
+    DrawLine(m_frame * kLineX, 0, m_frame * kLineX, Game::kScreenHeight, kLineColor);
     if(m_count > 70)
     {
         UI::GetInstance().Draw();

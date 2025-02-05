@@ -24,7 +24,30 @@ ClearScene::ClearScene(SceneManager& mgr) :
 	m_frame = 60;
 	m_updateFunc = &ClearScene::FadeInUpdate;
 	m_drawFunc = &ClearScene::FadeDraw;
+	UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+	UI::GetInstance().InText("Congratulations!");
 
+	std::list<std::string> clear;
+	clear.push_back("よくやった");
+	clear.push_back("これで宇宙は救われた");
+
+	UI::GetInstance().InTexts(clear);
+	UI::GetInstance().InText("俺もようやく一息つけるってわけだ");
+
+	std::list<std::string> thanks;
+	thanks.push_back("それも全部君のおかげだ");
+	thanks.push_back("ありがとう");
+	UI::GetInstance().InTexts(thanks);
+
+	std::list<std::string> info;
+	info.push_back("そうだ、君にも4月まで休暇を与えている。");
+	info.push_back("この機にゆっくり休むといい");
+	UI::GetInstance().InTexts(info);
+	UI::GetInstance().InText("・・・");
+	UI::GetInstance().InText("まぁ、なんだ");
+	UI::GetInstance().InText("俺たちに別れの言葉は必要ないだろう？");
+	UI::GetInstance().InText("ではこの言葉で締めくくらせてもらおう");
+	UI::GetInstance().InText("次はAstro Seeker2で、また会おう");
 
 }
 
@@ -35,6 +58,8 @@ ClearScene::~ClearScene()
 
 void ClearScene::Load()
 {
+	
+
 }
 
 void ClearScene::Update()
@@ -64,28 +89,8 @@ void ClearScene::FadeInUpdate()
 void ClearScene::NormalUpdate()
 {
 	m_btnFrame++;
-	if (Pad::IsTrigger(PAD_INPUT_1))
+	if (Pad::IsTrigger(PAD_INPUT_1) && Pad::GetState() == "PlayerInput")
 	{
-		UI::GetInstance().InText("Congratulations!");
-		
-		std::list<std::string> clear;
-		clear.push_back("よくやった");
-		clear.push_back("これで宇宙は救われた");
-
-		UI::GetInstance().InTexts(clear);
-		UI::GetInstance().InText("俺もようやく一息つけるってわけだ");
-
-		std::list<std::string> thanks;
-		thanks.push_back("これも全部君のおかげだ");
-		thanks.push_back("ありがとう");
-		UI::GetInstance().InTexts(thanks);
-
-		std::list<std::string> info;
-		info.push_back("そうだ、君にも4月まで休暇を与えている。");
-		info.push_back("この機にゆっくり休むといい");
-		UI::GetInstance().InTexts(info);
-
-		UI::GetInstance().InText("次はAstro Seeker2で会おう");
 
 		m_updateFunc = &ClearScene::FadeOutUpdate;
 		m_drawFunc = &ClearScene::FadeDraw;

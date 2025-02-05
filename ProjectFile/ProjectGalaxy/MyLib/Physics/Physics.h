@@ -74,7 +74,12 @@ namespace MyEngine
 
 		void Entry(const std::shared_ptr<Collidable>& collidable);
 		void Exit(const std::shared_ptr<Collidable>& collidable);
-
+		/// <summary>
+		/// オブジェクトの初期情報追加
+		/// 
+		/// </summary>
+		/// <param name="col"></param>
+		void Initialize(std::shared_ptr<Collidable> col);
 		void Update();
 		void Draw();
 
@@ -83,6 +88,7 @@ namespace MyEngine
 		std::vector<std::shared_ptr<Collidable>> m_collidables;
 
 	private:
+		
 		/// <summary>
 		/// オブジェクトに重力をかける
 		/// </summary>
@@ -136,6 +142,9 @@ namespace MyEngine
 		SendCollideInfo m_preCollideInfo;
 		SendCollideInfo m_newTirrigerInfo;
 		SendCollideInfo m_preTirrigerInfo;
+
+		int m_shadowHandle;
+		std::vector<int> m_shadowHandles;
 	};
 }
 

@@ -3,13 +3,14 @@
 #include<list>
 #include<string>
 #include"Quaternion.h"
+#include"UI.h"
 
 class Quaternion;
 
 class TalkObject : public MyEngine::Collidable
 {
 public:
-	TalkObject(Vec3 pos,int modelHandle,int graphHandle);
+	TalkObject(Vec3 pos,int modelHandle);
 	virtual ~TalkObject();
 
 	virtual void Init();
@@ -37,7 +38,6 @@ protected:
 
 	Quaternion m_myQ;
 	int m_modelHandle;
-	int m_graphHandle;
 	bool m_canTalk;
 };
 

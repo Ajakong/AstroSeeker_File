@@ -1,10 +1,9 @@
 ﻿#pragma once
 #include "Player.h"
-class TitlePlayer :
-    public Player
+class TitlePlayer : public Player
 {
 public:
-    TitlePlayer(int modelhandle);
+    TitlePlayer();
     virtual ~TitlePlayer();
 
 
@@ -15,6 +14,9 @@ public:
     /// <returns>移動開始フラグ</returns>
     bool MoveToTargetPosWithSticker(Vec3 targetPos);
 
+    void SetShot();
+
+    float GetAnimBlendRate() { return m_animBlendRate; }
 
     void Update();
     /// <summary>
@@ -24,6 +26,7 @@ public:
     void StopUpdate();
 
     void DoNotMove();
+    void Move();
 
     using playerState_t = void(TitlePlayer::*)();
     playerState_t m_titlePlayerUpdate;

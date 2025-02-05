@@ -33,6 +33,5 @@ int ScreenManager::GetScreenData(const char* screenname,int width, int height)
 
 void ScreenManager::Clear()
 {
-
 	m_pathAndScreenInfoes.clear();
 }

@@ -1,8 +1,15 @@
 ﻿#include "Coin.h"
 #include"Physics.h"
-
-Coin::Coin(Vec3 pos, bool antiGravity) : Item(pos,ObjectTag::Coin,antiGravity)
+#include"SoundManager.h"
+namespace
 {
+	const char* kGetSoundEffectName = "GetCoin.mp3";
+}
+
+Coin::Coin(Vec3 pos, bool antiGravity) : Item(pos,ObjectTag::Coin,antiGravity),
+m_getSoundEffectHandle()
+{
+	m_getSoundEffectHandle=SoundManager::GetInstance().GetSoundData(kGetSoundEffectName);
 }
 
 Coin::~Coin()
@@ -44,6 +51,7 @@ void Coin::OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,C
 {
 	if (colider->GetTag() == ObjectTag::Player)
 	{
+		PlaySoundMem(m_getSoundEffectHandle, DX_PLAYTYPE_BACK);
 		MyEngine::Physics::GetInstance().Exit(shared_from_this());
 	}
 }

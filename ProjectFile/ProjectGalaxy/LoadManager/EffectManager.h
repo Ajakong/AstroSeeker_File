@@ -1,24 +1,44 @@
 ﻿#pragma once
 #include<map>
 #include<string>
+#include<list>
 #include<EffekseerForDXLib.h>
+#include"Collidable.h"
 struct EffectInfo {
-	int handle;//ハンドル
+	int emitterhandle;//エミッターハンドル
+	int playhandle;//プレイするハンドル
+	int playingFrame;//再生中フレーム
+	float lifeTime;//エフェクトの生存時間
+	bool isLoop;//ループ再生するか
 	bool used;//一度以上使用済みか？
+	std::weak_ptr<MyEngine::Collidable> master;//私がこのエフェクトを生成しました。
 };
 class EffectManager
 {
 private:
-	std::map<std::string, EffectInfo> m_pathAndEffectInfoes;
+	/// <summary>
+	/// エフェクトの情報群
+	/// </summary>
+	std::map<std::string, std::map<int,EffectInfo>> m_pathAndEffectInfoes;
 	
 public:
 	EffectManager();
 	~EffectManager();
 
 	static EffectManager& GetInstance();
-	int GetEffectData(const char* filepath);
-	void DeleteEffectData(const char* effectname);
+	
+
+	void Update();
+
+	void PlayEffect(const char* filepath,bool playLoop,float lifeTime,std::weak_ptr<MyEngine::Collidable> master=std::weak_ptr<MyEngine::Collidable>());
+	void StopEffect(const char* effectname,int index);
 
 	void Clear();
+
+private:
+	/// <summary>
+	/// 再生中エフェクトのデータ
+	/// </summary>
+	std::map<std::string, std::map<int, EffectInfo>>m_playingEffectInfoes;
 };
 

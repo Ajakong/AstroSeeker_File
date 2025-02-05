@@ -46,6 +46,35 @@ namespace MyEngine
 			Boss,//ボス
 			Static,		// 動かない（最高）
 		};
+
+		enum State
+		{
+			Intro,
+			Neutral,
+			Walk,
+			Dash,
+			Jump,
+			DashJump,
+			JumpBoost,
+			Spin,
+			Roll,
+			JumpDrop,
+			FullpowerJumpDrop,
+			Land,
+			Damage,
+			Boosting,
+			Operation,
+			Search,
+			Chase,
+			ComeBack,
+			Attack,
+			Tackle,
+			Running,
+			Stan,
+			Death,
+			Talk,
+			End,
+		};
 	public:
 
 		float GetAngle(Vec3 a, Vec3 b)
@@ -104,12 +133,18 @@ namespace MyEngine
 		/* Getter */	
 		ObjectTag GetTag() const { return m_tag; }
 		Priority GetPriority() const { return m_priority; }
+		State GetState()const { return m_state; }
+		State GetPostState() const { return m_postState; }
+		std::string GetStateName() const { return m_stateName; }
 		void SetObjectTag(ObjectTag tag) { m_tag = tag; }
 		bool IsAntiGravity() { return m_isAntiGravity; }
 		void SetIsActive(bool flag) { m_isActive = flag; }
 		bool GetIsActive() { return m_isActive; }
-		void SetUpVec(Vec3 vel) { m_nextUpVec = vel; }
+		void SetNextUpVec(Vec3 vel) { m_nextUpVec = vel; }
+		void AddNextUpVec(Vec3 vel) { m_nextUpVec += vel; }
+		void SetUpVec(Vec3 vel) { m_upVec = vel; }
 		Vec3 GetUpVec() { return m_upVec; }
+		Vec3 GetNextUpVec() { return m_nextUpVec; }
 		Vec3 GetFrontVec() { return m_frontVec; }
 		// 当たり判定を無視（スルー）するタグの追加/削除
 		void AddThroughTag(ObjectTag tag);
@@ -122,7 +157,7 @@ namespace MyEngine
 		virtual bool IsDestroy() { return m_isDestroyFlag; }
 
 		Vec3 GetKnockBackVelocity() { return (m_rigid->GetVelocity())*-1; }
-		std::string GetState() const { return m_state; }
+		
 
 		std::shared_ptr<Rigidbody> GetRigidbody() const { return m_rigid; }
 
@@ -144,14 +179,19 @@ namespace MyEngine
 		Vec3 m_frontVec;
 		Vec3 m_sideVec;
 
+		State m_state;
+		State m_postState;
+		std::string m_stateName;
+
+
 		bool m_isDestroyFlag;
 
 		int m_cbuffH;
 		UserData* m_userData;
-		std::string m_state;
+		
 	private:
 		std::list<ObjectTag>	m_throughTags;
-
+		
 		ObjectTag m_tag;
 		Priority m_priority;
 		bool m_isAntiGravity;

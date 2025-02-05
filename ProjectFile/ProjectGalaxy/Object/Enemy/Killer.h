@@ -3,6 +3,7 @@
 
 
 class Enemy;
+class Player;
 
 class Killer : public EnemySphere
 {
@@ -25,13 +26,17 @@ public:
 	MoveState_t m_moveUpdate;
 
 protected:
+	virtual void RisingUpdate();
 	virtual void SearchUpDate();
 
 	virtual void  StraightUpdate();//球を直線状に飛ばす
 
 	virtual void CounterUpdate();
 private:
-	std::shared_ptr<MyEngine::Collidable> m_target;
+	std::shared_ptr<Player> m_target;
 	int m_pointeLightHandle;
+	int m_risingFrame;
+
+	int m_surviveFrame;
 };
 

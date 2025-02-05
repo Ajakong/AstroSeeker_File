@@ -67,7 +67,7 @@ void BoxPlanet::Draw()
 
 Vec3 BoxPlanet::GravityEffect(std::shared_ptr<Collidable> obj)
 {
-	obj->SetUpVec(m_norm);
+	obj->SetNextUpVec(m_norm);
 	Vec3 ans = m_norm*-1;
 	return ans*kGravityPower;
 }

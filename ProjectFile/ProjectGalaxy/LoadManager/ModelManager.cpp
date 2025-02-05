@@ -21,9 +21,8 @@ ModelManager& ModelManager::GetInstance()
 	return info;
 }
 
-int ModelManager::GetModelData(const char* modelname)
+int ModelManager::GetModelData(const char* modelname, bool isShadow)
 {
-
 	if (m_pathAndModelInfoes.find(modelname) == m_pathAndModelInfoes.end())
 	{
 		ModelInfo m = ModelInfo();
@@ -35,9 +34,18 @@ int ModelManager::GetModelData(const char* modelname)
 		return m.handle;
 	}
 	else {
+		if (isShadow)
+		{
+			m_shadowModelHandle.push_back(MV1DuplicateModel(m_pathAndModelInfoes[modelname].handle));
+			return m_shadowModelHandle.back();
+		}
+		else
+		{
+			m_pathAndModelInfoes[modelname].used = true;
+			m_duplicateModelHandles.push_back(MV1DuplicateModel(m_pathAndModelInfoes[modelname].handle));
+			return m_duplicateModelHandles.back();
+		}
 		
-		m_pathAndModelInfoes[modelname].used = true;
-		return MV1DuplicateModel(m_pathAndModelInfoes[modelname].handle);
 	}
 }
 
@@ -53,5 +61,20 @@ void ModelManager::Clear()
 	{
 		MV1DeleteModel(info.second.handle);
 	}
+	for (auto& handle : m_duplicateModelHandles)
+	{
+		MV1DeleteModel(handle);
+	}
+	m_duplicateModelHandles.clear();
 	m_pathAndModelInfoes.clear();
+	ClearShadowModel();
+}
+
+void ModelManager::ClearShadowModel()
+{
+	for (auto& handle : m_shadowModelHandle)
+	{
+		MV1DeleteModel(handle);
+	}
+	m_shadowModelHandle.clear();
 }

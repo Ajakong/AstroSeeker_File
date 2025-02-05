@@ -3,10 +3,15 @@
 #include"Easing.h"
 #include"ColliderSphere.h"
 
+#include"SoundManager.h"
+
 namespace
 {
 	constexpr int kSpeedMax = 2;
 	constexpr int kRadius = 5;
+
+	const char* kEndPointSEName = "SeekerLineEndSE.mp3";
+	const char* kPlayerMoveSEName = "Fastener.mp3";
 }
 
 
@@ -17,6 +22,8 @@ float EaseInOutNum(float x)
 
 
 SeekerLine::SeekerLine(std::vector<Vec3> points, int color, bool isActive) : Collidable(Priority::StageGimmick, ObjectTag::SeekerLine),
+m_endPointSoundHandle(SoundManager::GetInstance().GetSoundData(kEndPointSEName)),
+m_movePlayerSoundHandle(SoundManager::GetInstance().GetSoundData(kPlayerMoveSEName)),
 m_hitPointNum(0),
 m_length(0),
 m_speed(0),
@@ -52,39 +59,44 @@ void SeekerLine::Init()
 
 void SeekerLine::Update()
 {
-	if (!m_player.get())return;
+	if (!m_player.lock().get())return;
 	//ポイントの更新
 	m_num += m_speed;
 	if (m_num > m_length/2)
 	{
 		m_speed *= -1 ;
 	}
-	float lenge = (m_rigid->GetPos() - m_player->GetPos()).Length();
+	float lenge = (m_rigid->GetPos() - m_player.lock()->GetPos()).Length();
 	float ratio = (lenge / m_playerStartPos.Length());
 	m_ratio += 0.002f;
+
 	if (m_ratio > 1)
 	{
 		m_ratio = 1;
 	}
-	m_velocity = m_points[m_hitPointNum+1] - m_player->GetPos();
+
+	m_velocity = m_points[m_hitPointNum+1] - m_player.lock()->GetPos();
 	m_velocity.Normalize();
 	//m_player->SetPos(EaseInOut(m_points[m_hitPointNum], m_points[m_hitPointNum + 1], 1, 2));
-	m_player->SetPos(m_player->GetPos()+m_velocity* m_num);
-	m_player->SetVelocity(m_velocity * m_num);
+	m_player.lock()->SetPos(m_player.lock()->GetPos() + m_velocity * m_num);
+	m_player.lock()->SetVelocity(m_velocity * m_num);
+	PlaySoundMem(m_movePlayerSoundHandle, DX_PLAYTYPE_BACK);
 	//m_player->SetUpVec(Cross(m_velocity,Vec3::Front()*-1));
 
 	//m_player->SetPos((m_points[m_hitPointNum+1]));
 
-	if ((m_player->GetPos() - m_points[m_hitPointNum + 1]).Length() <= 5)//次のポイントに到達したら
+	if ((m_player.lock()->GetPos() - m_points[m_hitPointNum + 1]).Length() <= 5)//次のポイントに到達したら
 	{
 		m_hitPointNum++;
 		if (m_points[m_hitPointNum] == m_points.back())//次のポイントが最後だったら
 		{
-			m_player->SetIsOperation(false);
+			PlaySoundMem(m_endPointSoundHandle, DX_PLAYTYPE_BACK);
+			m_player.lock()->SetIsOperation(false);
 			//プレイヤーをジャンプさせる
-			//m_player->CommandJump();
+			m_player.lock()->CommandJump();
+
 			m_hitPointNum = 0;
-			m_player = nullptr;
+			m_player.reset();
 		}
 	}
 
@@ -108,8 +120,8 @@ void SeekerLine::OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ow
 		m_num = 0;
 		m_speed = 0.02f;
 		m_player = std::dynamic_pointer_cast<Player>(colider);
-		m_player->SetIsOperation(true);
-		m_player->SetPos(m_rigid->GetPos());
+		m_player.lock()->SetIsOperation(true);
+		m_player.lock()->SetPos(m_rigid->GetPos());
 	}
 }
 

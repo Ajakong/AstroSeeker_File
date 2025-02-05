@@ -27,6 +27,8 @@ BigKuribo::BigKuribo(Vec3 pos,int connectNum) : Kuribo(pos)
 	m_frontVec = Vec3(1, 0, 0);
 	m_sideVec = Vec3(0, 0, 1);
 
+	m_speed = 2;
+
 }
 
 BigKuribo::~BigKuribo()
@@ -36,22 +38,24 @@ BigKuribo::~BigKuribo()
 
 void BigKuribo::DeathUpdate()
 {
-
+	m_rigid->SetVelocity(Vec3::Zero());
 	SetAntiGravity(true);
 	m_bodyCol->radius = -1;
-	m_state = "Death";
+	m_stateName = "Death";
+	m_state = State::Death;
 	m_userData->dissolveY -= 0.01f;
 	float animFrame = MV1GetAttachAnimTime(m_modelHandle, m_currentAnimNo);
 	if (m_userData->dissolveY < 0)
 	{
-		auto obj = std::make_shared<Key>(m_rigid->GetPos(), m_connectObjectNumber);
+		auto obj = std::make_shared<Key>(m_rigid->GetPos(), m_upVec * 2, m_connectObjectNumber,false);
 		Physics::GetInstance().Entry(obj);
 		m_isDestroyFlag = true;
 	}
 	if (animFrame > 60)
 	{
 		
-		auto obj = std::make_shared<Key>(m_rigid->GetPos(), m_connectObjectNumber);
+
+		auto obj = std::make_shared<Key>(m_rigid->GetPos(),m_upVec*2, m_connectObjectNumber,false);
 		Physics::GetInstance().Entry(obj);
 		m_isDestroyFlag = true;
 	}

@@ -20,6 +20,7 @@ public:
     void Update();
     void Draw();
 
+
     void getSlectNumber(int a) { m_selectNum = a; }
 
 private:
@@ -37,10 +38,12 @@ private:
     int m_titleHandle = 0;
     int m_titleBGMHandle;
     int m_gameStartSEHandle;
-    
+    int m_fadeSEHandle;
+
 	int m_stickOSTHandle = 0;
     int m_count;
 
+    float m_cameraRotateAngle;
 
 
     //ハンドル集
@@ -56,6 +59,8 @@ private:
 
     Vec3 positioningPlayerToCamera;
 
+    Vec3 rotationCenterPos;
+
     // メンバ関数ポインタの宣言
     using UpdateFunc_t = void (TitleScene::*)();
     using DrawFunc_t = void (TitleScene::*)();
@@ -67,6 +72,7 @@ private:
     // 更新関数
     void FadeInUpdate();
     void NormalUpdate();
+    void WatchPlayerUpdate();
     void FadeOutUpdate();
     void DirectionUpdate();
     void LoadingUpdate();

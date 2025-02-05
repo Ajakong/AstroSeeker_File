@@ -5,10 +5,9 @@
 namespace
 {
 	const char* kModelName = "CuteCreature_blue";
-	const char* kGraphName = "cuteCreature_blue.png";
 }
 DekaHead_Blue::DekaHead_Blue(Vec3 pos) :
-	TalkObject(pos,ModelManager::GetInstance().GetModelData(kModelName),GraphManager::GetInstance().GetGraphData(kGraphName))
+	TalkObject(pos,ModelManager::GetInstance().GetModelData(kModelName))
 {
 }
 
@@ -18,6 +17,7 @@ DekaHead_Blue::~DekaHead_Blue()
 
 std::list<std::list<std::string>> DekaHead_Blue::GetTexts()
 {
+	UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Dekehead_Blue);
 	std::list<std::list<std::string>> talkText;
 	std::list<std::string> one;
 	one.push_back("Hey!Brother");
@@ -25,22 +25,20 @@ std::list<std::list<std::string>> DekaHead_Blue::GetTexts()
 	talkText.push_back(one);
 
 	std::list<std::string> two;
-	two.push_back("俺は最近BLUEなんだ");
-	two.push_back("どうやら最近宇宙で悪さしようとしている奴がいるらしい");
+	two.push_back("俺は今BLUEなんだ");
+	two.push_back("さっきあのでっけぇタマが赤のマテリアルをこぼしていったんだ。");
 	talkText.push_back(two);
 
 	std::list<std::string> three;
-	three.push_back("宇宙が壊れるのは困るぜ、どうにかしたいんだが");
-	three.push_back("ソイツは惑星の正面を這う衝撃波で攻撃するそうだ");
-	three.push_back("普通に戦ってるだけじゃダメージを与えられないらしい");
-	three.push_back("あの浮かんでる赤いタマが取れれば弱い衝撃波が出せるようになるらしいんだが");
-
+	three.push_back("俺の考えでは、スーパーマテリアルを奪ったのはあいつだ。");
+	three.push_back("赤のマテリアルがあったら衝撃波を出せるんだ");
+	
 	talkText.push_back(three);
 
 	std::list<std::string> four;
-	four.push_back("いったいどうやってとればいいんだ");
-	four.push_back("そいえば俺のばあちゃんがとりたいものがあるときはLBで狙ってXって言ってたな");
-	four.push_back("LBってなんだよ。ばあちゃんボケてたからな");
+	four.push_back("それであいつと戦えるようになるんだが、");
+	four.push_back("俺じゃあの赤のマテリアルに届かねぇ");
+	four.push_back("宇宙を守るために何とかしねぇと・・・！");
 
 	talkText.push_back(four);
 

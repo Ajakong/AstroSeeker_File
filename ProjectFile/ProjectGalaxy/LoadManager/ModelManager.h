@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include<map>
 #include<string>
+#include<vector>
 #include"DxLib.h"
 
 struct ModelInfo {
@@ -18,8 +19,12 @@ public:
 
 	static ModelManager& GetInstance();
 
-	int GetModelData(const char* filepath);
+	int GetModelData(const char* filepath,bool isShadow=false);
 	void DeleteModelData(const char* filepath);
 	void Clear();
+	void ClearShadowModel();
+
+	std::vector<int>m_duplicateModelHandles;
+	std::vector<int>m_shadowModelHandle;
 };
 

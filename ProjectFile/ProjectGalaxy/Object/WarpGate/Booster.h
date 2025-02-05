@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "Collidable.h"
+
 class Booster : public MyEngine::Collidable
 {
 public:
@@ -15,11 +16,11 @@ public:
 	Vec3 GetNowPlanetPos() { return m_nowPlanetPos; }
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
+	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
 private:
 	Vec3 m_dir;
 	Vec3 m_warpPos;
-	int m_emitterHandle;
-	int m_effectPlayHandle;
+	bool m_isActive;
 	float m_power;
 	Vec3 m_nowPlanetPos;
 	int m_gaussScreenHandle;

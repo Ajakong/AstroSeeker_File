@@ -36,7 +36,7 @@ private:
 	int m_captureFrame;
 	std::shared_ptr<Collidable::CollideInfo> m_captureCol;
 	std::shared_ptr<MyEngine::Collidable> m_target;
-	std::shared_ptr<Player> m_player;
+	std::weak_ptr<Player> m_player;
 	Vec3 m_playerStartPos;
 	bool m_isCapturePlayer;
 	bool m_isCreateCol;
