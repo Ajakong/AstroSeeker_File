@@ -47,6 +47,7 @@ m_ratio(0)
 		m_length += (m_points[i-1] - m_points[i]).Length();
 	}
 	m_speed = 1.f;
+	m_isIgnore = true;
 }
 
 SeekerLine::~SeekerLine()
@@ -60,6 +61,7 @@ void SeekerLine::Init()
 void SeekerLine::Update()
 {
 	if (!m_player.lock().get())return;
+	
 	//ポイントの更新
 	m_num += m_speed;
 	if (m_num > m_length/2)
@@ -117,6 +119,7 @@ void SeekerLine::OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ow
 {
 	if (colider->GetTag() == ObjectTag::Player)
 	{
+		
 		m_num = 0;
 		m_speed = 0.02f;
 		m_player = std::dynamic_pointer_cast<Player>(colider);

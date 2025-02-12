@@ -174,9 +174,7 @@ void Gorori::IdleUpdate()
 			{
 			case 0:
 				m_attackCoolDownCount = 0;
-				m_attackDir = GetAttackDir().GetNormalized();//オブジェクトに向かうベクトルを正規化したもの
-				m_enemyUpdate = &Gorori::AttackUpdate;
-				m_color = 0xff0000;
+				
 				break;
 			default:
 				m_attackCoolDownCount =0;
@@ -184,6 +182,9 @@ void Gorori::IdleUpdate()
 			}
 		}
 	}
+	m_attackDir = GetAttackDir().GetNormalized();//オブジェクトに向かうベクトルを正規化したもの
+	m_enemyUpdate = &Gorori::AttackUpdate;
+	m_color = 0xff0000;
 }
 
 void Gorori::AttackUpdate()

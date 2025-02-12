@@ -31,6 +31,7 @@ protected:
 	int m_lifeTime;
 	bool m_stickFlag;
 
+	int m_modelHandle;
 private:
 	//メンバ関数ポインタ
 	using MoveState_t = void(PlayerSphere::*)();

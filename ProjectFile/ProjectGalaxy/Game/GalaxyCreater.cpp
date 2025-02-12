@@ -328,7 +328,7 @@ std::vector<std::shared_ptr<Enemy>> GalaxyCreater::EnemyCreate(std::shared_ptr<P
 	return enemies;
 }
 
-void GalaxyCreater::LockedObjectCreate()
+std::vector<std::shared_ptr<MyEngine::Collidable>> GalaxyCreater::LockedObjectCreate()
 {
 	std::string fileName = "Data/Info/LockedObject.loc";
 	//開くファイルのハンドルを取得
@@ -410,6 +410,7 @@ void GalaxyCreater::LockedObjectCreate()
 	}
 
 	FileRead_close(handle);
+	return m_lockedObjects;
 }
 
 std::vector<std::shared_ptr<Enemy>> GalaxyCreater::KeyLockObjectCreate()

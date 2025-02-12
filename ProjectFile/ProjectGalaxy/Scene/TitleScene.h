@@ -36,6 +36,8 @@ private:
     bool m_isGamePlaying = false;
 
     int m_titleHandle = 0;
+    int m_PushAToStartHandle;
+
     int m_titleBGMHandle;
     int m_gameStartSEHandle;
     int m_fadeSEHandle;

@@ -161,12 +161,12 @@ namespace TimeTool
 
 void Application::Run()
 {
-    //printfがcmdに表示される
-    AllocConsole();                                      // コンソール
-    FILE* out = 0; freopen_s(&out, "CON", "w", stdout); // stdout
-    FILE* in = 0; freopen_s(&in, "CON", "r", stdin);   // stdin
-    // デバッグコンソールがアクティブウィンドウになるのでゲーム本体のウィンドウをアクティブにする
-    SetForegroundWindow(GetMainWindowHandle());
+    ////printfがcmdに表示される
+    //AllocConsole();                                      // コンソール
+    //FILE* out = 0; freopen_s(&out, "CON", "w", stdout); // stdout
+    //FILE* in = 0; freopen_s(&in, "CON", "r", stdin);   // stdin
+    //// デバッグコンソールがアクティブウィンドウになるのでゲーム本体のウィンドウをアクティブにする
+    //SetForegroundWindow(GetMainWindowHandle());
 
     {// スコープを強制的に作っている
 
@@ -242,7 +242,7 @@ void Application::Run()
         }
     }
     // コンソール解放
-    fclose(out); fclose(in); FreeConsole();
+  /*  fclose(out); fclose(in); FreeConsole();*/
     Terminate();
 
     _CrtDumpMemoryLeaks();

@@ -5,6 +5,9 @@
 #include "ClearScene.h"
 #include "TitleScene.h"
 #include"FontManager.h"
+#include"ModelManager.h"
+#include"SoundManager.h"
+#include"GraphManager.h"
 
 #include"Game.h"
 #include"Pad.h"
@@ -103,6 +106,8 @@ void ClearScene::FadeOutUpdate()
 	m_frame--;
 	if (m_frame == 0)
 	{
+		ModelManager::GetInstance().Clear();
+
 		m_manager.ResetScene(std::make_shared<TitleScene>(m_manager));
 	}
 }

@@ -12,6 +12,7 @@ Collidable::Collidable(Priority priority, ObjectTag tag) :
 	m_tag(tag),
 	m_isAntiGravity(false),
 	m_isDestroyFlag(false),
+	m_isIgnore(false),
 	m_upVec(Vec3::Up()),
 	m_postUpVec(Vec3::Up()),
 	m_nextUpVec(Vec3::Up()),

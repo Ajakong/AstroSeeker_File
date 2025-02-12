@@ -45,11 +45,12 @@ float GetVec2Angle(Vec3 a, Vec3 b)
 }
 
 Kuribo::Kuribo(Vec3 pos) :Enemy(Priority::Low, ObjectTag::Kuribo),
-m_attackDir(0,0,1),
+m_attackDir(0, 0, 1),
 m_chaseFrameCount(0),
 m_stanCount(0),
 m_speed(1)
 {
+	m_hp = 10;
 	m_comebackPoint = pos;
 	m_rigid->SetPos(pos);
 	{
@@ -103,6 +104,15 @@ void Kuribo::Update()
 	m_sideVec = Cross(m_upVec, m_frontVec);
 
 	//m_bodyCol->SetShiftPosNum(m_upVec * 5);
+
+	if (m_hp <= 0)
+	{
+		if (m_moveUpdate != &Kuribo::DeathUpdate)
+		{
+			ChangeAnim(AnimNum::AnimationNumRoar);
+			m_moveUpdate = &Kuribo::DeathUpdate;
+		}
+	}
 	
 }
 
@@ -196,6 +206,7 @@ void Kuribo::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag
 
 	if (colider->GetTag() == ObjectTag::PlayerBullet)
 	{
+		m_hp -= 5;
 		m_moveUpdate = &Kuribo::ChaseUpdate;
 	}
 }

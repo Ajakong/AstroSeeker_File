@@ -60,6 +60,8 @@ namespace
 	constexpr float kFrameParSecond = 60.0f;
 	constexpr float kDashMag = 1.5f;
 
+	constexpr int kVisibleCountMax = 100;
+
 
 	constexpr int kAvoidFrame = 60;
 
@@ -141,7 +143,9 @@ m_shotAnimCount(0),
 m_shotAnimFlag(false),
 m_titleUpdateNum(0),
 m_fragmentCount(0),
-m_coinCount(0)
+m_coinCount(0),
+m_pushCount(0),
+m_revivalCount(0)
 {
 	m_postUpVec = m_upVec;
 	m_rigid->SetPos(pos);
@@ -181,7 +185,7 @@ m_coinCount(0)
 	m_handFrameIndex = MV1SearchFrame(m_modelHandle, "mixamorig:LeftHand");
 
 	m_jumpActionUpdate = &Player::JumpingSpinUpdate;
-	m_dropAttackUpdate = &Player::FullPowerDropAttackUpdate;
+	m_dropAttackUpdate = &Player::NormalDropAttackUpdate;
 	m_spinAttackUpdate = &Player::SpiningUpdate;
 
 }
@@ -242,9 +246,15 @@ void Player::Update()
 
 	if (Pad::IsTrigger(PAD_INPUT_3))
 	{
-		m_shotAnimFlag = true;
-		if (!m_state == State::Boosting)m_rigid->SetVelocity(Vec3::Zero());
-		(this->*m_shotUpdate)();
+		if (m_coinCount > 0)
+		{
+			m_shotAnimFlag = true;
+			if (!m_state == State::Boosting)m_rigid->SetVelocity(Vec3::Zero());
+
+			(this->*m_shotUpdate)();
+			
+		}
+		
 	}
 	if (m_shotAnimFlag)
 	{
@@ -264,7 +274,7 @@ void Player::Update()
 	DeleteManage();
 	DeleteObject(m_impacts);
 
-	if (m_visibleCount > 200)
+	if (m_visibleCount > kVisibleCountMax)
 	{
 		m_isVisibleFlag = false;
 		m_visibleCount = 0;
@@ -295,7 +305,8 @@ void Player::Update()
 		m_isVisibleFlag = true;
 		if (m_playerUpdate != &Player::DeathUpdate)
 		{
-			ChangeAnim(AnimNum::AnimationNumDeath);
+			m_isAimFlag = false;
+			ChangeAnim(AnimNum::AnimationNumDeath,1+m_revivalCount);
 			m_playerUpdate = &Player::DeathUpdate;
 		}
 		
@@ -837,6 +848,15 @@ void Player::NeutralUpdate()
 
 	Vec3 move = Move();
 
+	if ((Pad::IsPress(PAD_INPUT_Z)) && Pad::IsTrigger(PAD_INPUT_1))
+	{
+		m_postState = m_state;
+		m_cameraEasingSpeed = 15.f;
+		ChangeAnim(AnimNum::AnimationNumJump);
+		m_isJumpFlag = true;
+		move += m_upVec.GetNormalized() * kJumpPower;
+		m_playerUpdate = &Player::DashJumpUpdate;
+	}
 	if (std::abs(move.Length()) >= 0.2f * kMaxSpeed)
 	{
 		m_postState = m_state;
@@ -1358,6 +1378,7 @@ void Player::ShotTheStar()
 {
 	PlaySoundMem(m_shotTheStarSEHandle, DX_PLAYTYPE_BACK);
 	Vec3 shotPos = MV1GetFramePosition(m_modelHandle, m_handFrameIndex);
+	m_coinCount--;
 	m_sphere.push_back(std::make_shared<PlayerSphere>(Priority::Low, ObjectTag::PlayerBullet, shared_from_this(), shotPos, m_shotDir, m_sideVec, 1, 0xff0000));
 	MyEngine::Physics::GetInstance().Entry(m_sphere.back());
 	m_sphere.back()->Init();
@@ -1369,6 +1390,7 @@ void Player::ShotTheStickStar()
 	{
 		PlaySoundMem(m_shotStickStarSEHandle, DX_PLAYTYPE_BACK);
 		Vec3 shotPos = MV1GetFramePosition(m_modelHandle, m_handFrameIndex);
+		m_coinCount--;
 		m_sphere.push_back(std::make_shared<PlayerStickSphere>(Priority::Low, ObjectTag::PlayerBullet, shared_from_this(), shotPos, m_shotDir, m_sideVec, 1, 0xff0000));
 		MyEngine::Physics::GetInstance().Entry(m_sphere.back());
 		m_sphere.back()->Init();
@@ -1424,17 +1446,29 @@ void Player::AvoidUpdate()
 
 void Player::DeathUpdate()
 {
+
 	m_stateName = "Death";
 	m_state = State::Death;
+	
 
 	float animTime = MV1GetAttachAnimTime(m_modelHandle, m_currentAnimNo);
 	float totalTime = MV1GetAttachAnimTotalTime(m_modelHandle, m_currentAnimNo);
-	
+	if (Pad::IsTrigger(PAD_INPUT_1))
+	{
+		MV1SetAttachAnimTime(m_modelHandle, m_currentAnimNo, animTime-5);
+		if (MV1GetAttachAnimTime(m_modelHandle, m_currentAnimNo)<=0)
+		{
+			m_revivalCount++;
+			m_hp = kPlayerHPMax / 2;
+			m_playerUpdate = &Player::NeutralUpdate;
+			ChangeAnim(AnimNum::AnimationNumIdle);
+		}
+	}
 	if (animTime >= totalTime-2)
 	{
+		
 		UI::GetInstance().InText("ドレイク？");
 		UI::GetInstance().InText("ドレイィィィィク！！！！！");
-
 		m_isDeathFlag = true;
 	}
 }

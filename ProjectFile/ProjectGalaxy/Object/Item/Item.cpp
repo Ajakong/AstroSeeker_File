@@ -33,10 +33,10 @@ void Item::Init()
 
 void Item::Update()
 {
-	//m_upVec = (m_rigid->GetPos() - m_nowPlanetPos).GetNormalized();
-	//m_rigid->SetPos(m_rigid->GetPos());
-	//m_upVec = m_upVec * sin(angle) ;
-	//m_rigid->SetVelocity(m_upVec*0.1f);
+	m_upVec = (m_rigid->GetPos() - m_nowPlanetPos).GetNormalized();
+	m_rigid->SetPos(m_rigid->GetPos());
+	m_upVec = m_upVec * sin(angle) ;
+	m_rigid->SetVelocity(m_upVec*0.1f);
 	
 }
 
@@ -73,6 +73,22 @@ void Item::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,C
 
 void Item::OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag)
 {
+	if (colider->GetTag() == ObjectTag::Stage)
+	{
+		m_nowPlanetPos = colider->GetRigidbody()->GetPos();
+	}
+	if (colider->GetTag() == ObjectTag::Player)
+	{
+		MyEngine::Physics::GetInstance().Exit(shared_from_this());
+	}
+}
+
+void Item::OnTriggerStay(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
+{
+	if (colider->GetTag() == ObjectTag::Stage)
+	{
+		m_nowPlanetPos = colider->GetRigidbody()->GetPos();
+	}
 	if (colider->GetTag() == ObjectTag::Player)
 	{
 		MyEngine::Physics::GetInstance().Exit(shared_from_this());

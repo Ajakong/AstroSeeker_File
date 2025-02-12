@@ -17,6 +17,8 @@ public:
 
 	void SetPlayer(std::shared_ptr<Player> pPlayer) {  m_player = pPlayer; };
 
+	void StartUpdate();
+
 	void MoveUpdate();
 	void MoveDraw();
 
@@ -35,6 +37,9 @@ public:
 	void EmptyUpdate();
 	void EmptyDraw();
 
+	void SkipUpdate();
+	void SkipDraw();
+
 	void MissionClear() { m_missionFlag = true; }
 	bool Clear() { return m_missionFlag; }
 
@@ -46,7 +51,7 @@ public:
 	std::shared_ptr<Player> m_player;
 
 	bool m_missionFlag;
-
+	
 	int m_moveFrame;
 
 };

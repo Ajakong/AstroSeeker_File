@@ -39,9 +39,7 @@ GamePlayingScene::GamePlayingScene(SceneManager& manager) :
 
 GamePlayingScene::~GamePlayingScene()
 {
-	//SoundManager::GetInstance().Clear();
-	//GraphManager::GetInstance().Clear();
-	//ModelManager::GetInstance().Clear();
+	
 }
 
 void GamePlayingScene::Load()
@@ -76,10 +74,14 @@ void GamePlayingScene::Draw()
 
 	if (m_isTitle)
 	{
-
+		MyEngine::Physics::GetInstance().Clear();
 		ChangeScene(std::make_shared<TitleScene>(m_manager));
 	}
 	else if (m_isContinue)ChangeScene(std::make_shared<GamePlayingScene>(m_manager));
+}
+
+void GamePlayingScene::End()
+{
 }
 
 void GamePlayingScene::FadeInUpdate()

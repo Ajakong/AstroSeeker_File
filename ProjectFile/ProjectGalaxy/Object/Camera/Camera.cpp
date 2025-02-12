@@ -141,7 +141,7 @@ void Camera::SetCameraPos(Vec3 LookPoint)
 
 void Camera::NeutralUpdate(Vec3 LookPoint)
 {
-	if (Pad::IsTrigger(PAD_INPUT_Y))//XBoxコントローラーのL
+	if (Pad::IsTrigger(PAD_INPUT_Y ) || m_isAim)//XBoxコントローラーのL
 	{
 		m_cameraUpdate = &Camera::AimingUpdate;
 	}
@@ -150,7 +150,7 @@ void Camera::NeutralUpdate(Vec3 LookPoint)
 
 void Camera::AimingUpdate(Vec3 LookPoint)
 {
-	if (Pad::IsTrigger(PAD_INPUT_Y))//XBoxコントローラーのL
+	if (Pad::IsTrigger(PAD_INPUT_Y)||!m_isAim)//XBoxコントローラーのL
 	{
 		m_cameraUpdate = &Camera::NeutralUpdate;
 	}

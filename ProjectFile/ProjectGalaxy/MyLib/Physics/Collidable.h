@@ -140,6 +140,7 @@ namespace MyEngine
 		bool IsAntiGravity() { return m_isAntiGravity; }
 		void SetIsActive(bool flag) { m_isActive = flag; }
 		bool GetIsActive() { return m_isActive; }
+		bool GetIsIgnore() { return m_isIgnore; };
 		void SetNextUpVec(Vec3 vel) { m_nextUpVec = vel; }
 		void AddNextUpVec(Vec3 vel) { m_nextUpVec += vel; }
 		void SetUpVec(Vec3 vel) { m_upVec = vel; }
@@ -185,6 +186,7 @@ namespace MyEngine
 
 
 		bool m_isDestroyFlag;
+		bool m_isIgnore;
 
 		int m_cbuffH;
 		UserData* m_userData;

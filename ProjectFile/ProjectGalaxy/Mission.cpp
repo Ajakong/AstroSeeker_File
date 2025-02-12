@@ -4,6 +4,8 @@
 #include<string>
 #include<list>
 
+#include"Pad.h"
+
 
 namespace
 {
@@ -14,7 +16,7 @@ Mission::Mission() :
 	m_missionFlag(false),
 	m_moveFrame(0)
 {
-	m_missionUpdate = &Mission::MoveUpdate;
+	m_missionUpdate = &Mission::StartUpdate;
 	m_missionDraw = &Mission::MoveDraw;
 }
 
@@ -31,11 +33,43 @@ Mission& Mission::GetInstance()
 void Mission::UpDate()
 {
 	(this->*m_missionUpdate)();
+	if (Pad::IsTrigger(PAD_INPUT_7))
+	{
+		if (m_missionUpdate != &Mission::SkipUpdate)
+		{
+			UI::GetInstance().ClearText();
+			UI::GetInstance().InText("貴様には必要ないか・・・");
+			m_missionUpdate = &Mission::SkipUpdate;
+			m_missionDraw = &Mission::SkipDraw;
+		}
+		else
+		{
+			m_missionUpdate = &Mission::MoveUpdate;
+			m_missionDraw = &Mission::MoveDraw;
+		}
+	}
 }
 
 void Mission::Draw()
 {
 	(this->*m_missionDraw)();
+}
+
+void Mission::StartUpdate()
+{
+	std::list<std::string> texts1;
+	texts1.push_back("そういえばドレイク、貴様は軍から抜けて長いだろう");
+	texts1.push_back("体がなまってるんじゃないか？");
+
+
+	UI::GetInstance().InTexts(texts1);
+
+	std::list<std::string> mission;
+	mission.push_back("鍛えなおしてやる");
+	mission.push_back("まずは左スティックを動かして歩いてみろ");
+	UI::GetInstance().InTexts(mission);
+	m_missionUpdate = &Mission::MoveUpdate;
+	m_missionDraw = &Mission::MoveDraw;
 }
 
 void Mission::MoveUpdate()
@@ -73,7 +107,7 @@ void Mission::JumpUpdate()
 		UI::GetInstance().InText("完璧だな。");
 		std::list<std::string> nextMission;
 		nextMission.push_back("お次はダッシュだ！");
-		nextMission.push_back("Rを押しながら移動することでダッシュできるぞ");
+		nextMission.push_back("RB(R1)を押しながら移動することでダッシュできるぞ");
 		nextMission.push_back("ダッシュができん奴から戦場で死んでいく。");
 		UI::GetInstance().InTexts(nextMission);
 		m_missionUpdate = &Mission::DashUpdate;
@@ -98,8 +132,8 @@ void Mission::DashUpdate()
 			UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
 			UI::GetInstance().InText("そうだ、危険が迫れば逃げることを忘れるな。");
 			std::list<std::string> nextMission;
-			nextMission.push_back("お次はダッシュジャンプだ！");
-			nextMission.push_back("ダッシュ中にジャンプをすれば高く飛べるぞ");
+			nextMission.push_back("お次は大ジャンプだ！");
+			nextMission.push_back("RB(R1)を押しながらジャンプをすれば高く飛べるぞ");
 			nextMission.push_back("都合上という魔法の力だ。さあやってみろ！");
 			UI::GetInstance().InTexts(nextMission);
 			m_moveFrame = 0;
@@ -142,17 +176,8 @@ void Mission::SpinUpdate()
 	{
 		UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
 		UI::GetInstance().InText("カンを取り戻してきたようだな。");
-		std::list<std::string> text;
-		text.push_back("そんなことはない？");
-		text.push_back("私にはわかるのだ。");
-		UI::GetInstance().InTexts(text);
-
+	
 		UI::GetInstance().InText("この宇宙に生きる命は君にかかっている");
-		std::list<std::string> text2;
-
-		text2.push_back("重大な任務を君だけに託すことになってしまい、");
-		text2.push_back("申し訳ない");
-		UI::GetInstance().InTexts(text2);
 
 		std::list<std::string> text3;
 
@@ -176,5 +201,14 @@ void Mission::EmptyUpdate()
 }
 
 void Mission::EmptyDraw()
+{
+}
+
+void Mission::SkipUpdate()
+{
+
+}
+
+void Mission::SkipDraw()
 {
 }

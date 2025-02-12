@@ -75,7 +75,7 @@ public:
 	void SeekerLineCreate();
 	void PlanetCreate();
 	void TalkObjectCreate();
-	void LockedObjectCreate();
+	std::vector<std::shared_ptr<MyEngine::Collidable>> LockedObjectCreate();
 
 
 	std::vector<std::shared_ptr<Enemy>> EnemyCreate(std::shared_ptr<Player>player);

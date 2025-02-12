@@ -6,6 +6,7 @@
 #include"ModelManager.h"
 #include"GameStopManager.h"
 #include"UI.h"
+#include"Mission.h"
 using namespace MyEngine;
 
 namespace
@@ -36,6 +37,7 @@ void GameManager::Init()
 void GameManager::Update()
 {
 	UI::GetInstance().Update();
+	Mission::GetInstance().UpDate();
 	m_updateStopFrame--;
 	if (m_updateStopFrame < 0&&UI::GetInstance().GetState()!=&UI::TextBoxUpdate)
 	{
@@ -65,9 +67,11 @@ void GameManager::Draw()
 {
 	m_galaxy.back()->Draw();
 	float hp = m_player->GetHp();
+	int coinNum = m_player->GetStarNum();
 	bool aim = m_player->GetIsAiming();
+	bool becameDeath = m_player->GetState() == MyEngine::Collidable::State::Death;
 
-	UI::GetInstance().Draw(hp, aim);
+	UI::GetInstance().Draw(hp, coinNum, aim,becameDeath);
 }
 
 void GameManager::IntroUpdate()
@@ -83,5 +87,9 @@ void GameManager::GamePlayingUpdate()
 }
 
 void GameManager::GamePlayingDraw()
+{
+}
+
+void GameManager::End()
 {
 }

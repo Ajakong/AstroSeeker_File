@@ -46,8 +46,9 @@ Boss::Boss(Vec3 pos, std::shared_ptr<Player>player):Enemy(Priority::Boss,ObjectT
 	m_tackleChargeFrame(0),
 	m_isHit(false),
 	m_isTalk(false),
+	m_isTackle(false),
 	m_onColStage(false),
-	m_isNoDamage(false),	
+	
 	m_knockBackFrame(0),
 	m_runningFrame(0),
 	m_damageSoundHandle(SoundManager::GetInstance().GetSoundData(kDamageSEName)),
@@ -81,6 +82,13 @@ void Boss::Update()
 	//上方向ベクトルをいい感じに線形保管
 	//m_upVec = Slerp(m_upVec, m_nextUpVec, 1.f);
 	(this->*m_bossUpdate)();
+	if (m_phaseUpdate == &Boss::PhaseOneUpdate)
+	{
+		if (m_hp <= kOnPhaseTwoHp)
+		{
+			m_hp = kOnPhaseTwoHp;
+		}
+	}
 	if (m_isHit)
 	{
 		m_knockBackFrame++;
@@ -310,6 +318,7 @@ void Boss::RestUpdate()
 
 void Boss::NeutralUpdate()
 {
+	m_state = State::Neutral;
 	(this->*m_phaseUpdate)();
 }
 
@@ -350,7 +359,7 @@ void Boss::JumpingUpdate()
 				m_bossUpdate = &Boss::NeutralUpdate;
 				break;
 			case(1):
-				m_rigid->AddVelocity(m_upVec * 4);
+				m_rigid->AddVelocity(m_upVec * 3);
 				m_bossUpdate = &Boss::FullpowerJumpUpdate;
 				break;
 			}
@@ -388,6 +397,7 @@ void Boss::FullpowerJumpUpdate()
 
 void Boss::TackleUpdate()
 {
+	
 	m_color = 0xffff00;
 	m_state = State::Tackle;
 
@@ -398,7 +408,15 @@ void Boss::TackleUpdate()
 	m_rigid->SetVelocity(m_upVec * 0.5f);
 	if (m_tackleChargeFrame > kTackleMaxChargeFrame)
 	{
-		
+		if (!m_isTackle)
+		{
+			m_isTackle = true;
+			UI::GetInstance().SetNextTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
+			std::list<std::string> text2;
+			text2.push_back("ヤツは何かしてくる気のようだ。");
+			text2.push_back("危ないと思ったらスピンで身を守れ！");
+			UI::GetInstance().InNextTexts(text2);
+		}
 		m_rigid->SetVelocity(targetDir * kTackleSpeed);
 		if (m_tackleChargeFrame - kTackleMaxChargeFrame > kTackleTime)
 		{
@@ -569,25 +587,52 @@ void Boss::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag,
 			m_actionFrame = -m_hp-200;
 			m_bossUpdate = &Boss::LandingUpdate;
 		}
-		else if (state == State::Land && colider->GetState() == State::Spin)
+		if (state == State::Land && colider->GetState() == State::Spin)
 		{
-			m_rigid->SetVelocity(m_upVec * 3);
+			m_rigid->SetVelocity(m_upVec * 2);
 			m_hp -= 20;
 			m_color = 0xff00ff;
 			m_bossUpdate = &Boss::NeutralUpdate;
 			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
 		}
-		else if (!m_isNoDamage)
-		{
-			m_isNoDamage = true;
-			UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
-			UI::GetInstance().InText("全然効かねぇぜ");
-			UI::GetInstance().SetNextTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
-			UI::GetInstance().InNextText("ただ攻撃するだけではダメージを与えられないようだ");
+	}
+}
 
-			std::list<std::string> text1;
-			text1.push_back("今は衝撃波をジャンプでよけて耐えしのげ！");
-			UI::GetInstance().InNextTexts(text1);
+void Boss::OnCollideStay(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
+{
+	if (colider->GetTag() == ObjectTag::Stage)
+	{
+		m_onColStage = true;
+	}
+	if (m_bossUpdate == &Boss::LandingUpdate)
+	{
+		if (colider->GetTag() == ObjectTag::PlayerBullet)
+		{
+			m_isHit = true;
+			PlaySoundMem(m_damageSoundHandle, DX_PLAYTYPE_BACK);
+			m_hp -= 1;
+		}
+	}
+	if (colider->GetTag() == ObjectTag::Player)
+	{
+		auto state = GetState();
+		if ((state == State::Running || state == State::Tackle) && colider->GetState() == State::Spin)
+		{
+			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
+			Vec3 dir = colider->GetRigidbody()->GetPos();
+			dir.Normalize();
+			m_rigid->SetVelocity((dir + m_upVec) * 2);
+			//HPが少ないほど隙がなくなる
+			m_actionFrame = -m_hp - 200;
+			m_bossUpdate = &Boss::LandingUpdate;
+		}
+		if (state == State::Land && colider->GetState() == State::Spin)
+		{
+			m_rigid->SetVelocity(m_upVec * 2);
+			m_hp -= 20;
+			m_color = 0xff00ff;
+			m_bossUpdate = &Boss::NeutralUpdate;
+			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
 		}
 	}
 }
@@ -602,7 +647,7 @@ void Boss::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag,
 	{
 		if (colider->GetTag() == ObjectTag::PlayerImpact)
 		{
-			m_rigid->SetVelocity(m_upVec * 3);
+			m_rigid->SetVelocity(m_upVec * 2);
 			m_hp -= 20;
 			m_color = 0xff00ff;
 			m_bossUpdate = &Boss::NeutralUpdate;

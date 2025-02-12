@@ -1,10 +1,10 @@
-#pragma once
+ï»¿#pragma once
 #include "Scene.h"
 class PauseScene : public Scene
 {
 public:
 	PauseScene(SceneManager& mgr);
-
+	virtual ~PauseScene();
 	virtual void Load();
 	void Update();
 	void Draw();
@@ -21,20 +21,20 @@ private:
 	int m_tutoHandle = 0;
 
 	bool m_tutoFlag = false;
-	// XVƒƒ“ƒoŠÖ”ƒ|ƒCƒ“ƒ^
+	// æ›´æ–°ãƒ¡ãƒ³ãƒé–¢æ•°ãƒã‚¤ãƒ³ã‚¿
 	using UpdateFunc_t = void(PauseScene::*)();
 	UpdateFunc_t  m_updateFunc;
-	// •`‰æƒƒ“ƒoŠÖ”ƒ|ƒCƒ“ƒ^
+	// æç”»ãƒ¡ãƒ³ãƒé–¢æ•°ãƒã‚¤ãƒ³ã‚¿
 	using DrawFunc_t = void (PauseScene::*)();
 	DrawFunc_t m_drawFunc;
 
-	// XVŠÖ”
-	void AppearUpdate();	// “oêó‘Ô
-	void NormalUpdate();		// ’Êíó‘Ô
-	void DisappearUpdate();	// ‘Şêó‘Ô
+	// æ›´æ–°é–¢æ•°
+	void AppearUpdate();	// ç™»å ´çŠ¶æ…‹
+	void NormalUpdate();		// é€šå¸¸çŠ¶æ…‹
+	void DisappearUpdate();	// é€€å ´çŠ¶æ…‹
 
-	// •`‰æŠÖ”
-	void ExpandDraw();	// Šg’£k’£•`‰æ
-	void NormalDraw();	// ”ñƒtƒF[ƒh•`‰æ
+	// æç”»é–¢æ•°
+	void ExpandDraw();	// æ‹¡å¼µç¸®å¼µæç”»
+	void NormalDraw();	// éãƒ•ã‚§ãƒ¼ãƒ‰æç”»
 };
 

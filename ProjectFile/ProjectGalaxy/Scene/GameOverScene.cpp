@@ -6,7 +6,6 @@
 #include"DxLib.h"
 #include"UI.h"
 #include"SoundManager.h"
-#include"Game.h"
 
 namespace
 {
@@ -45,7 +44,7 @@ void GameOverScene::Draw()
 {
 	(this->*m_drawFunc)();
 
-	if (Pad::IsTrigger(PAD_INPUT_1)&&Pad::GetState()=="PlayerInput")
+	if (UI::GetInstance().TextRemaining() == 0)
 	{
 		
 		ChangeScene(std::make_shared<GamePlayingScene>(m_manager));
@@ -60,6 +59,7 @@ void GameOverScene::FadeInUpdate()
 
 	if (m_frame <= 0)
 	{
+		
 
 		m_updateFunc = &GameOverScene::NormalUpdate;
 		m_drawFunc = &GameOverScene::NormalDraw;
@@ -68,7 +68,6 @@ void GameOverScene::FadeInUpdate()
 
 void GameOverScene::NormalUpdate()
 {
-	
 
 }
 
@@ -85,15 +84,15 @@ void GameOverScene::ChangeScene(std::shared_ptr<Scene> nextScene)
 
 void GameOverScene::FadeDraw()
 {
-	DrawFormatString(Game::kScreenWidth/2-100, Game::kScreenHeight, 0xffdddd, "Aでもう一度プレイする");
+	DrawFormatString(0, 0, 0xffdddd, "GameOver");
 }
 
 void GameOverScene::FadeOutDraw()
 {
-	DrawFormatString(Game::kScreenWidth / 2 - 100, Game::kScreenHeight, 0xffdddd, "Aでもう一度プレイする");
+	DrawFormatString(0, 0, 0xffdddd, "GameOver");
 }
 
 void GameOverScene::NormalDraw()
 {
-	DrawFormatString(Game::kScreenWidth / 2 - 100, Game::kScreenHeight, 0xffdddd, "Aでもう一度プレイする");
+	DrawFormatString(0, 0, 0xffdddd, "GameOver");
 }

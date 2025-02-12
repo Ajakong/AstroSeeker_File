@@ -18,6 +18,12 @@ public:
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
 private:
+	//アニメーションの進行
+	//ループしたかどうかを返す
+	bool UpdateAnim(int attachNo);
+	//アニメーションの変更
+	void ChangeAnim(int animIndex);
+
 	Vec3 m_dir;
 	Vec3 m_warpPos;
 	bool m_isActive;
@@ -27,5 +33,14 @@ private:
 	int m_colorScreenHandle;
 	int m_highBrightScreenHandle;
 	int m_screenHandle;
+	int m_modelHandle;
+
+	//アニメーション変数
+
+	//0.0f:prevが再生
+	//1.0:currentが再生
+	int m_currentAnimNo;//現在のアニメーション
+	int m_prevAnimNo;//変更前のアニメーション
+	float m_animBlendRate;//アニメーションの合成割合
 };
 

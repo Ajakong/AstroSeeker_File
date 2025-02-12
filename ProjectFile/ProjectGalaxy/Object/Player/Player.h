@@ -80,6 +80,7 @@ public:
 	float GetRegenerationRange() const{ return m_regeneRange; }
 	float GetCameraEasingSpeed()const { return m_cameraEasingSpeed; }
 	float GetHp() { return m_hp; }
+
 	
 	bool GetOperationFlag()const { return m_playerUpdate==&Player::OperationUpdate; }
 	bool GetBoostFlag() const{ return m_playerUpdate==&Player::BoostUpdate; }
@@ -92,7 +93,9 @@ public:
 	bool GetSpinFlag() const { return m_isSpinFlag; }
 	bool GetDeathFlag() const { return m_isDeathFlag; }
 	
+
 	int WatchHp()const { return static_cast<int>(m_hp); }
+	int GetStarNum()const { return m_coinCount; }
 	int GetPlayerModelhandle() const { return m_modelHandle; }
 	int GetTitleMoveNum() { return m_titleUpdateNum; }
 	int GetDamageFrame() const { return m_damageFrame; }
@@ -319,6 +322,8 @@ protected:
 
 	int m_color;
 	int m_spinCount;
+	int m_pushCount;
+	int m_revivalCount;
 
 	bool m_shotAnimFlag;
 	/// <summary>

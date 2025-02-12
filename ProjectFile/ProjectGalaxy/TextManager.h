@@ -67,6 +67,7 @@ public:
 	/// </summary>
 	void DeleteText();
 
+	void ClearText() { m_texts.clear(); m_nextTexts.clear(); }
 	/// <summary>
 	/// 入ってるテキストデータの残量
 	/// </summary>

@@ -236,29 +236,6 @@ void MyEngine::Physics::Initialize(std::shared_ptr<Collidable> collidable)
 					collidable->gravityEffectCount++;
 					continue;
 				}
-				else
-				{
-					////摩擦力は触れている面積が多いほど強くなるため、そのオブジェクトの当たり判定が多く当たっているほどさらに上乗せする
-					//colB->col->SetOnHitResult(true);
-					//printf("Planetの地面と");
-					//if (object->GetTag() == ObjectTag::Player)
-					//{
-					//	printf("Player");
-					//	if (colB->tag == ColideTag::Foot)
-					//	{
-					//		printf("の足");
-					//	}
-					//}
-					//else
-					//{
-					//	printf("なにか");
-					//}
-					//printf("が当たりました\n");
-					//auto planet = dynamic_cast<Planet*>(stage.get());
-					//object->m_rigid->SetVelocity(planet->FrictionEffect(object));
-
-					//continue;
-				}
 			}
 
 		}
@@ -323,7 +300,7 @@ void MyEngine::Physics::Gravity()
 						//惑星からオブジェクトまでの法線
 						Vec3 norm = (end - start).GetNormalized();
 
-						MATRIX scaleMat = MGetScale(VGet(0.1f, 0.0f, 0.1f)); // Y軸方向に0.1倍のスケーリング
+						MATRIX scaleMat = MGetScale(VGet(0.05f, 0.0f, 0.05f)); // Y軸方向に0.1倍のスケーリング
 
 						// 回転行列の作成（モデルの上方向ベクトルを法線ベクトルに合わせる）
 						MATRIX rotMat = MGetRotVec2(Vec3::Up().VGet(), norm.VGet());

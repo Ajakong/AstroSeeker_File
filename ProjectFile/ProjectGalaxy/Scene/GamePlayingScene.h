@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Scene.h"
 #include <string>
 #include <vector>
@@ -16,6 +16,7 @@ public:
 
     virtual void Update();
     virtual void Draw();
+    void End();
 
     void getSlectNumber(int a) { m_selectNum = a; }
 
@@ -36,20 +37,20 @@ private:
 
     std::shared_ptr<GameManager> m_gameManager;
 
-    // ƒƒ“ƒoŠÖ”ƒ|ƒCƒ“ƒ^‚ÌéŒ¾
+    // ãƒ¡ãƒ³ãƒé–¢æ•°ãƒã‚¤ãƒ³ã‚¿ã®å®£è¨€
     using UpdateFunc_t = void (GamePlayingScene::*)();
     using DrawFunc_t = void (GamePlayingScene::*)();
     UpdateFunc_t m_updateFunc = nullptr;
     DrawFunc_t m_drawFunc = nullptr;
 
-    // XVŠÖ”
+    // æ›´æ–°é–¢æ•°
     void FadeInUpdate();
     void NormalUpdate();
     void FadeOutUpdate();
 
     void ChangeScene(std::shared_ptr<Scene> nextScene);
     void PushScene(std::shared_ptr<Scene> nextScene);
-    // •`‰æŠÖ”
+    // æç”»é–¢æ•°
     void FadeDraw();
     void NormalDraw();
 

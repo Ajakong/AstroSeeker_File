@@ -23,6 +23,7 @@ public:
 	Vec3 GetUpVec() { return m_upVec; }
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
+	virtual void OnTriggerStay(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
 protected:
 
 	std::shared_ptr<ColliderSphere> m_col;

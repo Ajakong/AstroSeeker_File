@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include"Galaxy.h"
-
+#include"Collidable.h"
 class Camera;
 class UI;
 class GalaxyCreater;
@@ -117,6 +117,7 @@ private:
 	std::vector<std::shared_ptr<SpaceEmperor>> m_spaceEmperor;
 	std::vector<std::shared_ptr<Boss>>m_boss;*/
 
+	std::vector<std::shared_ptr<MyEngine::Collidable>> m_lockedObject;
 	std::vector<std::shared_ptr<TalkObject>> m_talkObjects;
 
 	Vec3 m_cameraUpVec;
@@ -129,5 +130,6 @@ private:
 	int m_warpEffectHandle;
 	int m_bgmHandle;
 	int m_bossBattleBgmHandle;
+	int m_titleBGMHandle;
 };
 

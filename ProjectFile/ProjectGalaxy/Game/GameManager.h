@@ -36,6 +36,8 @@ private:
 	void GamePlayingUpdate();
 	void GamePlayingDraw();
 
+
+	void End();
 private:
 
 	std::vector<std::shared_ptr<World::Galaxy>> m_galaxy;

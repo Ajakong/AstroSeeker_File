@@ -26,6 +26,7 @@ namespace
     constexpr int kLightningFrameMax = 200;
 
     const char* kTitleGraphName = "galaxy_titleLogo_pro.png";
+    const char* kPushAToStartGraphName = "PushAToStart.png";
     const char* kFrameName = "Frame.png";
     const char* kTitleBGMName = "AstroSeeker_Theme.mp3";
     const char* kTitleFadeSEName = "TitleSE_Fade.mp3";
@@ -70,6 +71,7 @@ TitleScene::TitleScene(SceneManager& manager) :
     m_btnFrame(0),
     m_fadeSpeed(1),
     m_titleHandle(GraphManager::GetInstance().GetGraphData(kTitleGraphName)),
+    m_PushAToStartHandle(GraphManager::GetInstance().GetGraphData(kPushAToStartGraphName)),
     player(std::make_shared<TitlePlayer>()),
     planet(std::make_shared<SpherePlanet>(Vec3(0, -50, 0), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kPlanetModelName), 1.0f, 1)),
     nextPlanet(std::make_shared<SpherePlanet>(Vec3(-300, -50, 200), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kNextPlanetModelName), 1.0f, 1)),
@@ -314,7 +316,7 @@ void TitleScene::LoadingUpdate()
 void TitleScene::ChangeScene(std::shared_ptr<Scene> next)
 {
     //StopSoundMem(m_titleBGMHandle);
-    SetCameraPositionAndTarget_UpVecY(VGet(0, 0, 0), VGet(0, 0, 1));
+    //SetCameraPositionAndTarget_UpVecY(VGet(0, 0, 0), VGet(0, 0, 1));
     m_manager.ChangeScene(next);
 }
 
@@ -329,7 +331,9 @@ void TitleScene::FadeDraw()
         int btnalpha = static_cast<int>(255 * (static_cast<float>(m_btnFrame) / kFadeFrameMax));
         SetDrawBlendMode(DX_BLENDMODE_ADD, btnalpha);
 
-        DrawFormatString(kTitleTextX, kTitleTextY, 0xffffff, "Push A to Start");
+        DrawExtendGraph(1100, 790, 1850, 1000, m_PushAToStartHandle, true);
+        
+        //DrawFormatString(kTitleTextX, kTitleTextY, 0xffffff, "Push A to Start");
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
         SetDrawBlendMode(DX_BLENDMODE_MULA, alpha);
         DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, 0x000000, true);
@@ -345,11 +349,13 @@ void TitleScene::FadeDraw()
 
     if (m_isGamePlaying)
     {
+		
         ModelManager::GetInstance().Clear();
         UI::GetInstance().Init();
         Pad::Init();
         ChangeScene(std::make_shared<GamePlayingScene>(m_manager));
     }
+    
     DrawLine(m_frame * kLineX, 0, m_frame * kLineX, Game::kScreenHeight, kLineColor);
 }
 
@@ -366,7 +372,8 @@ void TitleScene::NormalDraw()
             int btnalpha = static_cast<int>(255 * (static_cast<float>(m_btnFrame) / kFadeFrameMax));
             SetDrawBlendMode(DX_BLENDMODE_ADD, btnalpha);
 
-            DrawFormatString(kTitleTextX, kTitleTextY, 0xffffff, "Push A to Start");
+            DrawExtendGraph(1100, 790, 1850, 1000, m_PushAToStartHandle, true);
+            //DrawFormatString(kTitleTextX, kTitleTextY, 0xffffff, "Push A to Start");
 
             SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
         }
@@ -374,7 +381,7 @@ void TitleScene::NormalDraw()
         DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, 0x000000, true);
         DrawBox(0, 0, m_frame * kLineX, Game::kScreenWidth, kFadeBoxColor, true);
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-
+       
     }
    
     DrawLine(m_frame * kLineX, 0, m_frame * kLineX, Game::kScreenHeight, kLineColor);
@@ -383,4 +390,5 @@ void TitleScene::NormalDraw()
         UI::GetInstance().Draw();
 
     }
+
 }

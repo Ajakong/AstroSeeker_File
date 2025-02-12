@@ -91,6 +91,7 @@ private:
 
 	// 衝突したとき
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
+	virtual void OnCollideStay(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
 
 	template <typename T>
@@ -139,7 +140,7 @@ private:
 	bool m_onColStage;
 	bool m_isWakeUp;
 	bool m_isTalk;
-	bool m_isNoDamage;
+	bool m_isTackle;
 
 	std::shared_ptr<Player> m_player;
 	std::shared_ptr<Planet> m_nowPlanet;
