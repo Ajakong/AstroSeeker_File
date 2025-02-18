@@ -51,7 +51,12 @@ Boss::Boss(Vec3 pos, std::shared_ptr<Player>player):Enemy(Priority::Boss,ObjectT
 	m_isTalk(false),
 	m_isTackle(false),
 	m_onColStage(false),
-	
+	m_isBattle(false),
+	m_isWakeUp(false),
+	m_currentAnimNo(0),
+	m_prevAnimNo(0),
+	m_animBlendRate(0),
+	m_animationSpeed(0),
 	m_knockBackFrame(0),
 	m_runningFrame(0),
 	m_damageSoundHandle(SoundManager::GetInstance().GetSoundData(kDamageSEName)),

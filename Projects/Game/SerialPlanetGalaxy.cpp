@@ -128,9 +128,11 @@ m_warpEffectHandle(-1)
 	GalaxyCreater::GetInstance().ObjectCreate(player);
 	//その他オブジェクトの配置
 	m_lockedObject=GalaxyCreater::GetInstance().LockedObjectCreate();
+	//オブジェクトを出現させる条件となるオブジェクトの配置
 	m_keyLockEnemies=GalaxyCreater::GetInstance().KeyLockObjectCreate();
 	GalaxyCreater::GetInstance().TalkObjectCreate();
-	m_titleBGMHandle = SoundManager::GetInstance().GetSoundData(kTitleBGMName);
+
+	//流れているBGMの変更
 	SoundManager::GetInstance().ChangeBGM(m_bgmHandle);
 
 	for (auto& enemy : m_enemies)
@@ -140,22 +142,6 @@ m_warpEffectHandle(-1)
 			m_boss = std::dynamic_pointer_cast<Boss>(enemy);
 		}
 	}
-	//PlaySoundMem(m_bgmHandle,DX_PLAYTYPE_LOOP);
-
-#ifdef _DEBUG
-
-	//オブジェクトやギミックの配置(のちのちUnityのデータを読み込んで配置するので今は仮配置)
-
-	////ギミック
-	////ブースター
-
-	//m_warpGate.push_back(make_shared<WarpGate>(Vec3(0, -50, -70), Vec3(-200, -300, 0), -1));
-	//MyEngine::Physics::GetInstance().Entry(m_warpGate.back());
-	//スターキャプチャー
-	//m_starCapture.push_back(make_shared<StarCapture>(Vec3(0, 50, 40)));
-	//MyEngine::Physics::GetInstance().Entry(m_starCapture.back());
-
-#endif
 
 	m_skyDomeH = ModelManager::GetInstance().GetModelData("Skybox");
 
@@ -203,8 +189,6 @@ SerialPlanetGalaxy::~SerialPlanetGalaxy()
 
 void SerialPlanetGalaxy::Init()
 {
-	//ChangeVolumeSoundMem(255, m_bgmHandle);
-	//PlaySoundMem(m_bgmHandle, DX_PLAYTYPE_LOOP);
 	SetGlobalAmbientLight(GetColorF(1.0f, 1.0f, 1.0f, 1.0f));
 
 	player->SetMatrix();//モデルに行列を反映
@@ -212,19 +196,6 @@ void SerialPlanetGalaxy::Init()
 	// 深度値記録バッファ用RT
 	DxLib::SetCreateGraphChannelBitDepth(32);
 	DxLib::SetCreateDrawValidGraphChannelNum(1);
-	//for (auto& item : m_planet)
-	//{
-	//	item->Init();
-	//}
-	//
-	//for (auto& item : m_booster)item->Init();
-	//
-	//for (auto& item : m_warpGate)item->Init();
-	//for (auto& item : m_seekerLine) { item->Init(); }
-	//for (auto& item : m_crystal) { item->Init(); }
-	////エネミー
-	//for (auto& item : m_kuribo) { item->Init(); }
-	//for (auto& item : m_coin)item->Init();
 }
 
 void SerialPlanetGalaxy::Update()
@@ -252,14 +223,11 @@ void SerialPlanetGalaxy::GamePlayingUpdate()
 	MyEngine::Physics::GetInstance().Update();
 
 	//相対的な軸ベクトルの設定
-
-	//player->SetUpVec(planetToPlayer);
-
+	// 
 	//本当はカメラとプレイヤーの角度が90度以内になったときプレイヤーの頭上を見たりできるようにしたい。
 	m_camera->SetUpVec(player->GetUpVec());
-	//Vec3 planetToPlayer = player->GetPos() - player->GetNowPlanetPos();
 	Vec3 sideVec = player->GetSideVec();
-	Vec3 front = player->GetFrontVec();//-1をかけて逆ベクトルにしている
+	Vec3 front = player->GetFrontVec();
 	m_camera->Setting(player->GetBoostFlag(), player->GetIsAiming());
 
 	if (player->GetBoostFlag())
@@ -327,12 +295,6 @@ void SerialPlanetGalaxy::GamePlayingUpdate()
 	//敵の削除管理
 	DeleteObject(m_enemies);
 	DeleteObject(m_item);
-    /*for (auto& item : m_kuribo) { item->SetMatrix(); }
-	for (auto& item : m_takobo) { item->SetMatrix(); }
-	for (auto& item : m_spaceEmperor) { item->SetMatrix(); }
-	DeleteObject(m_kuribo);
-	DeleteObject(m_takobo);
-	DeleteObject(m_boss);*/
 
 }
 
@@ -353,14 +315,17 @@ void SerialPlanetGalaxy::GamePlayingDraw()
 		item->SetIsSearch(player->IsSearch());
 	}
 	
+	//Yボタンが入力されているとき
 	if (player->IsSearch())
 	{
+
 		DxLib::SetDrawBlendMode(DX_BLENDMODE_MUL, 255);
 		// ちょっと暗い矩形を描画
 		DxLib::DrawBox(0, 0, 1600, 900,
 			0x444488, true);
 		DxLib::SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 #ifdef _DEBUG
+		//デバッグ用描画
 		int alpha = static_cast<int>(255 * (static_cast<float>(player->GetDamageFrame()) / 60.0f));
 		Vec3 UIPos = ((Vec3(GetCameraPosition()) + Vec3(GetCameraFrontVector()) * 110) + Vec3(GetCameraLeftVector()) * -50 + Vec3(GetCameraUpVector()) * 37);
 		DrawLine3D(UIPos.VGet(), Vec3(UIPos + Vec3::Up() * 20).VGet(), 0xff0000);
@@ -408,23 +373,6 @@ void SerialPlanetGalaxy::GamePlayingDraw()
 
 #endif
 	}
-
-	
-	
-
-	//
-	//SetScreenFlipTargetWindow(NULL);
-
-	//m_camera->Set();
-	//ScreenFlip();
-
-	//// 少し時間の経過を待つ
-	//WaitTimer(2);
-
-	//ClearDrawScreen();
-	//
-	//DrawRotaGraph(800,450,1.0f,0, m_modelScreenHandle, true);
-	//
 }
 
 void SerialPlanetGalaxy::BossBattleDraw()
@@ -434,15 +382,10 @@ void SerialPlanetGalaxy::BossBattleDraw()
 template <typename T>
 void SerialPlanetGalaxy::DeleteObject(std::vector<std::shared_ptr<T>>& objects)
 {
-	//remove_ifは移動させた要素を未定義(empty)にするみたいです。
+	//remove_ifは移動させた要素は有効だが未規定な値になる
 	auto result = remove_if(objects.begin(), objects.end(), [this](const auto& object)
 		{
 			auto flag= object->IsDestroy();
-	/*if (flag)
-	{
-		auto collidable = std::static_pointer_cast<MyEngine::Collidable>(object);
-		MyEngine::Physics::GetInstance().Exit(collidable);
-	}*/
 	return  flag;// IsDestroy() が true の場合削除
 		});
 	objects.erase(result, objects.end());

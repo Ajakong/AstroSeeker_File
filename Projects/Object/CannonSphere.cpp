@@ -11,7 +11,8 @@ namespace
 }
 
 CannonSphere::CannonSphere(ObjectTag tag, Vec3 pos, Vec3 velocity,int color): SphereBase(Priority::Middle,tag,pos,velocity,color,0),
-m_surviveFrame(0)
+m_surviveFrame(0),
+m_radiusExpansionSpeed(1)
 {
 	m_color = color;
 	m_velocity = velocity;

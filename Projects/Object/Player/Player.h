@@ -131,13 +131,26 @@ public:
 	/// </summary>
 	playerState_t m_spinAttackUpdate;
 
+	/// <summary>
+	/// ジャンプさせる
+	/// </summary>
 	void CommandJump();
+	/// <summary>
+	/// 惑星移動中の処理
+	/// </summary>
 	void BoostUpdate();
+	/// <summary>
+	/// 操作される更新処理
+	/// </summary>
 	void OperationUpdate();
+	/// <summary>
+	/// StickStarで引数に向けて移動
+	/// </summary>
 	void MoveToTargetWithStickStar(Vec3 targetPos);
 
-	//TitlePlayerからポインタを通してアクセスするためPublic
+	//TitlePlayerからポインタを通してアクセスするためPublic(ポインタを通す場合継承していてもProtectedでは扱えない)
 	void ShotTheStar();
+
 	void ShotTheStickStar();
 
 protected:

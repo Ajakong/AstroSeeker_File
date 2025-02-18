@@ -13,6 +13,7 @@ class GameManager : public std::enable_shared_from_this<GameManager>
 public:
 	GameManager();
 	~GameManager();
+
 	void Init();
 	void Update();
 	void Draw();
@@ -22,22 +23,6 @@ public:
 
 	void SetUpdateStopFrame(int stopFrame) { m_updateStopFrame = stopFrame; }
 
-private:
-
-	using managerState_t = void(GameManager::*)();
-	managerState_t m_managerUpdate;
-
-	using managerState_t = void(GameManager::*)();
-	managerState_t m_managerDraw;
-
-	void IntroUpdate();
-	void IntroDraw();
-
-	void GamePlayingUpdate();
-	void GamePlayingDraw();
-
-
-	void End();
 private:
 
 	std::vector<std::shared_ptr<World::Galaxy>> m_galaxy;

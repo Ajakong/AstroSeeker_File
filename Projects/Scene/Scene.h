@@ -1,9 +1,9 @@
-#pragma once
+ï»¿#pragma once
 #include <memory>
 class SceneManager;
 /// <summary>
-/// ƒV[ƒ“Šî’êƒNƒ‰ƒX
-/// ‚¢‚ë‚ñ‚ÈƒV[ƒ“‚ÌŠî‚É‚È‚éƒNƒ‰ƒX
+/// ã‚·ãƒ¼ãƒ³åŸºåº•ã‚¯ãƒ©ã‚¹
+/// ã„ã‚ã‚“ãªã‚·ãƒ¼ãƒ³ã®åŸºã«ãªã‚‹ã‚¯ãƒ©ã‚¹
 /// </summary>
 class Scene
 {
@@ -11,21 +11,21 @@ protected:
 	SceneManager& m_manager;
 public:
 	/// <summary>
-	/// ¶¬‚ÉSceneManager‚ÌQÆ‚ğó‚¯æ‚Á‚Ä‚¨‚­
+	/// ç”Ÿæˆæ™‚ã«SceneManagerã®å‚ç…§ã‚’å—ã‘å–ã£ã¦ãŠã
 	/// </summary>
-	/// <param name="manager">SceneManager‚ÌQÆ</param>
+	/// <param name="manager">SceneManagerã®å‚ç…§</param>
 	Scene(SceneManager& manager);
 	virtual ~Scene() {};
 
 	virtual void Load() = 0;
 
 	/// <summary>
-	/// ƒV[ƒ“‚ÌXV
+	/// ã‚·ãƒ¼ãƒ³ã®æ›´æ–°
 	/// </summary>
-	/// <param name="input">“ü—ÍƒIƒuƒWƒFƒNƒg</param>
+	/// <param name="input">å…¥åŠ›ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ</param>
 	virtual void Update() = 0;
 	/// <summary>
-	/// ƒV[ƒ“‚Ì•`‰æ
+	/// ã‚·ãƒ¼ãƒ³ã®æç”»
 	/// </summary>
 	virtual void Draw() = 0;
 

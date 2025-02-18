@@ -32,9 +32,8 @@ GamePlayingScene::GamePlayingScene(SceneManager& manager) :
 {
 	m_updateFunc = &GamePlayingScene::FadeInUpdate;
 	m_drawFunc = &GamePlayingScene::FadeDraw;
+	//ゲームのマネージャーの初期化
 	m_gameManager->Init();
-
-	//SetUseASyncLoadFlag(true);
 }
 
 GamePlayingScene::~GamePlayingScene()
@@ -52,16 +51,22 @@ void GamePlayingScene::Update()
 
 	(this->*m_updateFunc)();
 
+	//もしゲームオーバーなら
 	if (m_isGameOver)
 	{
+		//ギャラクシークリエイターが生成したオブジェクト情報をクリア
 		GalaxyCreater::GetInstance().Clear();
+		//ゲームオーバーシーンに移行
 		auto gameover = std::make_shared<GameOverScene>(m_manager);
 		ChangeScene(gameover);
 	}
 	else if (m_isClear)
 	{
+		//ギャラクシークリエイターが生成したオブジェクト情報をクリア
 		GalaxyCreater::GetInstance().Clear();
+		//UI情報を初期化
 		UI::GetInstance().Init();
+		//クリアシーンに移行
 		ChangeScene(std::make_shared<ClearScene>(m_manager));
 	}
 	Pad::Update();
@@ -69,15 +74,7 @@ void GamePlayingScene::Update()
 
 void GamePlayingScene::Draw()
 {
-
 	(this->*m_drawFunc)();
-
-	if (m_isTitle)
-	{
-		MyEngine::Physics::GetInstance().Clear();
-		ChangeScene(std::make_shared<TitleScene>(m_manager));
-	}
-	else if (m_isContinue)ChangeScene(std::make_shared<GamePlayingScene>(m_manager));
 }
 
 void GamePlayingScene::End()
@@ -104,6 +101,7 @@ void GamePlayingScene::NormalUpdate()
 
 	m_isGameOver = m_gameManager->GetGameOver();
 	m_isClear = m_gameManager->GetClear();
+
 	if (Pad::IsPress(PAD_INPUT_R))//XBOXコントローラーのSTART
 	{
 		m_manager.PushScene(std::make_shared<PauseScene>(m_manager));

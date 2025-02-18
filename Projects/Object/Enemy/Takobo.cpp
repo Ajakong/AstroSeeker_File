@@ -41,10 +41,12 @@ namespace
 	/// 攻撃クールタイム中の最低移動速度
 	/// </summary>
 	constexpr int kIdleSpeed = 20;
+
 	/// <summary>
-/// 球の生成間隔
-/// </summary>
+	/// 球の生成間隔
+	/// </summary>
 	constexpr int kSphereCreateFrame = 50;
+
 	/// <summary>
 	/// 再攻撃までのクールタイム
 	/// </summary>
@@ -375,8 +377,7 @@ void Takobo::AttackSphereUpdate()
 			dir.Normalize();
 			m_killer.push_back(std::make_shared<Killer>(Priority::Low, ObjectTag::EnemyAttack, shared_from_this(), m_target, headPos, dir, 1, 0xff0000));
 			MyEngine::Physics::GetInstance().Entry(m_killer.back());
-		/*m_sphere.push_back(std::make_shared<EnemySphere>(Priority::Low, ObjectTag::EnemyAttack, shared_from_this(), headPos, (m_attackDir*(toVec.Length()/ kTimeToStrike) + m_shotUpVec * 3), m_target->GetRigidbody()->GetPos(), 1, 0xff0000, kTimeToStrike));
-			MyEngine::Physics::GetInstance().Entry(m_sphere.back());*/
+		
 			m_sphereNum++;
 			m_createFrameCount = 1;
 		}

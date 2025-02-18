@@ -367,6 +367,7 @@ void Player::SetMatrix()
 	//MV1SetRotationMatrix(m_modelHandle, rotatemat);//回転行列を反映
 	MV1SetPosition(m_modelHandle, m_rigid->GetPos().VGet());
 
+	//回転は難しいのでモデルの向き(Y,Z)を無理やり設定
 	MV1SetRotationZYAxis(m_modelHandle, (m_moveDir * -1).VGet(), m_upVec.GetNormalized().VGet(), 0);
 
 	//当たり判定の更新

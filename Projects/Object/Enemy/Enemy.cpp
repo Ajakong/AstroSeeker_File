@@ -26,7 +26,9 @@ float lerp(float start, float end, float t)
 }
 
 
-Enemy::Enemy(Priority priority, ObjectTag tag):Collidable(priority,tag)
+Enemy::Enemy(Priority priority, ObjectTag tag):Collidable(priority,tag),
+m_hp(0),
+m_modelHandle(-1)
 {
 }
 

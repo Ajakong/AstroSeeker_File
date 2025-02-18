@@ -611,9 +611,6 @@
     <ClInclude Include="Object\Gimmick\Crystal.h">
       <Filter>ヘッダー ファイル\Object\Gimmick</Filter>
     </ClInclude>
-    <ClInclude Include="MyLib\Physics\CollisionUtil.h">
-      <Filter>ソース ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="Game\DebugGalaxy.h">
       <Filter>ヘッダー ファイル\Galaxy\h</Filter>
     </ClInclude>
@@ -733,6 +730,9 @@
     </ClInclude>
     <ClInclude Include="Object\Item\FragmentOfStar.h">
       <Filter>ヘッダー ファイル\Object\Item</Filter>
+    </ClInclude>
+    <ClInclude Include="MyLib\Physics\CollisionUtil.h">
+      <Filter>ヘッダー ファイル\MyLib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

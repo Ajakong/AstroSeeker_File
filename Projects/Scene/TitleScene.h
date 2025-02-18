@@ -73,16 +73,31 @@ private:
 
     // 更新関数
     void FadeInUpdate();
+    /// <summary>
+	/// 何も入力していないときの更新
+    /// </summary>
     void NormalUpdate();
+    /// <summary>
+    /// 入力された際にカメラがプレイヤーに近づく演出の更新
+    /// </summary>
     void WatchPlayerUpdate();
+    /// <summary>
+    /// シーンのフェードアウト
+    /// </summary>
     void FadeOutUpdate();
     void DirectionUpdate();
+    /// <summary>
+    /// 非同期ロードを実行して、完了次第フェードアウトに遷移したい
+    /// </summary>
     void LoadingUpdate();
 
     void ChangeScene(std::shared_ptr<Scene> next);
 
     // 描画関数
     void FadeDraw();
+    /// <summary>
+	/// フェード以外で呼ばれる描画関数
+    /// </summary>
     void NormalDraw();
 
 };

@@ -34,7 +34,7 @@ namespace
 
 float GetVec2Angle(Vec3 a, Vec3 b)
 {
-	float cos = Dot(a.GetNormalized(), b.GetNormalized());//ない席は180度まで
+	float cos = Dot(a.GetNormalized(), b.GetNormalized());//内積は180度まで
 	float rad = acos(cos);
 
 #ifdef DEBUG

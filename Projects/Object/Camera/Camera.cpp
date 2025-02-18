@@ -29,7 +29,9 @@ Camera::Camera(Vec3 pos):
 	m_isBoost(false),
 	m_isAim(false),
 	m_upVec(Vec3(0,1,0)),
-	m_easingSpeed(-1)
+	m_easingSpeed(-1),
+	m_cameraAngle(0),
+	m_postEasingSpeed(0)
 {
 	
 	m_cameraUpdate = &Camera::NeutralUpdate;

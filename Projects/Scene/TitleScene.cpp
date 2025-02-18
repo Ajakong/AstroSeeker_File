@@ -22,6 +22,7 @@ namespace
     constexpr int kFadeFrameMax = 60;
     constexpr int kStandByFrame = 120;
 
+    constexpr int kCameraMoveFrameMax = 70;
 
     constexpr int kLightningFrameMax = 200;
 
@@ -67,6 +68,10 @@ namespace
 
 }
 
+/// <summary>
+/// 後々はタイトルでもオブジェクトの位置をUnityで設定して、それを読み込むようにする
+/// </summary>
+/// <param name="manager"></param>
 TitleScene::TitleScene(SceneManager& manager) :
     Scene(manager),
     m_titleBGMHandle(SoundManager::GetInstance().GetSoundData(kTitleBGMName)),
@@ -89,9 +94,6 @@ TitleScene::TitleScene(SceneManager& manager) :
 {
     camera->Update(VGet(0, 0, 150));
     SoundManager::GetInstance().ChangeBGM(m_titleBGMHandle);
-    //PlaySoundMem(m_titleBGMHandle, DX_PLAYTYPE_LOOP);
-    //SetCameraPositionAndTarget_UpVecY(VGet(-200, -45, 80), VGet(0, -45, 80));
-    //SetCameraNearFar(kCameraNear, kCameraFar);
 
     MyEngine::Physics::GetInstance().Entry(planet);
     MyEngine::Physics::GetInstance().Entry(nextPlanet);
@@ -135,6 +137,7 @@ TitleScene::TitleScene(SceneManager& manager) :
 
     camera->SetEasingSpeed(35.f);
 
+    //カメラが開店するスピード
     m_cameraRotateAngle = 0.02f;
 }
 
@@ -290,25 +293,37 @@ void TitleScene::DirectionUpdate()
 
 void TitleScene::LoadingUpdate()
 {
+    //ロード中
+
     m_count++;
+    //プレイヤーを映す
     camera->Update(player->GetRigidbody()->GetPos());
 
-    if (m_count == 70)
+	//カメラがプレイヤーに向けて近づいてる時間が一定になったら
+    if (m_count == kCameraMoveFrameMax)
     {
+		//現時点でのプレイヤーの位置からカメラの位置を格納
         positioningPlayerToCamera = camera->GetPos() - player->GetPos();
         positioningPlayerToCamera.Normalize();
     }
-
-    if (m_count > 70)
+    //カメラがプレイヤーに向けて近づいてる時間が一定以上の場合
+    if (m_count > kCameraMoveFrameMax)
     {
-        
+		//カメラの位置を固定
         camera->SetCameraPoint(player->GetPos() + positioningPlayerToCamera * 10);
+        //プレイヤーの位置を固定
         player->DoNotMove();
+		//UIの更新処理をして会話を入れる
         UI::GetInstance().Update();
+		//残りの会話テキストがなくなったら
         if (UI::GetInstance().TextRemaining() == 0)
         {
+			//フェードアウト処理に移行
+            //フェードアウトのSEを再生
             PlaySoundMem(m_fadeSEHandle, DX_PLAYTYPE_BACK);
+            //止めていた位置を動かすように設定
             player->Move();
+            //ゲームスタートのSEも同時に再生する
             PlaySoundMem(m_gameStartSEHandle,DX_PLAYTYPE_BACK);
             m_updateFunc = &TitleScene::FadeOutUpdate;
             m_drawFunc = &TitleScene::FadeDraw;
@@ -319,29 +334,25 @@ void TitleScene::LoadingUpdate()
 
 void TitleScene::ChangeScene(std::shared_ptr<Scene> next)
 {
-    //StopSoundMem(m_titleBGMHandle);
-    //SetCameraPositionAndTarget_UpVecY(VGet(0, 0, 0), VGet(0, 0, 1));
     m_manager.ChangeScene(next);
 }
 
 void TitleScene::FadeDraw()
 {
+    //透明度の計算
     int alpha = static_cast<int>(255 * (static_cast<float>(m_frame) / kFadeFrameMax));
+	//フェードアウトの処理以外なら
     if (!(m_updateFunc == &TitleScene::FadeOutUpdate))
     {
-        int alpha = static_cast<int>(255 * (static_cast<float>(m_frame) / kFadeFrameMax));
-
+		//タイトルロゴの描画
         DrawExtendGraph(kTitleGraphX, kTitleGraphY, kTitleGraphWidth, kTitleGraphHeight, m_titleHandle, true);
+        
         int btnalpha = static_cast<int>(255 * (static_cast<float>(m_btnFrame) / kFadeFrameMax));
         SetDrawBlendMode(DX_BLENDMODE_ADD, btnalpha);
-
+		//"PUSH A TO START"の描画
         DrawExtendGraph(1100, 790, 1850, 1000, m_PushAToStartHandle, true);
         
         //DrawFormatString(kTitleTextX, kTitleTextY, 0xffffff, "Push A to Start");
-        SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-        SetDrawBlendMode(DX_BLENDMODE_MULA, alpha);
-        DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, 0x000000, true);
-        DrawBox(0, 0, m_frame * kLineX, Game::kScreenWidth, kFadeBoxColor, true);
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
     }
@@ -351,12 +362,14 @@ void TitleScene::FadeDraw()
     DrawBox(0, 0, m_frame * kLineX, Game::kScreenWidth, kFadeBoxColor, true);
     SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
+    //次にゲームシーンに移行する場合
     if (m_isGamePlaying)
     {
-		
+		//タイトルで使用したシングルトンの初期化
         ModelManager::GetInstance().Clear();
         UI::GetInstance().Init();
         Pad::Init();
+		//ゲームプレイシーンに移行
         ChangeScene(std::make_shared<GamePlayingScene>(m_manager));
     }
     

@@ -111,18 +111,10 @@ private:
 	std::vector<std::shared_ptr<Enemy>> m_enemies;
 	std::shared_ptr<Boss> m_boss;
 	std::vector<std::shared_ptr<Enemy>> m_keyLockEnemies;
-	/*std::vector<std::shared_ptr<Takobo>> m_takobo;
-	std::vector<std::shared_ptr<KillerTheSeeker>> m_killerTheSeeker;
-	std::vector<std::shared_ptr<Gorori>> m_gorori;
-	std::vector<std::shared_ptr<Kuribo>> m_kuribo;
-	std::vector<std::shared_ptr<SpaceEmperor>> m_spaceEmperor;
-	std::vector<std::shared_ptr<Boss>>m_boss;*/
-
+	//条件を解除すると出現するオブジェクト
 	std::vector<std::shared_ptr<MyEngine::Collidable>> m_lockedObject;
+	//会話するオブジェクト
 	std::vector<std::shared_ptr<TalkObject>> m_talkObjects;
-
-	Vec3 m_cameraUpVec;
-
 	//ボスが出現したか
 	bool m_isBossWatch = false;
 

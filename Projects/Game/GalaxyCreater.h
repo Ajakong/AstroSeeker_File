@@ -29,7 +29,7 @@ class GalaxyCreater
 		int color;
 		float gravityPower;
 		std::string modelName;
-		float coefficientOfFriction=1;
+		float coefficientOfFriction;
 		float scale;
 	};
 	struct LocationSeekerLine
@@ -49,7 +49,7 @@ class GalaxyCreater
 		std::string name;
 		std::string tag;
 		Vec3 pos;
-		int connectObjectNumber=-1;
+		int connectObjectNumber;
 	};
 	struct LockedObject
 	{

@@ -25,7 +25,13 @@ public:
     void IdleUpdate();
     void StopUpdate();
 
+    /// <summary>
+    /// 位置を固定
+    /// </summary>
     void DoNotMove();
+    /// <summary>
+    /// 位置を動かすように設定
+    /// </summary>
     void Move();
 
     using playerState_t = void(TitlePlayer::*)();

@@ -10,6 +10,8 @@ using namespace MyEngine;
 Collidable::Collidable(Priority priority, ObjectTag tag) :
 	m_priority(priority),
 	m_tag(tag),
+	m_userData(nullptr),
+	m_state(State::Neutral),
 	m_isAntiGravity(false),
 	m_isDestroyFlag(false),
 	m_isIgnore(false),
@@ -32,7 +34,16 @@ MyEngine::Collidable::Collidable(std::shared_ptr<Collidable> col) :
 	m_upVec(col->m_upVec),
 	m_throughTags(col->m_throughTags),
 	m_tag(col->m_tag),
-	m_priority(col->m_priority)
+	m_priority(col->m_priority),
+	m_userData(nullptr),
+	m_state(State::Neutral),
+	m_isAntiGravity(false),
+	m_isDestroyFlag(false),
+	m_isIgnore(false),
+	m_postUpVec(Vec3::Up()),
+	m_nextUpVec(Vec3::Up()),
+	m_frontVec(Vec3::Front()),
+	m_sideVec(Vec3::Left())
 {
 	m_rigid = std::make_shared<Rigidbody>();
 }

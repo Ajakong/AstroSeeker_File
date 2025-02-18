@@ -13,7 +13,6 @@ public:
     ~GamePlayingScene();
 
     virtual void Load();
-
     virtual void Update();
     virtual void Draw();
     void End();

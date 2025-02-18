@@ -15,11 +15,10 @@ namespace
 }
 
 GameManager::GameManager() : 
-	m_managerUpdate(nullptr),
-	m_managerDraw(nullptr),
 	m_updateStopFrame(0),
 	m_player(std::make_shared<Player>(Vec3(0,20,0)))
 {
+	//ステージの追加
 	m_galaxy.push_back(std::make_shared<SerialPlanetGalaxy>(m_player));
 	
 }
@@ -30,7 +29,9 @@ GameManager::~GameManager()
 
 void GameManager::Init()
 {
+	//このシーンをどこからでも一時停止できるようにする
 	GameStopManager::GetInstance().SetGameManager(shared_from_this());
+	//ステージの初期化
 	m_galaxy.back()->Init();
 }
 
@@ -72,24 +73,4 @@ void GameManager::Draw()
 	bool becameDeath = m_player->GetState() == MyEngine::Collidable::State::Death;
 
 	UI::GetInstance().Draw(hp, coinNum, aim,becameDeath);
-}
-
-void GameManager::IntroUpdate()
-{
-}
-
-void GameManager::IntroDraw()
-{
-}
-
-void GameManager::GamePlayingUpdate()
-{
-}
-
-void GameManager::GamePlayingDraw()
-{
-}
-
-void GameManager::End()
-{
 }
