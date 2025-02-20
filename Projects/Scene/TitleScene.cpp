@@ -207,8 +207,6 @@ void TitleScene::NormalUpdate()
 {
     m_fps = GetFPS();
 
-   
-    
     player->SetMatrix();
     Quaternion q;
     q.SetQuaternion(camera->GetPos());
@@ -216,6 +214,8 @@ void TitleScene::NormalUpdate()
    
     camera->SetCameraPoint(q.Move(camera->GetPos(), Vec3::Zero()));
     camera->Update(VGet(0, 0, 150));
+
+    //Aボタンが押されたら
     if (Pad::IsTrigger(PAD_INPUT_1))
     {
        
@@ -245,6 +245,8 @@ void TitleScene::WatchPlayerUpdate()
 
     //camera->SetCameraPoint(q.Move(camera->GetPos(), Vec3::Zero()));
     camera->Update(player->GetRigidbody()->GetPos());
+
+
     if ((camera->GetPos()-camera->GetCameraPoint()).Length()<=5.f)
     {
         player->SetShot();

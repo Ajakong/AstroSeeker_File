@@ -31,8 +31,7 @@ namespace MyEngine
 		void UpdateHit(const std::shared_ptr<ColliderBase> collider, bool isHit);
 		bool IsHit(const std::shared_ptr<ColliderBase> collider) const { return m_isHit.at(collider); }
 		bool IsPreHit(const std::shared_ptr<ColliderBase> collider) const { return m_isPreHit.at(collider); }
-		//bool NowOnHit() { return m_isNowOnHit; }
-		//bool PreOnHit() { return m_isPreOnHit; }
+
 		bool OnHit() { return m_isHitResult; }
 		void SetNowOnHit(bool flag) { m_isNowOnHit = flag; }
 		void SetOnHitResult(bool flag) { m_isHitResult = flag; }

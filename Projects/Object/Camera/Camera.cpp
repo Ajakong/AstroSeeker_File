@@ -23,15 +23,19 @@ namespace
 }
 
 Camera::Camera(Vec3 pos):
+	m_cameraAngle(0),
 	m_pitchAngle(0),
+	
 	m_watchCount(0),
 	m_isFirstPerson(0),
-	m_isBoost(false),
-	m_isAim(false),
-	m_upVec(Vec3(0,1,0)),
+
 	m_easingSpeed(-1),
-	m_cameraAngle(0),
-	m_postEasingSpeed(0)
+	m_postEasingSpeed(0),
+	
+	m_isAim(false),
+	m_isBoost(false),
+	
+	m_upVec(Vec3(0, 1, 0))
 {
 	
 	m_cameraUpdate = &Camera::NeutralUpdate;
@@ -45,13 +49,6 @@ Camera::Camera(Vec3 pos):
 	m_postLookPointPos = { 0,0,0 };
 	m_fowardVec = { 0.f,0.f,0.1f };
 
-	/*m_lightHandle = CreateSpotLightHandle(m_pos.VGet(),GetCameraFrontVector() ,DX_PI_F*2,
-		DX_PI_F*2,
-		2000.0f,
-		0.0f,
-		0.002f,
-		0.0f);*/
-
 	SetCameraNearFar(kCameraNear, kCameraFar);
 }
 
@@ -63,14 +60,17 @@ Camera::~Camera()
 
 void Camera::Update(Vec3 LookPoint)
 {
+	//カメラこれを見ろ状態じゃなかったら
 	if (m_cameraUpdate != &Camera::WatchThisUpdate)
 	{
+		//プレイヤーがエイムしている場合
 		if (m_isAim)
 		{
 			m_cameraUpdate = &Camera::AimingUpdate;
 		}
 	}
 	
+	//ぷれいやーが惑星移動中
 	if (m_isBoost)
 	{
 		// FOV(視野角)を60度に
@@ -93,8 +93,6 @@ void Camera::Update(Vec3 LookPoint)
 void Camera::SetCamera(Vec3 LookPoint)
 {
 	m_lookPoint = LookPoint;
-	/*SetLightPositionHandle(m_lightHandle, Vec3(LookPoint + m_upVec * 12).VGet());
-	SetLightDirectionHandle(m_lightHandle, (m_upVec * -1).VGet());*/
 
 	Vec3 velocity;
 	velocity.x = (m_cameraPoint.x - m_pos.x) / m_easingSpeed;
@@ -145,6 +143,7 @@ void Camera::SetCameraPos(Vec3 LookPoint)
 
 void Camera::NeutralUpdate(Vec3 LookPoint)
 {
+	//LBボタンが入力されていたら、またはエイム中だったら
 	if (Pad::IsTrigger(PAD_INPUT_Y ) || m_isAim)//XBoxコントローラーのL
 	{
 		m_cameraUpdate = &Camera::AimingUpdate;
@@ -154,6 +153,7 @@ void Camera::NeutralUpdate(Vec3 LookPoint)
 
 void Camera::AimingUpdate(Vec3 LookPoint)
 {
+	//LBボタンが入力されていたら、またはエイム中ではなかったら
 	if (Pad::IsTrigger(PAD_INPUT_Y)||!m_isAim)//XBoxコントローラーのL
 	{
 		m_cameraUpdate = &Camera::NeutralUpdate;
@@ -175,7 +175,9 @@ void Camera::WatchThisUpdate(Vec3 LookPoint)
 	m_pos += velocity;//イージング
 	
 	SetCameraPositionAndTargetAndUpVec(m_pos.VGet(),Vec3(m_lookPoint + m_upVec.GetNormalized() * 10.0f).VGet(), m_upVec.VGet());
+
 	m_postLookPointPos = m_lookPoint;
+	//LookPointを見ている時間が上限に達したら
 	if (m_watchCount > kWatchThisTime)
 	{
 		m_watchCount = 0;
@@ -190,6 +192,7 @@ void Camera::SetCameraFirstPersonPos(Vec3 LookPoint)
 	SetLightPositionHandle(m_lightHandle, Vec3(LookPoint + m_upVec * 12).VGet());
 	SetLightDirectionHandle(m_lightHandle, (m_upVec * -1).VGet());
 
+	//LBボタンが入力されていたら
 	if (Pad::IsTrigger(PAD_INPUT_Y))
 	{
 		m_cameraUpdate = &Camera::NeutralUpdate;
@@ -200,8 +203,6 @@ void Camera::SetCameraFirstPersonPos(Vec3 LookPoint)
 
 void Camera::SetCameraThirdPersonPos(Vec3 LookPoint)
 {
-	/*SetLightPositionHandle(m_lightHandle, Vec3(LookPoint + m_upVec * 12).VGet());
-	SetLightDirectionHandle(m_lightHandle, m_upVec.VGet());*/
 
 	SetCameraPositionAndTargetAndUpVec(m_pos.VGet(), LookPoint.VGet(), m_upVec.VGet());
 }
@@ -214,7 +215,7 @@ void Camera::Setting(bool boost, bool aim)
 
 void Camera::WatchThis(Vec3 lookpoint, Vec3 cameraPos, Vec3 upVec,float easingspeed)
 {
-	
+	//初期化
 	m_postEasingSpeed = m_easingSpeed;
 	m_easingSpeed = easingspeed;
 	

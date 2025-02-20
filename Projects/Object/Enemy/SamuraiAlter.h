@@ -24,7 +24,7 @@ public:
 	void Draw();
 
 	void SetTarget(std::shared_ptr<Collidable> target) { m_target = target; }
-	void OnBossPlanet();
+	void OnBossPlanet() {};
 	bool GetIsFind() { return m_isFindTarget; }
 	Vec3 GetNeckPos() const { return m_neckPos; }
 	
@@ -33,11 +33,11 @@ public:
 	emperorState_t m_update;
 private:
 
-	void DoNothingUpdate();
+	void DoNothingUpdate() {};
 	void IntroUpdate();
 	void IdleUpdate();
 	void AttackUpdate();
-	void HitUpdate();
+	void HitUpdate() {};
 
 	//アニメーションの進行
 	//ループしたかどうかを返す

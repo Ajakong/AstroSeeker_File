@@ -242,10 +242,11 @@ void Application::Run()
         }
     }
     // コンソール解放
-  /*  fclose(out); fclose(in); FreeConsole();*/
+    /*fclose(out); fclose(in); FreeConsole();*/
     Terminate();
 
-    _CrtDumpMemoryLeaks();
+    bool memoryLeaksFlag=_CrtDumpMemoryLeaks();
+   
 }
 
 

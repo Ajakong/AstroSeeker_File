@@ -53,11 +53,13 @@ float lerp(float start, float end, float t);
 
 Gorori::Gorori(Vec3 pos, std::shared_ptr<Collidable>target) :Enemy(Priority::High, ObjectTag::Gorori),
 m_hp(kHp),
-m_attackCoolDownCount(0),
-m_centerToEnemyAngle(0),
-m_attackCount(0),
-m_color(0xaaaa11),
 m_target(target),
+m_color(0xaaaa11),
+m_centerToEnemyAngle(0),
+//カウントの初期化
+m_attackCount(0),
+m_attackCoolDownCount(0),
+//ハンドルの初期化
 m_modelHandle(-1)
 {
 	m_enemyUpdate = &Gorori::IdleUpdate;
@@ -66,10 +68,7 @@ m_modelHandle(-1)
 	auto item = dynamic_pointer_cast<MyEngine::ColliderSphere>(m_colliders.back()->col);
 	item->radius = kCollisionRadius;
 	m_moveShaftPos = m_rigid->GetPos();
-	//AddThroughTag(ObjectTag::Gorori);
-	//AddThroughTag(ObjectTag::Takobo);
-	//AddThroughTag(ObjectTag::WarpGate);
-	//AddThroughTag(ObjectTag::EnemyAttack);
+
 }
 
 Gorori::~Gorori()
@@ -85,6 +84,8 @@ void Gorori::Update()
 {
 
 	(this->*m_enemyUpdate)();
+
+	//HPが0以下になったらコインを生成して自身を削除
 	if (m_hp <= 0)
 	{
 		m_dropItem = std::make_shared<Coin>(m_rigid->GetPos(), true);
@@ -138,7 +139,6 @@ void Gorori::SetMatrix()
 void Gorori::Draw()
 {
 	DrawSphere3D(m_rigid->GetPos().VGet(), kCollisionRadius, 10, m_color, 0xff0000, true);
-	MV1DrawModel(m_modelHandle);
 }
 
 void Gorori::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
@@ -156,7 +156,6 @@ void Gorori::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		m_rigid->SetVelocity(m_upVec * 2);
 		m_hp = 0;
 		m_color = 0xff00ff;
-		//PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
 	}
 	if (colider->GetTag() == ObjectTag::PlayerBullet)
 	{
@@ -177,17 +176,8 @@ void Gorori::SetTarget(std::shared_ptr<Collidable> target)
 
 void Gorori::IdleUpdate()
 {
-	/*m_vec.x = 1;
-	if (abs(m_rigid->GetPos().x - m_moveShaftPos.x) > 5)
-	{
-		m_vec.x *= -1;
-	}*/
-
-	//m_rigid->SetVelocity(VGet(m_vec.x, 0, 0));
-
 	m_attackCoolDownCount++;
 
-	//if ((m_rigid->GetPos() - m_target->GetRigidbody()->GetPos()).Length() > 10)
 	{
 		if (m_attackCoolDownCount > kAttackCoolDownTime)
 		{

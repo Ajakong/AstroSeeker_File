@@ -10,8 +10,8 @@ class Kuribo : public Enemy
 public:
 
 	/// <summary>
-/// アニメーション番号
-/// </summary>
+	/// アニメーション番号
+	/// </summary>
 	enum AnimNum : int
 	{
 		AnimationNumAttack,

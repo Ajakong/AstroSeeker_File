@@ -32,6 +32,7 @@ namespace
 
 	constexpr int kTackleTime = 50;
 	constexpr int kTackleSpeed = 2;
+	constexpr int kSearchRange = 100;
 
 	constexpr int kTackleLength = kTackleSpeed *kTackleTime;
 
@@ -42,37 +43,50 @@ namespace
 	const char* kGamePlayBGMName = "BattleOfAstro.mp3";
 	const char* kBossBattleBGMName = "bossbattle.mp3";
 	const char* kSuperMatrialBGMName = "SuperMaterial.mp3";
+
+	const char* kBossModelName = "SpaceMutant.mv1";
 }
 Boss::Boss(Vec3 pos, std::shared_ptr<Player>player):Enemy(Priority::Boss,ObjectTag::Boss),
-	m_jumpCount(0),
-	m_actionFrame(0),
-	m_tackleChargeFrame(0),
-	m_isHit(false),
-	m_isTalk(false),
-	m_isTackle(false),
-	m_onColStage(false),
-	m_isBattle(false),
-	m_isWakeUp(false),
-	m_currentAnimNo(0),
+	//アニメーションを初期化
 	m_prevAnimNo(0),
+	m_currentAnimNo(0),
 	m_animBlendRate(0),
 	m_animationSpeed(0),
-	m_knockBackFrame(0),
+	//フレームを初期化
+	m_jumpCount(0),
+	m_actionFrame(0),
 	m_runningFrame(0),
-	m_damageSoundHandle(SoundManager::GetInstance().GetSoundData(kDamageSEName)),
-	m_criticalHandle(SoundManager::GetInstance().GetSoundData(kCriticalHitSEName)),
-	m_dropSoundHandle(SoundManager::GetInstance().GetSoundData(kDropSEName)),
-	m_shotCreateFrame(0)
+	m_knockBackFrame(0),
+	m_shotCreateFrame(0),
+	m_tackleChargeFrame(0),
+	//ハンドルを初期化
+	m_criticalHandle(-1),
+	m_dropSoundHandle(-1),
+	m_damageSoundHandle(-1),
+	//フラグを初期化
+	m_isHit(false),
+	m_isTalk(false),
+	m_isWakeUp(false),
+	m_isTackle(false),
+	m_isBattle(false),
+	m_onColStage(false)
 {
 	m_player = player;
 	m_hp = kHPFull;
 	m_rigid->SetPos(pos);
+
 	AddCollider(MyEngine::ColliderBase::Kind::Sphere, ColideTag::Body);
 	m_collision = dynamic_pointer_cast<MyEngine::ColliderSphere>(m_colliders.back()->col);
 	m_collision->radius = kBodyRadiusSize;
 
 	m_color = 0xff00ff;
 	m_bossUpdate = &Boss::InitUpdate;
+
+	m_modelHandle = MV1LoadModel(kBossModelName);
+	m_damageSoundHandle=SoundManager::GetInstance().GetSoundData(kDamageSEName);
+	m_criticalHandle = SoundManager::GetInstance().GetSoundData(kCriticalHitSEName);
+	m_dropSoundHandle = SoundManager::GetInstance().GetSoundData(kDropSEName);
+
 	m_phaseUpdate = &Boss::PhaseOneUpdate;
 }
 
@@ -88,24 +102,23 @@ void Boss::Init()
 void Boss::Update()
 {
 	//上方向ベクトルをいい感じに線形保管
-	//m_upVec = Slerp(m_upVec, m_nextUpVec, 1.f);
+	
 	(this->*m_bossUpdate)();
-	if (m_phaseUpdate == &Boss::PhaseOneUpdate)
-	{
-		if (m_hp <= kOnPhaseTwoHp)
-		{
-			m_hp = kOnPhaseTwoHp;
-		}
-	}
+
+	//ノックバック中
 	if (m_isHit)
 	{
 		m_knockBackFrame++;
 		m_color = 0xff0000;
 	}
+
+	//ノックバック時間が一定になったら
 	if (m_knockBackFrame > 30)
 	{
 		m_isHit = false;
 	}
+
+	//HPが0以下になったら
 	if (m_hp <= 0)
 	{
 		m_isBattle = false;
@@ -133,12 +146,19 @@ void Boss::Update()
 void Boss::Draw()
 {
 	DrawSphere3D(m_rigid->GetPos().VGet(), kBodyRadiusSize,8,m_color,0x000000,true);
-	
+	MV1DrawModel(m_modelHandle);
+}
+
+void Boss::SetMatrix()
+{
+
 }
 
 void Boss::PhaseOneUpdate()
 {
 	m_actionFrame++;
+
+	//行動のクールダウンが完了したら
 	if (m_actionFrame < kActionFrame)return;
 	m_actionFrame = 0;
 	switch (GetRand(1))
@@ -153,6 +173,7 @@ void Boss::PhaseOneUpdate()
 		break;
 	}
 
+	//HPが一定以下になったら次のフェーズに移行
 	if (m_hp <= kOnPhaseTwoHp)
 	{
 		
@@ -169,14 +190,18 @@ void Boss::PhaseOneUpdate()
 		m_phaseUpdate = &Boss::PhaseTwoUpdate;
 		m_bossUpdate = &Boss::RunawayUpdate;
 	}
+
 }
 
 void Boss::PhaseTwoUpdate()
 {
 	m_actionFrame++;
+	//行動のクールダウンが完了したら
 	if (m_actionFrame < kActionFrame)return;
 	m_actionFrame = 0;
+
 	Vec3 ToTargetVec = (m_player->GetPos() - m_rigid->GetPos());
+	//タックルのレンジ内に入ったら
 	if (ToTargetVec.Length() < kTackleLength)
 	{
 		//m_bossUpdate = &Boss::TackleUpdate;
@@ -186,8 +211,6 @@ void Boss::PhaseTwoUpdate()
 			m_bossUpdate = &Boss::TackleUpdate;
 			break;
 		case(1):
-			/*m_runningDir=ToTargetVec.GetNormalized();
-			m_bossUpdate = &Boss::RunningUpdate;*/
 			m_bossUpdate = &Boss::TackleUpdate;
 			break;
 		case(2):
@@ -232,8 +255,6 @@ void Boss::PhaseThreeUpdate()
 			m_bossUpdate = &Boss::TackleUpdate;
 			break;
 		case(1):
-			/*m_runningDir = ToTargetVec.GetNormalized();
-			m_bossUpdate = &Boss::RunningUpdate;*/
 			m_bossUpdate = &Boss::TackleUpdate;
 			break;
 		case(2):
@@ -268,10 +289,15 @@ void Boss::InitUpdate()
 	//今は簡単にプレイヤーとの距離をみて起動
 
 	float lenge = (m_player->GetRigidbody()->GetPos() - m_rigid->GetPos()).Length();
-	m_isWakeUp = lenge < 100;
+
+	//プレイヤーが索敵範囲内に入ったら起動
+	m_isWakeUp = lenge < kSearchRange;
+
+	//起動したら
 	if (m_isWakeUp)
 	{
-		
+
+		//バトルフェーズ1の時
 		if (m_phaseUpdate == &Boss::PhaseOneUpdate)
 		{
 			UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
@@ -297,6 +323,8 @@ void Boss::InitUpdate()
 			SoundManager::GetInstance().ChangeBGM(SoundManager::GetInstance().GetSoundData(kBossBattleBGMName));
 			m_bossUpdate = &Boss::NeutralUpdate;
 		}
+
+		//バトルフェーズ2の時
 		if (m_phaseUpdate == &Boss::PhaseTwoUpdate)
 		{
 			UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
@@ -350,6 +378,8 @@ void Boss::KnockBackUpdate()
 	m_color = 0xffff00;
 	m_state = State::Attack;
 	m_knockBackFrame++;
+	
+	//ノックバックが終わったら
 	if (m_knockBackFrame > kKnockBackFrameMax)
 	{
 		m_color = 0xff00ff;
@@ -362,9 +392,12 @@ void Boss::JumpingUpdate()
 {
 	m_color = 0xffff00;
 	m_state = State::Attack;
+
+	//ステージに着地したら
 	if (m_onColStage)
 	{
 		PlaySoundMem(m_dropSoundHandle, DX_PLAYTYPE_BACK);
+		//ジャンプ回数が2回以上だったら
 		if (m_jumpCount > 2)
 		{
 			m_jumpCount = 0;
@@ -396,6 +429,8 @@ void Boss::FullpowerJumpUpdate()
 {
 	m_color = 0xffff00;
 	m_state = State::Attack;
+
+	//ステージに着地したら
 	if (m_onColStage)
 	{
 		PlaySoundMem(m_dropSoundHandle, DX_PLAYTYPE_BACK);
@@ -421,8 +456,11 @@ void Boss::TackleUpdate()
 
 	m_tackleChargeFrame++;
 	m_rigid->SetVelocity(m_upVec * 0.5f);
+
+	//タックルのチャージが最大になったら
 	if (m_tackleChargeFrame > kTackleMaxChargeFrame)
 	{
+		//タックルを一度もしていなかったら
 		if (!m_isTackle)
 		{
 			m_isTackle = true;
@@ -433,6 +471,8 @@ void Boss::TackleUpdate()
 			UI::GetInstance().InTexts(text2);
 		}
 		m_rigid->SetVelocity(targetDir * kTackleSpeed);
+
+		//タックルが終了したら
 		if (m_tackleChargeFrame - kTackleMaxChargeFrame > kTackleTime)
 		{
 			m_tackleChargeFrame = 0;
@@ -452,13 +492,16 @@ void Boss::RunningUpdate()
 	m_rigid->SetVelocity(m_sideVec*kRunningSpeed);
 
 	m_runningFrame++;
+
+	//走っている時間が上限の半分になったら方向反転
 	if (m_runningFrame > kRunningFrameMax / 2)
 	{
 		m_rigid->SetVelocity(m_rigid->GetVelocity() * -1);
 	}
+	//走り終わったら
 	if (m_runningFrame > kRunningFrameMax)
-		m_runningFrame = 0;
 	{
+		m_runningFrame = 0;
 		//HPが少ないほど隙がなくなる
 		m_actionFrame = -m_hp;
 		m_bossUpdate = &Boss::LandingUpdate;
@@ -471,6 +514,7 @@ void Boss::LandingUpdate()
 	m_color = 0x00ff00;
 	m_state = State::Land;
 
+	//話していなかったら
 	if (!m_isTalk)
 	{
 		m_isTalk = true;
@@ -493,9 +537,11 @@ void Boss::LandingUpdate()
 
 	}
 
+	//行動のクールタイムがマイナスの時はひるんでいる
 	m_actionFrame++;
 	if (m_actionFrame > 0)
 	{
+		//怯み状態から戻す
 		m_color = 0xff00ff;
 		m_bossUpdate = &Boss::NeutralUpdate;
 	}
@@ -504,14 +550,18 @@ void Boss::LandingUpdate()
 void Boss::RunawayUpdate()
 {
 	Vec3 velo = m_runawayPos - m_rigid->GetPos();
+
+	//目的地に一定距離近づいたら
 	if (velo.Length() < 1200&&m_isBattle)
 	{
+		//戦闘状態から離脱
 		SoundManager::GetInstance().ChangeBGM(SoundManager::GetInstance().GetSoundData(kGamePlayBGMName));
 
 		auto obj = GalaxyCreater::GetInstance().GetCollidable(1);
 		obj->SetIsActive(true);
 		m_isBattle = false;
 	}
+	//目的地に到達したら
 	if (velo.Length() < 15)
 	{
 		
@@ -585,12 +635,16 @@ void Boss::ChangeAnim(int animIndex, int speed)
 
 void Boss::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
 {
+	//ステージに衝突したら
 	if (colider->GetTag() == ObjectTag::Stage)
 	{
 		m_onColStage = true;
 	}
+
+	//ボスが怯み中だったら
 	if (m_bossUpdate == &Boss::LandingUpdate)
 	{
+		//プレイヤーの弾と衝突したら
 		if (colider->GetTag() == ObjectTag::PlayerBullet)
 		{
 			m_isHit = true;
@@ -598,9 +652,13 @@ void Boss::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag,
 			m_hp -= 1;
 		}
 	}
+
+	//プレイヤーと衝突したら
 	if (colider->GetTag() == ObjectTag::Player)
 	{
 		auto state = GetState();
+
+		//ボスが突進中または走っている時にプレイヤーがスピンしていたら
 		if ((state == State::Running || state == State::Tackle) && colider->GetState() == State::Spin)
 		{
 			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
@@ -611,6 +669,8 @@ void Boss::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag,
 			m_actionFrame = -m_hp-200;
 			m_bossUpdate = &Boss::LandingUpdate;
 		}
+
+		//ボスが怯み中にプレイヤーがスピンしていたら
 		if (state == State::Land && colider->GetState() == State::Spin)
 		{
 			m_rigid->SetVelocity(m_upVec * 2);
@@ -624,12 +684,16 @@ void Boss::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag,
 
 void Boss::OnCollideStay(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
 {
+	//ステージに衝突している間
 	if (colider->GetTag() == ObjectTag::Stage)
 	{
 		m_onColStage = true;
 	}
+
+	//ボスが怯み中だったら
 	if (m_bossUpdate == &Boss::LandingUpdate)
 	{
+		//プレイヤーの弾と衝突している間
 		if (colider->GetTag() == ObjectTag::PlayerBullet)
 		{
 			m_isHit = true;
@@ -637,9 +701,13 @@ void Boss::OnCollideStay(std::shared_ptr<Collidable> colider, ColideTag ownTag, 
 			m_hp -= 1;
 		}
 	}
+
+	//プレイヤーと衝突している間
 	if (colider->GetTag() == ObjectTag::Player)
 	{
 		auto state = GetState();
+
+		//ボスが突進中または走っている時にプレイヤーがスピンしていたら
 		if ((state == State::Running || state == State::Tackle) && colider->GetState() == State::Spin)
 		{
 			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
@@ -650,6 +718,8 @@ void Boss::OnCollideStay(std::shared_ptr<Collidable> colider, ColideTag ownTag, 
 			m_actionFrame = -m_hp - 200;
 			m_bossUpdate = &Boss::LandingUpdate;
 		}
+
+		//ボスが怯み中にプレイヤーがスピンしていたら
 		if (state == State::Land && colider->GetState() == State::Spin)
 		{
 			m_rigid->SetVelocity(m_upVec * 2);
@@ -663,12 +733,16 @@ void Boss::OnCollideStay(std::shared_ptr<Collidable> colider, ColideTag ownTag, 
 
 void Boss::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
 {
+	//重力圏に入ったら
 	if (colider->GetTag() == ObjectTag::Stage)
 	{
 		m_nowPlanet = std::dynamic_pointer_cast<Planet>(colider);
 	}
+
+	//ボスが怯み中だったら
 	if (m_bossUpdate == &Boss::LandingUpdate)
 	{
+		//プレイヤーの衝撃波と衝突したら
 		if (colider->GetTag() == ObjectTag::PlayerImpact)
 		{
 			m_rigid->SetVelocity(m_upVec * 2);
@@ -677,6 +751,8 @@ void Boss::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag,
 			m_bossUpdate = &Boss::NeutralUpdate;
 			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
 		}
+
+		//プレイヤーの弾と衝突したら
 		if (colider->GetTag() == ObjectTag::PlayerBullet)
 		{
 			m_hp -= 1;

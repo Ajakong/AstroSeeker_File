@@ -17,6 +17,8 @@ public:
 	virtual void Init();
 	virtual void Update();
 	virtual void Draw();
+	virtual void SetMatrix();
+
 
 	bool GetIsBattle() { return m_isBattle; }
 

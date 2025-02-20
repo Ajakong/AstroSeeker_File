@@ -11,8 +11,6 @@ namespace
 
 BigKuribo::BigKuribo(Vec3 pos,int connectNum) : Kuribo(pos)
 {
-	/*MV1SetScale(m_modelHandle, Vec3(0.03f, 0.03f, 0.03f).VGet());
-	MV1SetPosition(m_modelHandle, pos.VGet());*/
 	m_connectObjectNumber = connectNum;
 	m_comebackPoint = pos;
 	m_rigid->SetPos(pos);

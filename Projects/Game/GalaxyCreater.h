@@ -1,12 +1,14 @@
 ﻿#pragma once
 #include"DxLib.h"
 #include"Vec3.h"
+#include"Collidable.h"
+
+#include"Booster.h"
+#include"Enemy.h"
+
 #include<string>
 #include<list>
 #include<map>
-#include"Booster.h"
-#include"Collidable.h"
-#include"Enemy.h"
 
 class Camera;
 class Player;
@@ -44,6 +46,7 @@ class GalaxyCreater
 		std::string tag;
 		Vec3 pos;
 	};
+
 	struct KeyLockObject
 	{
 		std::string name;
@@ -51,6 +54,7 @@ class GalaxyCreater
 		Vec3 pos;
 		int connectObjectNumber;
 	};
+
 	struct LockedObject
 	{
 		std::string name;
@@ -58,6 +62,7 @@ class GalaxyCreater
 		Vec3 pos;
 		
 	};
+
 	struct TalkObject
 	{
 		std::string name;

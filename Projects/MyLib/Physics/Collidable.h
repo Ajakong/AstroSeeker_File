@@ -1,15 +1,16 @@
 ﻿#pragma once
-#include <memory>
-#include <vector>
-#include <list>
+
 #include "ObjectTag.h"
 #include "Rigidbody.h"
 #include "ColliderBase.h"
 
+#include <memory>
+#include <vector>
+#include <list>
+
 namespace MyEngine
 {
 	class Physics;
-//	class ColliderBase;
 
 	/// <summary>
 	/// 衝突できるもの

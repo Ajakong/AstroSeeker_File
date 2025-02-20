@@ -48,7 +48,7 @@ namespace
 	constexpr float kAnimFrameSpeed = 30.0f;//アニメーション進行速度
 
 	//アニメーションの切り替えにかかるフレーム数
-	constexpr float kAnimChangeFrame = 8.0f;
+	constexpr float kAnimChangeFrame = 20.0f;
 	constexpr float kAnimChangeRateSpeed = 1.0f / kAnimChangeFrame;
 
 	//アナログスティックによる移動関連
@@ -66,6 +66,11 @@ namespace
 	constexpr int kAvoidFrame = 60;
 
 	constexpr float kJumpPower = 2.f;
+	
+	/// <summary>
+	/// プレイヤーが帰ってこれなくなる長さ
+	/// </summary>
+	constexpr float kGalaxyLength = 3000.f;
 
 
 	constexpr int kSearchRemainTimeMax = 28;
@@ -87,6 +92,8 @@ namespace
 
 	const char* kLandingEffectname = "Landing.efk";
 	const char* kStarEffectName = "StarEffect.efk";
+
+
 
 
 }
@@ -232,9 +239,14 @@ void Player::Update()
 			m_isAimFlag = true;
 		}
 	}
+
+	//XBoxコントローラーでYボタンが入力されたら
 	if ((Pad::IsTrigger(PAD_INPUT_4)))PlaySoundMem(m_searchSEHandle, DX_PLAYTYPE_BACK);
+	
+	//XBoxコントローラーでYボタンが入力されていたら
 	if ((Pad::IsPress(PAD_INPUT_4)))
 	{
+		//デバッグ描画モード
 		m_isSearchFlag = true;
 	}
 
@@ -244,6 +256,7 @@ void Player::Update()
 	MATRIX shotDirMat = MGetRotVec2(m_nowVec.VGet(), m_shotDir.VGet());
 	m_nowVec = m_shotDir.VGet();
 
+	//XBoxコントローラーでXボタンが入力されていたら
 	if (Pad::IsTrigger(PAD_INPUT_3))
 	{
 		if (m_coinCount > 0)
@@ -252,42 +265,40 @@ void Player::Update()
 			if (!m_state == State::Boosting)m_rigid->SetVelocity(Vec3::Zero());
 
 			(this->*m_shotUpdate)();
-			
 		}
 		
 	}
-	if (m_shotAnimFlag)
-	{
-		m_shotAnimCount++;
-		if (m_shotAnimCount > 10)
-		{
-			m_shotAnimFlag = false;
-			m_shotAnimCount = 0;
-			//ChangeAnim(MV1GetAttachAnim(m_modelHandle, m_prevAnimNo));
-		}
-	}
 
-	for (auto& item : m_sphere)
-	{
-		item->Update();
-	}
+	////エイム状態だったら
+	//if (m_shotAnimFlag)
+	//{
+	//	m_shotAnimCount++;
+
+	//	//アニメーションが一定数再生されたら
+	//	if (m_shotAnimCount > 10)
+	//	{
+	//		m_shotAnimFlag = false;
+	//		m_shotAnimCount = 0;
+	//		//ChangeAnim(MV1GetAttachAnim(m_modelHandle, m_prevAnimNo));
+	//	}
+	//}
+
 	DeleteManage();
 	DeleteObject(m_impacts);
 
+	//無敵時間が上限を超えたら
 	if (m_visibleCount > kVisibleCountMax)
 	{
 		m_isVisibleFlag = false;
 		m_visibleCount = 0;
 	}
+	//無敵状態だったら
 	if (m_isVisibleFlag)
 	{
 		m_visibleCount++;
 	}
-	else
-	{
-		//m_spinCol->radius = m_radius;
-	}
-
+	
+	//ダメージを受けていたら
 	if (m_isOnDamageFlag)
 	{
 		m_damageFrame--;
@@ -299,16 +310,21 @@ void Player::Update()
 
 	}
 
+	//体力が残っていなかったら
 	if (m_hp <= 0)
 	{
 		m_visibleCount = 0;
 		m_isVisibleFlag = true;
+
+		//死亡状態または会話状態でなかったら
 		if (m_playerUpdate != &Player::DeathUpdate&&m_playerUpdate!= &Player::TalkingUpdate)
 		{
 			UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
 			UI::GetInstance().InText("Aボタンを連打して自分で心肺蘇生するんだ！");
 			m_isAimFlag = false;
+			//死亡するごとに志望アニメーションの進行速度を上げる
 			ChangeAnim(AnimNum::AnimationNumDeath,0.1+m_revivalCount/2);
+
 			m_playerUpdate = &Player::DeathUpdate;
 		}
 		
@@ -319,7 +335,8 @@ void Player::Update()
 	DxLib::MV1SetAttachAnimBlendRate(m_modelHandle, m_prevAnimNo, 1.0f - m_animBlendRate);
 	//変更後のアニメーション0%
 	DxLib::MV1SetAttachAnimBlendRate(m_modelHandle, m_currentAnimNo, m_animBlendRate);
-	m_animBlendRate += 0.05f;
+	m_animBlendRate += kAnimChangeRateSpeed;
+
 	if (m_animBlendRate > 1.0f)
 	{
 		m_animBlendRate = 1.0f;
@@ -327,7 +344,7 @@ void Player::Update()
 	if (m_nowPlanet!=nullptr)
 	{
 		float planetDistance = (m_nowPlanet->GetRigidbody()->GetPos() - m_rigid->GetPos()).Length();
-		if (planetDistance > 3000)
+		if (planetDistance > kGalaxyLength)
 		{
 			UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
 			UI::GetInstance().InText("吹き飛ばしだぁ！！");

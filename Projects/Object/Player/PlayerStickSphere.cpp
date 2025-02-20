@@ -64,7 +64,7 @@ void PlayerStickSphere::Update()
 void PlayerStickSphere::Draw()
 {
 
-	DrawSphere3D(m_rigid->GetPos().VGet(), kSphereRadius, 10, 0xffff00, m_color, false);
+	//DrawSphere3D(m_rigid->GetPos().VGet(), kSphereRadius, 10, 0xffff00, m_color, false);
 
 	//m_stickFlagがtrueの時に赤くなる
 	DrawLine3D(m_startPos.VGet(), m_rigid->GetPos().VGet(), 0xffffff-(0x00ffff*m_stickFlag));

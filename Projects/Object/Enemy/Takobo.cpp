@@ -22,8 +22,8 @@ namespace
 	constexpr float kFrameParSecond = 60.0f;
 
 	/// <summary>
-		/// 最大HP
-		/// </summary>
+	/// 最大HP
+	/// </summary>
 	constexpr int kHp = 50;
 
 	constexpr int kStartPosX = 200;

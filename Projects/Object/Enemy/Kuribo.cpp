@@ -218,9 +218,8 @@ void Kuribo::OnTriggerStay(std::shared_ptr<Collidable> colider,ColideTag ownTag,
 	{
 		Vec3 ToVec = colider->GetRigidbody()->GetPos() - m_rigid->GetPos();
 		ToVec.Normalize();
-		if (GetVec2Angle(m_attackDir, ToVec) <= DX_PI_F /2)
+		if (GetVec2Angle(m_attackDir, ToVec) <= DX_PI_F /4)
 		{
-			
 			m_player = colider;
 
 			m_targetPoint = colider->GetRigidbody()->GetPos();
@@ -265,11 +264,29 @@ void Kuribo::ChaseUpdate()
 	m_attackDir = Cross(m_upVec, m_sideVec).GetNormalized();
 	m_frontVec = m_attackDir;
 	m_rigid->SetVelocity(m_attackDir * kChaseSpeed*m_speed);
+
+	//追いかけている時間が上限を過ぎたら初期位置に戻る
 	if (m_chaseFrameCount > kChaseMaxFrame)
 	{
 		m_chaseFrameCount = 0;
 		ChangeAnim(AnimNum::AnimationNumWalk);
 		m_moveUpdate = &Kuribo::ComebackUpdate;
+		m_player = nullptr;
+	}
+
+	if (!m_player.get())
+	{
+		return;
+	}
+	Vec3 ToVec = m_player->GetRigidbody()->GetPos() - m_rigid->GetPos();
+	ToVec.Normalize();
+
+	//プレイヤーが視界から消えたら初期位置に戻る
+	if (GetVec2Angle(m_attackDir, ToVec) > DX_PI_F / 4)
+	{
+		m_chaseFrameCount = 0;
+		ChangeAnim(AnimNum::AnimationNumIdle);
+		m_moveUpdate = &Kuribo::SearchUpdate;
 		m_player = nullptr;
 	}
 }
@@ -292,7 +309,7 @@ void Kuribo::ComebackUpdate()
 		m_attackDir = vec;
 		return;
 	}
-	m_rigid->AddVelocity(m_upVec );
+	m_rigid->AddVelocity(m_upVec);
 	m_searchCol->radius = kSearchRadius;
 	m_comebackPoint = m_rigid->GetPos();
 	m_moveUpdate = &Kuribo::ChaseUpdate;
@@ -304,6 +321,7 @@ void Kuribo::StanUpdate()
 	m_state = State::Stan;
 	m_stanCount++;
 
+	////気絶状態が終わったら
 	if (m_stanCount > kStanCountMax)
 	{
 		m_stanCount = 0;
@@ -326,12 +344,14 @@ void Kuribo::DeathUpdate()
 	m_state = State::Death;
 	m_userData->dissolveY -= 0.01f;
 	float animFrame = MV1GetAttachAnimTime(m_modelHandle,m_currentAnimNo);
+
 	if (m_userData->dissolveY<0)
 	{
 		m_dropItem = std::make_shared<Coin>(m_rigid->GetPos(), true);
 		Physics::GetInstance().Entry(m_dropItem);
 		m_isDestroyFlag = true;
 	}
+	//死ぬアニメーションが終わったら
 	if (animFrame > 60)
 	{
 		m_dropItem = std::make_shared<Coin>(m_rigid->GetPos(),true);
