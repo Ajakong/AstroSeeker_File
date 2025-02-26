@@ -31,21 +31,25 @@ namespace Pad
 		nowPad = GetJoypadInputState(DX_INPUT_KEY_PAD1);
 	}
 
+	//状態を設定する
 	void SetState(std::string statement)
 	{
 		state = statement;
 	}
 
+	//現在の状態を取得
 	std::string GetState()
 	{
 		return state;
 	}
 
+	//引数の状態と一致しているか
 	bool IsState(std::string statement)
 	{
 		return state==statement;
 	}
 
+	
 	bool IsPress(int key)
 	{
 		return (nowPad & key);

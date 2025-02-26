@@ -2,14 +2,17 @@
 #include"ColliderSphere.h"
 #include"Player.h"
 #include"Item.h"
-#include"SoundManager.h"
 
+#include"SoundManager.h"
+#include"ScreenManager.h"
+
+#include"Game.h"
 namespace
 {
 	/// <summary>
 	/// 球の当たり判定半径
 	/// </summary>
-	constexpr float kSphereRadius = 1.0f;
+	constexpr float kSphereRadius = 0.3f;
 	/// <summary>
 	/// 球の生成間隔
 	/// </summary>
@@ -19,6 +22,11 @@ namespace
 	const char* kName = "Sphere";
 
 	const char* kOperationSEName = "Fastener.mp3";
+
+	constexpr float kTensionSpeed = 3.f;
+
+	const char* kGaussFilterScreenName = "GaussOfSeekerLine";
+	const char* kHighBrightScreenName = "HighBrightSeekerLine";
 }
 
 PlayerStickSphere::PlayerStickSphere(MyEngine::Collidable::Priority priority, ObjectTag tag, std::shared_ptr<MyEngine::Collidable> player, Vec3 pos, Vec3 velocity, Vec3 sideVec, int moveNum, int color) : PlayerSphere(priority, tag, player, pos, velocity, sideVec, moveNum, color),
@@ -42,6 +50,8 @@ m_operationHandle(SoundManager::GetInstance().GetSoundData(kOperationSEName))
 	}
 
 	SetAntiGravity(true);
+	m_gaussFilterScreen = ScreenManager::GetInstance().GetScreenData(kGaussFilterScreenName, Game::kScreenWidth, Game::kScreenHeight);
+	m_highBrightScreen = ScreenManager::GetInstance().GetScreenData(kHighBrightScreenName, Game::kScreenWidth, Game::kScreenHeight);
 }
 
 
@@ -63,11 +73,37 @@ void PlayerStickSphere::Update()
 
 void PlayerStickSphere::Draw()
 {
+	/*auto camerapos = GetCameraPosition();
+	auto cameraTarget = GetCameraTarget();
+	auto cameraUpVec = GetCameraUpVector();
+	auto cameraMat = GetCameraViewMatrix();
+	auto cameraNear = GetCameraNear();
+	auto cameraFar = GetCameraFar();*/
 
-	//DrawSphere3D(m_rigid->GetPos().VGet(), kSphereRadius, 10, 0xffff00, m_color, false);
+	DrawSphere3D(m_rigid->GetPos().VGet(), kSphereRadius, 10, 0xffff00, m_color, true);
+	
+	//// 通常の描画結果を書き込むスクリーンを描画対象にする
+	//SetDrawScreen(m_gaussFilterScreen);
+	//// 画面をクリア
+	//ClearDrawScreen();
 
+	//SetCameraPositionAndTargetAndUpVec(camerapos, cameraTarget, cameraUpVec);
+	//SetCameraNearFar(cameraNear, cameraFar);
 	//m_stickFlagがtrueの時に赤くなる
-	DrawLine3D(m_startPos.VGet(), m_rigid->GetPos().VGet(), 0xffffff-(0x00ffff*m_stickFlag));
+	DrawLine3D(m_startPos.VGet(), m_rigid->GetPos().VGet(), 0xffffff - (0x00ffff * m_stickFlag));
+
+	//GraphFilterBlt(m_gaussFilterScreen, m_highBrightScreen, DX_GRAPH_FILTER_GAUSS, 16, 200);
+	//GraphFilterBlt(m_highBrightScreen, DX_SCREEN_BACK, DX_GRAPH_FILTER_GAUSS, 16, 900);
+
+	//// 描画対象を裏画面にする
+	//SetDrawScreen(DX_SCREEN_BACK);
+
+	//SetCameraPositionAndTargetAndUpVec(camerapos, cameraTarget, cameraUpVec);
+	//SetCameraNearFar(cameraNear, cameraFar);
+	//DrawGraph(0, 0, m_highBrightScreen, false);
+	
+
+	
 }
 
 void PlayerStickSphere::Effect()
@@ -91,10 +127,15 @@ void PlayerStickSphere::Effect()
 		else
 		{
 			
-			
+			//Aが入力された回数(押された分速度が上がる)
 			m_pushCount++;
+			
+			//プレイヤーを操作されている状態に移行する
 			m_player.lock()->SetIsOperation(true);
-			m_player.lock()->SetVelocity((m_rigid->GetPos() - m_player.lock()->GetPos()).GetNormalized() * 3 * m_pushCount);
+			
+			//Playerを引っ張る方向
+			Vec3 tensionDir = (m_rigid->GetPos() - m_player.lock()->GetPos()).GetNormalized();
+			m_player.lock()->SetVelocity(tensionDir * kTensionSpeed * static_cast<float>(m_pushCount));
 		}
 		
 	}

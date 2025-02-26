@@ -24,10 +24,24 @@ private:
 	int m_endPointSoundHandle;
 	int m_movePlayerSoundHandle;
 
+	//ライントレースのエフェクトのインデックス
+	int m_lineEffectIndex;
+
+
 	int m_color;
+
+	//分岐点の番号
 	int m_hitPointNum;
+
+	//プレイヤーを移動させる速度
 	float m_speed;
-	float m_num;
-	float m_ratio;
+
+	//プレイヤーを移動させた総量
+	float m_totalPlayerMoveNum;
+	
+	//シーカーラインの長さ
 	float m_length;
+
+	int m_gaussFilterScreen;
+	int m_highBrightScreen;
 };

@@ -92,7 +92,7 @@ namespace MyEngine
 		/// <summary>
 		/// オブジェクトに重力をかける
 		/// </summary>
-		void Gravity();
+		void UpdatePlanetPhysics();
 		//摩擦をかける
 		void Friction();
 

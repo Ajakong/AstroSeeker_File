@@ -25,7 +25,7 @@ BigKuribo::BigKuribo(Vec3 pos,int connectNum) : Kuribo(pos)
 	m_frontVec = Vec3(1, 0, 0);
 	m_sideVec = Vec3(0, 0, 1);
 
-	m_speed = 2;
+	m_speed = 2.f;
 
 }
 

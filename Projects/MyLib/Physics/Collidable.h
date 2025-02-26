@@ -132,22 +132,30 @@ namespace MyEngine
 		virtual void OnTriggerExit(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag) {}
 
 		/* Getter */	
-		ObjectTag GetTag() const { return m_tag; }
-		Priority GetPriority() const { return m_priority; }
-		State GetState()const { return m_state; }
-		State GetPostState() const { return m_postState; }
-		std::string GetStateName() const { return m_stateName; }
-		void SetObjectTag(ObjectTag tag) { m_tag = tag; }
+		
+		float GetPower() { return m_power; }
+
 		bool IsAntiGravity() { return m_isAntiGravity; }
-		void SetIsActive(bool flag) { m_isActive = flag; }
 		bool GetIsActive() { return m_isActive; }
 		bool GetIsIgnore() { return m_isIgnore; };
-		void SetNextUpVec(Vec3 vel) { m_nextUpVec = vel; }
-		void AddNextUpVec(Vec3 vel) { m_nextUpVec += vel; }
-		void SetUpVec(Vec3 vel) { m_upVec = vel; }
+
 		Vec3 GetUpVec() { return m_upVec; }
 		Vec3 GetNextUpVec() { return m_nextUpVec; }
 		Vec3 GetFrontVec() { return m_frontVec; }
+		State GetState()const { return m_state; }
+		State GetPostState() const { return m_postState; }
+		Priority GetPriority() const { return m_priority; }
+		ObjectTag GetTag() const { return m_tag; }
+		std::string GetStateName() const { return m_stateName; }
+
+		void SetIsActive(bool flag) { m_isActive = flag; }
+
+		void SetUpVec(Vec3 vel) { m_upVec = vel; }
+		void SetNextUpVec(Vec3 vel) { m_nextUpVec = vel; }
+		void AddNextUpVec(Vec3 vel) { m_nextUpVec += vel; }
+
+		void SetObjectTag(ObjectTag tag) { m_tag = tag; }
+
 		// 当たり判定を無視（スルー）するタグの追加/削除
 		void AddThroughTag(ObjectTag tag);
 		void RemoveThroughTag(ObjectTag tag);
@@ -163,7 +171,7 @@ namespace MyEngine
 
 		std::shared_ptr<Rigidbody> GetRigidbody() const { return m_rigid; }
 
-		int gravityEffectCount = 0;
+
 	protected:
 		std::shared_ptr<CollideInfo> AddCollider(const ColliderBase::Kind& kind,const ColideTag& tag);
 		void RemoveCollider(std::shared_ptr<Collidable::CollideInfo> col);
@@ -181,11 +189,16 @@ namespace MyEngine
 		Vec3 m_frontVec;
 		Vec3 m_sideVec;
 
+		//状態
 		State m_state;
+		//1フレーム前の状態
 		State m_postState;
+		//状態の名前
 		std::string m_stateName;
-
-
+		
+		//影響力
+		float m_power;
+		
 		bool m_isDestroyFlag;
 		bool m_isIgnore;
 

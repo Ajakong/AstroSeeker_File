@@ -16,6 +16,8 @@ namespace
 EnemySphere::EnemySphere(MyEngine::Collidable::Priority priority, ObjectTag tag, std::shared_ptr<MyEngine::Collidable>enemy, Vec3 pos, Vec3 velocity, Vec3 targetPos, int moveNum, int color,float impactTime) : SphereBase(priority,tag,pos,velocity,color,kSphereRadius),
 m_enemy(std::dynamic_pointer_cast<Enemy>(enemy))
 {
+	m_power = 10;
+	
 	m_impactTime = impactTime;
 	m_velocity = velocity;
 	m_rigid->SetPos(pos);
@@ -26,11 +28,7 @@ m_enemy(std::dynamic_pointer_cast<Enemy>(enemy))
 	m_targetPos = targetPos;
 
 	SetAntiGravity(true);
-	//moveNumによって挙動が変わるのかもしれない(実装するかわからん)
-	//if (moveNum == 0)
-	{
-		m_moveUpdate = &EnemySphere::ChaseUpdate;
-	}
+	m_moveUpdate = &EnemySphere::ChaseUpdate;
 }
 
 EnemySphere::~EnemySphere()

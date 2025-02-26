@@ -13,7 +13,7 @@ public:
 	void SetRadius(float radius);
 	void Shot();
 
-	int GetRadius() { return m_radius; }
+	float GetRadius() { return m_radius; }
 
 	//メンバ関数ポインタ
 	using bulletState_t = void(CannonSphere::*)();

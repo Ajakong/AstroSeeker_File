@@ -141,9 +141,8 @@ void Physics::Update()
 		}
 	}
 	//次の位置を決定した後ではないと補正されて衝突していなくなる
-	Gravity();
+	UpdatePlanetPhysics();
 	Friction();
-
 	// 判定確認
 	CheckCollide();
 	// 通知リストを確認
@@ -233,7 +232,6 @@ void MyEngine::Physics::Initialize(std::shared_ptr<Collidable> collidable)
 					auto planet = dynamic_cast<Planet*>(stage.get());
 					collidable->m_rigid->AddVelocity(planet->GravityEffect(collidable));
 					collidable->m_rigid->SetNextPos(collidable->m_rigid->GetPos() + collidable->m_rigid->GetVelocity());
-					collidable->gravityEffectCount++;
 					continue;
 				}
 			}
@@ -244,7 +242,7 @@ void MyEngine::Physics::Initialize(std::shared_ptr<Collidable> collidable)
 	}
 }
 
-void MyEngine::Physics::Gravity()
+void MyEngine::Physics::UpdatePlanetPhysics()
 {
 	// 判定リストはペアになっているので半分の数だけ繰り返す
 	for (auto& stage : m_stageCollidables)
@@ -292,7 +290,8 @@ void MyEngine::Physics::Gravity()
 					);
 
 					//体の判定のみ(一回)
-					if (collisionResult.HitFlag == true&&colB->tag == ColideTag::Body) {
+					bool isHit = collisionResult.HitFlag == 1;
+					if (isHit && colB->tag == ColideTag::Body) {
 						//モデルと線分が衝突した地点
 						Vec3 hitPosition = collisionResult.HitPosition;
 						int shadowHandle = ModelManager::GetInstance().GetModelData(kShadowModelName,true);
@@ -350,7 +349,6 @@ void MyEngine::Physics::Gravity()
 						auto planet = dynamic_cast<Planet*>(stage.get());
 						object->m_rigid->AddVelocity(planet->GravityEffect(object));
 						object->m_rigid->SetNextPos(object->m_rigid->GetPos() + object->m_rigid->GetVelocity());
-						object->gravityEffectCount++;
 						continue;
 					}
 					else
@@ -511,8 +509,6 @@ std::vector<std::shared_ptr<Collidable>> Physics::GetCollisionList() const
 		{
 			auto& obj1 = m_collidables[i];
 			auto& obj2 = m_collidables[j];
-			obj1->gravityEffectCount = 0;
-			obj2->gravityEffectCount = 0;
 			// 移動しないオブジェクト同士なら判定しない
 			if (obj1->GetPriority() == Collidable::Priority::Static && obj2->GetPriority() == Collidable::Priority::Static) continue;
 

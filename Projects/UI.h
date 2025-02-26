@@ -9,14 +9,17 @@ class UI
 {
 	
 public:
+	//UIの情報群
 	struct UIinfo
 	{
-		int x;
-		int y;
-		int width;
-		int height;
+		int x;//画像上の表示したいものの左端
+		int y;//画像上の表示したいものの上端
+		int width;//画像上の表示したいものの横の長さ
+		int height;//画像上の表示したいものの縦の長さ
+		float extrate;//拡大率
 	};
 
+	//話すオブジェクトの種類
 	enum class TalkGraphKind
 	{
 		TakasakiTaisa,
@@ -27,6 +30,7 @@ public:
 		Dekahead_White,
 		Boss
 	};
+
 	UI();
 	virtual ~UI();
 	static UI& GetInstance();
@@ -49,6 +53,7 @@ public:
 	/// </summary>
 	/// <param name="text">1行で表示したいテキスト</param>
 	void InText(const std::string text);
+
 	/// <summary>
 	/// テキストデータ群に次に表示したいテキストをぶち込む(全角でぶち込んでください)
 	/// </summary>
@@ -106,10 +111,12 @@ private:
 	/// テキストモードに移行
 	/// </summary>
 	void TextMode();
+
 	/// <summary>
 	/// Aボタン表示モードに移行
 	/// </summary>
 	void InputAMode();
+
 	/// <summary>
 	/// 通常UIモードに移行
 	/// </summary>
@@ -138,6 +145,7 @@ private:
 	/// </summary>
 	void TextBoxFadeDraw();
 	void TextBoxDraw();
+
 	/// <summary>
 	/// ミッション描画用
 	/// </summary>
@@ -214,6 +222,7 @@ private:
 	/// 会話UI出現音
 	/// </summary>
 	int m_chatAppearSEHandle;
+
 	/// <summary>
 	/// HPが少ないことを知らせる音
 	/// </summary>

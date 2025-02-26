@@ -32,17 +32,35 @@ namespace
 	const char* kHPLowerSEName = "HPLower.mp3";
 
 	
-	const UI::UIinfo kIdemBoxUIInfo{ 0,0,255,255 };
-	const UI::UIinfo kHPBarUIInfo { 125,730,820,140 };
-	const UI::UIinfo kWindowScreenUIInfo{ 620,15,400,500 };
-	const UI::UIinfo kPushLushInputAUIInfo{ 90,100,835,850 };
-	const UI::UIinfo kPushLushInputAUI2Info{ 90,100,835,850 };
-	const UI::UIinfo kInputAUIInfo{ 200,105,620,695 };
-	const UI::UIinfo kStarUIInfo{ 0,0,810,810 };
+	const UI::UIinfo kIdemBoxUIInfo{ 0,0,255,255,1.f };
+	const UI::UIinfo kHPBarUIInfo { 125,730,820,140,1.f };
+	const UI::UIinfo kWindowScreenUIInfo{ 620,15,400,500,0.7f };
+	const UI::UIinfo kPushLushInputAUIInfo{ 90,100,835,850,0.3f };
+	const UI::UIinfo kPushLushInputAUI2Info{ 90,100,835,850,0.3f };
+	const UI::UIinfo kInputAUIInfo{ 200,105,620,695,0.002f };
+	const UI::UIinfo kStarUIInfo{ 0,0,810,810,0.1f };
 
-	const UI::UIinfo kTalkingCharaGraph{ 0,0,775,890 };
+	const UI::UIinfo kTalkingCharaGraph{ 0,0,775,890,0.3f };
 
 	const UI::UIinfo kAimGraph{ 3140 ,200,400,370 };
+
+	constexpr int kHPBarUIOffsetX = 40;
+	constexpr int kHPBarUIOffsetY = 40;
+	constexpr int kHPBarUIWidth = 780;
+	const int kHPBarUIHeight = static_cast<int>(kHPBarUIInfo.height / 2 + 10);
+	constexpr int kHPBarColor = 0x0000044;
+	constexpr int kHPBarFillWidthMultiplier = 15;
+
+	constexpr int kTextBoxBackGroundAlpha = 150;//テキスト表示するボックスの透明度　高0～255低
+
+
+	const int kCoinUIOffsetX = 10;
+	const int kCoinUIOffsetY = 15;
+
+	const int kDebugBoxOffsetX = 170;
+	const int kDebugBoxOffsetY = 50;
+
+	constexpr int kDangerousHPNum = 20;
 
 	constexpr float kHpDecreaseSpeed = 0.3f;
 
@@ -56,30 +74,51 @@ namespace
 	/// <summary>
 	/// テキストボックスのフェード速度
 	/// </summary>
-	constexpr int kTextBoxFadeFrameSpeed = 5.f;
+	constexpr float kTextBoxFadeFrameSpeed = 5.f;
 	/// <summary>
 	/// Aボタンのフェード速度
 	/// </summary>
-	constexpr int kInputAFadeFrameSpeed = 20.f;
+	constexpr float kInputAFadeFrameSpeed = 20.f;
+
+	constexpr int kTextBoxFrameUp = 90;
+	constexpr int kTextBoxFrameDown = 440;
+	constexpr int kTextBoxFadeSpeedX = 9;
+
+	constexpr int kNeutralHPGaugeColor = 0x0044ff;
+	constexpr int kDangerousHPGaugeColor = 0xff0000;
 }
 
 UI::UI():
-	m_fadeSpeed(1),
-	m_appearFrame(0),
-	m_changeFrame(0),
-	m_uiUpdate(&UI::NormalUpdate),
-	m_uiDraw(&UI::NormalDraw),
+	//画像ハンドルの初期化
+	m_uiStarHandle(-1),
 	m_uiAssetHandle(-1),
 	m_uiInputAHandle(-1),
 	m_uiAimGraphHandle(-1),
-	m_uiTakasakiTaisaHandle(-1),
-	m_uiTalkingCharaHandle(-1),
 	m_uiPushLushInputAButtonHandle(-1),
 	m_uiPushLushInputAButton2Handle(-1),
+
+	//キャラクターの画像ハンドルの初期化
+	m_uiDekahead_RedHandle(-1),
+	m_uiDekahead_BlueHandle(-1),
+	m_uiDekahead_GreenHandle(-1),
+	m_uiDekahead_WhiteHandle(-1),
+	m_uiDekahead_YellowHandle(-1),
+	m_uiTalkingCharaHandle(-1),
+	m_uiTakasakiTaisaHandle(-1),
+	m_uiBossHandle(-1),
+
+	//SEハンドルの初期化
 	m_textBoxSEHandle(-1),
-	m_chatAppearSEHandle(-1),
 	m_hpLowerSEHandle(-1),
-	m_uiStarHandle(-1),
+	m_chatAppearSEHandle(-1),
+
+	m_fadeSpeed(1),
+	m_appearFrame(0),
+	m_changeFrame(0),
+	m_uiDraw(&UI::NormalDraw),
+	m_uiUpdate(&UI::NormalUpdate),
+
+	m_HPColor(0),
 	m_playerHp(0)
 {
 	
@@ -97,46 +136,48 @@ UI& UI::GetInstance()
 
 void UI::Init()
 {
+	//キャラクターの画像ハンドル
 	m_uiAssetHandle = GraphManager::GetInstance().GetGraphData(kGraphUIAssetName);
 	m_uiInputAHandle = GraphManager::GetInstance().GetGraphData(kInputAUIName);
 	m_uiPushLushInputAButtonHandle = GraphManager::GetInstance().GetGraphData(kPushLushInputAUIName);
 	m_uiPushLushInputAButton2Handle = GraphManager::GetInstance().GetGraphData(kPushLushInputAUI2Name);
 	m_uiStarHandle = GraphManager::GetInstance().GetGraphData("star.png");
 
-
 	m_uiTakasakiTaisaHandle = GraphManager::GetInstance().GetGraphData(kTakasakiTaisaGraphName);
 	
 	m_uiDekahead_RedHandle = GraphManager::GetInstance().GetGraphData(kDekahead_RedGraphName);
 	m_uiDekahead_GreenHandle = GraphManager::GetInstance().GetGraphData(kDekahead_GreenGraphName);
-	m_uiDekahead_YellowHandle = GraphManager::GetInstance().GetGraphData(kDekahead_YellowGraphName);
 	m_uiDekahead_BlueHandle = GraphManager::GetInstance().GetGraphData(kDekahead_BlueGraphName);
 	m_uiDekahead_WhiteHandle = GraphManager::GetInstance().GetGraphData(kDekahead_WhiteGraphName);
+	m_uiDekahead_YellowHandle = GraphManager::GetInstance().GetGraphData(kDekahead_YellowGraphName);
 
 	m_uiBossHandle = GraphManager::GetInstance().GetGraphData(kBossGraphName);
 
-
+	//UIのデフォルト画像ハンドル
+	m_hpLowerSEHandle = SoundManager::GetInstance().GetSoundData(kHPLowerSEName);
 	m_uiAimGraphHandle = GraphManager::GetInstance().GetGraphData(kAimGraphName);
 	m_textBoxSEHandle = SoundManager::GetInstance().GetSoundData(kTextBoxIntroSEName);
 	m_chatAppearSEHandle = SoundManager::GetInstance().GetSoundData(kChatAppearSEName);
-	m_hpLowerSEHandle = SoundManager::GetInstance().GetSoundData(kHPLowerSEName);
+	
+
 	m_textManager = std::make_shared<TextManager>();
 	NormalMode();
 	m_appearFrame = 0;
 	m_fadeSpeed = 1;
 	m_changeFrame = 0;
-	m_HPColor = 0x00044ff;
+	m_HPColor = kNeutralHPGaugeColor;
 }
 
 void UI::Update()
 {
-	if (m_HPColor == 0x00044ff && m_playerHp <= 20&&m_playerHp!=0)
+	if (m_HPColor == kNeutralHPGaugeColor && m_playerHp <= kDangerousHPNum &&m_playerHp!=0)
 	{
 		PlaySoundMem(m_hpLowerSEHandle, DX_PLAYTYPE_BACK);
-		m_HPColor = 0xff0000;
+		m_HPColor = kDangerousHPGaugeColor;
 	}
-	else if (m_HPColor == 0xff0000 && m_playerHp > 20)
+	else if (m_HPColor == kDangerousHPGaugeColor && m_playerHp > kDangerousHPNum)
 	{
-		m_HPColor = 0x00044ff;
+		m_HPColor = kNeutralHPGaugeColor;
 	}
 	(this->*m_uiUpdate)();
 	m_changeFrame++;
@@ -154,7 +195,7 @@ void UI::NormalUpdate()
 	//テキストデータがぶち込まれていたら表示する
 	if (m_textManager->GetTextDataSize() != 0)
 	{
-		
+		//テキスト表示モードに移行
 		TextMode();
 	}
 	
@@ -212,6 +253,7 @@ void UI::InputAUpdate()
 {
 	if (Pad::IsTrigger(PAD_INPUT_1))
 	{
+		//パッドをテキスト入力モードに移行
 		Pad::SetState("TextInput");
 		m_textManager->SetTexts(m_nowTalkObject->GetTexts());
 		m_uiUpdate = &UI::FadeOutUpdate;
@@ -222,19 +264,22 @@ void UI::InputAUpdate()
 void UI::TextMode()
 {
 	PlaySoundMem(m_textBoxSEHandle,DX_PLAYTYPE_BACK);
-	m_fadeSpeed = kTextBoxFadeFrameSpeed;
+
+	//パッドをテキスト入力モードに移行
 	Pad::SetState("TextInput");
 	m_uiUpdate = &UI::AppaerUpdate;
 	m_uiDraw = &UI::TextBoxFadeDraw;
+	m_fadeSpeed = kTextBoxFadeFrameSpeed;
 }
 
 void UI::InputAMode()
 {
 	PlaySoundMem(m_chatAppearSEHandle, DX_PLAYTYPE_BACK);
-	m_fadeSpeed = kInputAFadeFrameSpeed;
-	
+
+	//Aボタンで話しかけるUI表示モード
 	m_uiUpdate = &UI::AppaerUpdate;
 	m_uiDraw = &UI::InputAFadeDraw;
+	m_fadeSpeed = kInputAFadeFrameSpeed;
 }
 
 
@@ -270,35 +315,66 @@ void UI::Draw(float hp, int coinNum, bool aimFlag,bool isDeath)
 {
 	m_playerHp = hp;
 
+	//プレイヤーのHPが残っているなら
 	if (m_playerHp > 0)
 	{
-		DrawBox(40, 40, 780, static_cast<int>(kHPBarUIInfo.height / 2 + 10), 0x0000044, true);
+		DrawBox(kHPBarUIOffsetX, kHPBarUIOffsetY, kHPBarUIWidth, kHPBarUIHeight, 0x0000044, true);
 		
-		DrawBox(40, 40, 40 + 15 * static_cast<int>(m_playerHp), kHPBarUIInfo.height / 2 + 10, m_HPColor, true);
+		DrawBox(kHPBarUIOffsetX, kHPBarUIOffsetY,
+			kHPBarUIOffsetX + kHPBarFillWidthMultiplier * static_cast<int>(m_playerHp),//プレイヤーのHP残量に合わせてHPバーの長さを調節
+			kHPBarUIHeight, m_HPColor, true);
 
-		DrawRectRotaGraphF(static_cast<float>(kHPBarUIInfo.width / 2), static_cast<float>(kHPBarUIInfo.height / 2), kHPBarUIInfo.x, kHPBarUIInfo.y, kHPBarUIInfo.width, kHPBarUIInfo.height, 1, 0, m_uiAssetHandle, true);
+		DrawRectRotaGraphF(static_cast<float>(kHPBarUIInfo.width / 2), static_cast<float>(kHPBarUIInfo.height / 2), kHPBarUIInfo.x, kHPBarUIInfo.y, kHPBarUIInfo.width, kHPBarUIInfo.height, kHPBarUIInfo.extrate, 0, m_uiAssetHandle, true);
 #ifdef DEBUG
 		DrawRectRotaGraph(Game::kScreenWidth - kIdemBoxUIInfo.width / 2 - 170, kIdemBoxUIInfo.height / 2 + 50, kIdemBoxUIInfo.x, kIdemBoxUIInfo.y, kIdemBoxUIInfo.width, kIdemBoxUIInfo.height, 1, 0, m_uiAssetHandle, true);
 #endif
 
 	}
+
+	//プレイヤーがコインを持っているなら
 	if (coinNum > 0)
 	{
-		DrawRectRotaGraphF(static_cast<float>(kStarUIInfo.width / 2)/10+ static_cast<float>(kHPBarUIInfo.width), static_cast<float>(kStarUIInfo.height / 2)/10+15, kStarUIInfo.x, kStarUIInfo.y, kStarUIInfo.width, kStarUIInfo.height, 0.1f, 0, m_uiStarHandle, true);
-		DrawFormatString(static_cast<int>(kStarUIInfo.width)/10 + static_cast<int>(kHPBarUIInfo.width), static_cast<float>(kStarUIInfo.height / 2) / 10+15, 0xffffff, "x%d", coinNum);
+		DrawRectRotaGraphF(static_cast<float>(kStarUIInfo.width / 2)/ kCoinUIOffsetX + static_cast<float>(kHPBarUIInfo.width), static_cast<float>(kStarUIInfo.height / 2)/ (kStarUIInfo.extrate / 1) + kCoinUIOffsetY, kStarUIInfo.x, kStarUIInfo.y, kStarUIInfo.width, kStarUIInfo.height, kStarUIInfo.extrate, 0, m_uiStarHandle, true);
+		DrawFormatString(static_cast<int>(kStarUIInfo.width)/ kCoinUIOffsetX + static_cast<int>(kHPBarUIInfo.width), static_cast<float>(kStarUIInfo.height / 2) / (kStarUIInfo.extrate/1) + kCoinUIOffsetY, 0xffffff, "x%d", coinNum);
 	}
+
 	(this->*m_uiDraw)();
 
-	if (aimFlag)DrawRectRotaGraph(Game::kScreenWidth/2, Game::kScreenHeight/2, kAimGraph.x, kAimGraph.y, kAimGraph.width, kAimGraph.height, 0.3, 0, m_uiAimGraphHandle, true);
+	//エイム時なら
+	if (aimFlag)DrawRectRotaGraph(Game::kScreenWidth/2, Game::kScreenHeight/2, kAimGraph.x, kAimGraph.y, kAimGraph.width, kAimGraph.height, kAimGraph.extrate, 0, m_uiAimGraphHandle, true);
+	
+	//死んでいたら
 	if (isDeath)
 	{
 		if (m_changeFrame % 2 == 0)
 		{
-			DrawRectRotaGraph(Game::kScreenWidth / 2, Game::kScreenHeight / 2, kPushLushInputAUIInfo.x, kPushLushInputAUIInfo.y, kPushLushInputAUIInfo.width, kPushLushInputAUIInfo.height, 0.3, 0, m_uiPushLushInputAButtonHandle, true);
+			DrawRectRotaGraph(
+				Game::kScreenWidth / 2,//画面に表示したいX軸上の場所(画像の中心)
+				Game::kScreenHeight / 2,//画面に表示したいY軸上の場所(画像の中心)
+				kPushLushInputAUIInfo.x,//表示したいのモノの画像データ上の左端
+				kPushLushInputAUIInfo.y,//表示したいのモノの画像データ上の上端
+				kPushLushInputAUIInfo.width,//表示したいモノの画像データ上の横の長さ
+				kPushLushInputAUIInfo.height,//表示したいモノの画像データ上の縦の長さ
+				kPushLushInputAUIInfo.extrate,//表示したいモノの拡大率
+				0,//角度
+				m_uiPushLushInputAButtonHandle,//画像ハンドル
+				true//透過するか
+			);
 		}
 		else
 		{
-			DrawRectRotaGraph(Game::kScreenWidth / 2, Game::kScreenHeight / 2, kPushLushInputAUI2Info.x, kPushLushInputAUI2Info.y, kPushLushInputAUI2Info.width, kPushLushInputAUI2Info.height, 0.3, 0, m_uiPushLushInputAButton2Handle, true);
+			DrawRectRotaGraph(
+				Game::kScreenWidth / 2,//画面に表示したいX軸上の場所(画像の中心)
+				Game::kScreenHeight / 2,//画面に表示したいY軸上の場所(画像の中心)
+				kPushLushInputAUI2Info.x,//表示したいのモノの画像データ上の左端
+				kPushLushInputAUI2Info.y,//表示したいのモノの画像データ上の上端
+				kPushLushInputAUI2Info.width,//表示したいモノの画像データ上の横の長さ
+				kPushLushInputAUI2Info.height,//表示したいモノの画像データ上の縦の長さ
+				kPushLushInputAUI2Info.extrate,//表示したいモノの拡大率
+				0,//角度
+				m_uiPushLushInputAButton2Handle,//画像ハンドル
+				true//透過するか
+			);
 		}
 		
 	}
@@ -306,22 +382,16 @@ void UI::Draw(float hp, int coinNum, bool aimFlag,bool isDeath)
 
 void UI::NormalDraw()
 {
-	
-#ifdef DEBUG
-	DrawRectRotaGraph(Game::kScreenWidth - kIdemBoxUIInfo.width / 2 - 170, kIdemBoxUIInfo.height / 2 + 50, kIdemBoxUIInfo.x, kIdemBoxUIInfo.y, kIdemBoxUIInfo.width, kIdemBoxUIInfo.height, 1, 0, m_uiAssetHandle, true);
-#endif
-	/*DrawRectRotaGraph( Game::kScreenWidth-kWindowScreenUIInfo.width / 2, kWindowScreenUIInfo.height / 2, kWindowScreenUIInfo.x, kWindowScreenUIInfo.y, kWindowScreenUIInfo.width, kWindowScreenUIInfo.height, 1, 0, m_uiAssetHandle, true);*/
-
 }
 
 void UI::InputAFadeDraw()
 {
-	DrawRectRotaGraphF(static_cast<float>(Game::kScreenWidth/2), static_cast<float>(Game::kScreenHeight/2), kInputAUIInfo.x, kInputAUIInfo.y, kInputAUIInfo.width, kInputAUIInfo.height, m_appearFrame*0.002f, 0, m_uiInputAHandle, true);
+	DrawRectRotaGraphF(static_cast<float>(Game::kScreenWidth/2), static_cast<float>(Game::kScreenHeight/2), kInputAUIInfo.x, kInputAUIInfo.y, kInputAUIInfo.width, kInputAUIInfo.height, m_appearFrame* kInputAUIInfo.extrate, 0, m_uiInputAHandle, true);
 }
 
 void UI::InputADraw()
 {
-	DrawRectRotaGraphF(static_cast<float>(Game::kScreenWidth / 2), static_cast<float>(Game::kScreenHeight / 2), kInputAUIInfo.x, kInputAUIInfo.y, kInputAUIInfo.width, kInputAUIInfo.height, m_appearFrame * 0.002f, 0, m_uiInputAHandle, true);
+	DrawRectRotaGraphF(static_cast<float>(Game::kScreenWidth / 2), static_cast<float>(Game::kScreenHeight / 2), kInputAUIInfo.x, kInputAUIInfo.y, kInputAUIInfo.width, kInputAUIInfo.height, m_appearFrame * kInputAUIInfo.extrate, 0, m_uiInputAHandle, true);
 }
 
 void UI::TextBoxFadeDraw()
@@ -330,10 +400,10 @@ void UI::TextBoxFadeDraw()
 	DrawBox(0, Game::kScreenHeight, Game::kScreenWidth, Game::kScreenHeight-m_appearFrame, 0x000000, true);
 
 
-	SetDrawBlendMode(DX_BLENDMODE_MULA, 150);
-	DrawBox(Game::kScreenWidth / 2 - m_appearFrame * 9, 90, Game::kScreenWidth / 2 + m_appearFrame * 9, 440, 0x111111, true);
+	SetDrawBlendMode(DX_BLENDMODE_MULA, kTextBoxBackGroundAlpha);
+	DrawBox(Game::kScreenWidth / 2 - m_appearFrame * kTextBoxFadeSpeedX, kTextBoxFrameUp, Game::kScreenWidth / 2 + m_appearFrame * kTextBoxFadeSpeedX, kTextBoxFrameDown, 0x111111, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	DrawBox(Game::kScreenWidth / 2 - m_appearFrame * 9, 90, Game::kScreenWidth / 2 + m_appearFrame * 9, 440, 0x0000ff, false);
+	DrawBox(Game::kScreenWidth / 2 - m_appearFrame * kTextBoxFadeSpeedX, kTextBoxFrameUp, Game::kScreenWidth / 2 + m_appearFrame * kTextBoxFadeSpeedX, kTextBoxFrameDown, 0x0000ff, false);
 }
 
 void UI::TextBoxDraw()
@@ -341,14 +411,14 @@ void UI::TextBoxDraw()
 	DrawBox(0, 0, Game::kScreenWidth, m_appearFrame, 0x000000, true);
 	DrawBox(0, Game::kScreenHeight, Game::kScreenWidth, Game::kScreenHeight - m_appearFrame, 0x000000, true);
 	
-	SetDrawBlendMode(DX_BLENDMODE_MULA, 150);
-	DrawBox(Game::kScreenWidth / 2 - m_appearFrame * 9, 90, Game::kScreenWidth / 2 + m_appearFrame * 9, 440, 0x111111, true);
+	SetDrawBlendMode(DX_BLENDMODE_MULA, kTextBoxBackGroundAlpha);
+	DrawBox(Game::kScreenWidth / 2 - m_appearFrame * kTextBoxFadeSpeedX, kTextBoxFrameUp, Game::kScreenWidth / 2 + m_appearFrame * kTextBoxFadeSpeedX, kTextBoxFrameDown, 0x111111, true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	DrawBox(Game::kScreenWidth / 2 - m_appearFrame * 9, 90, Game::kScreenWidth / 2 + m_appearFrame * 9, 440, 0x0000ff, false);
+	DrawBox(Game::kScreenWidth / 2 - m_appearFrame * kTextBoxFadeSpeedX, kTextBoxFrameUp, Game::kScreenWidth / 2 + m_appearFrame * kTextBoxFadeSpeedX, kTextBoxFrameDown, 0x0000ff, false);
 
-	DrawRectRotaGraph((kWindowScreenUIInfo.width / 2) + (Game::kScreenWidth*0.6f), (kWindowScreenUIInfo.height / 2)+20, kTalkingCharaGraph.x, kTalkingCharaGraph.y, kTalkingCharaGraph.width, kTalkingCharaGraph.height, 0.3f, 0, m_uiTalkingCharaHandle, true);
+	DrawRectRotaGraph((kWindowScreenUIInfo.width / 2) + (Game::kScreenWidth*0.6f), (kWindowScreenUIInfo.height / 2)+20, kTalkingCharaGraph.x, kTalkingCharaGraph.y, kTalkingCharaGraph.width, kTalkingCharaGraph.height, kTalkingCharaGraph.extrate, 0, m_uiTalkingCharaHandle, true);
 
-	DrawRectRotaGraph((kWindowScreenUIInfo.width / 2)+ (Game::kScreenWidth*0.6f), (kWindowScreenUIInfo.height / 2)+50, kWindowScreenUIInfo.x, kWindowScreenUIInfo.y, kWindowScreenUIInfo.width, kWindowScreenUIInfo.height, 0.7f, 0, m_uiAssetHandle, true);
+	DrawRectRotaGraph((kWindowScreenUIInfo.width / 2)+ (Game::kScreenWidth*0.6f), (kWindowScreenUIInfo.height / 2)+50, kWindowScreenUIInfo.x, kWindowScreenUIInfo.y, kWindowScreenUIInfo.width, kWindowScreenUIInfo.height, kWindowScreenUIInfo.extrate, 0, m_uiAssetHandle, true);
 	m_textManager->Draw();
 }
 

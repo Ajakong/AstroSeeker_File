@@ -10,12 +10,17 @@ namespace
 }
 
 Galaxy::Galaxy(std::shared_ptr<Player> playerPointer) :
+	//フラグの初期化
 	m_isClearFlag(false),
 	m_isGameOverFlag(false),
 	m_managerUpdate(nullptr),
 	m_managerDraw(nullptr)
 {
+#ifdef _DEBUG
+	//モデルのみを描画するスクリーンハンドル(デバッグ用)
 	m_modelScreenHandle = ScreenManager::GetInstance().GetScreenData(kModelScreenName, Game::kScreenWidth, Game::kScreenHeight);
+#endif
+
 	player = playerPointer;
 }
 

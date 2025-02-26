@@ -74,32 +74,62 @@ namespace
 /// <param name="manager"></param>
 TitleScene::TitleScene(SceneManager& manager) :
     Scene(manager),
-    m_titleBGMHandle(SoundManager::GetInstance().GetSoundData(kTitleBGMName)),
-    m_gameStartSEHandle(SoundManager::GetInstance().GetSoundData(kGameStartSEName)),
-    m_fadeSEHandle(SoundManager::GetInstance().GetSoundData(kTitleFadeSEName)),
+    
+    m_cameraMoveCount(0),
     m_btnFrame(0),
     m_fadeSpeed(1),
-    m_titleHandle(GraphManager::GetInstance().GetGraphData(kTitleGraphName)),
-    m_PushAToStartHandle(GraphManager::GetInstance().GetGraphData(kPushAToStartGraphName)),
-    player(std::make_shared<TitlePlayer>()),
-    planet(std::make_shared<SpherePlanet>(Vec3(0, -50, 0), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kPlanetModelName), 1.0f, 1)),
-    nextPlanet(std::make_shared<SpherePlanet>(Vec3(-300, -50, 200), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kNextPlanetModelName), 1.0f, 1)),
-	emeraldPlanet(std::make_shared<SpherePlanet>(Vec3(200, 100, 200), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kEmeraldPlanetModelName), 1.0f, 1)),
-    redPlanet(std::make_shared<SpherePlanet>(Vec3(50, -50,300), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kRedPlanetModelName), 1.0f, 1)),
-	camera(std::make_shared<Camera>(cameraFirstPosition)),
-    m_skyDomeH(0),
     m_skyDomeRotationAngle(0),
-	m_count(0),
-    m_cameraRotateAngle(0)
+    m_cameraAngleRotateSpeed(0),
+
+    m_skyDomeH(-1),
+    m_titleHandle(-1),
+    m_fadeSEHandle(-1),
+    m_titleBGMHandle(-1),
+    m_gameStartSEHandle(-1),
+    m_PushAToStartHandle(-1),
+    
+    //タイトル用のPlayerの生成
+    player(std::make_shared<TitlePlayer>()),
+    
+    //Playerが上に乗る惑星を(0,-50,0)の位置に生成
+    planet(std::make_shared<SpherePlanet>(Vec3(0, -50, 0), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kPlanetModelName), 1.0f, 1)),
+    
+    //赤い惑星を(50,-50,300)の位置に生成
+    redPlanet(std::make_shared<SpherePlanet>(Vec3(50, -50, 300), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kRedPlanetModelName), 1.0f, 1)),
+    
+    //プレイヤーが移動する先の惑星の生成
+    nextPlanet(std::make_shared<SpherePlanet>(Vec3(-300, -50, 200), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kNextPlanetModelName), 1.0f, 1)),
+	
+    //緑の惑星を(200,100,200)の位置に生成
+    emeraldPlanet(std::make_shared<SpherePlanet>(Vec3(200, 100, 200), 0xaadd33, 3.f, ModelManager::GetInstance().GetModelData(kEmeraldPlanetModelName), 1.0f, 1)),
+    
+    //初期位置にカメラインスタンスの生成
+    camera(std::make_shared<Camera>(cameraFirstPosition))
 {
+    
+    m_titleBGMHandle = SoundManager::GetInstance().GetSoundData(kTitleBGMName);
+    
+    //フェード時に流れるSEのロード
+    m_fadeSEHandle = SoundManager::GetInstance().GetSoundData(kTitleFadeSEName);
+    
+    //タイトルロゴの画像ロード
+    m_titleHandle = GraphManager::GetInstance().GetGraphData(kTitleGraphName);
+    
+    //ゲーム開始時に流れるSEのロード
+    m_gameStartSEHandle = SoundManager::GetInstance().GetSoundData(kGameStartSEName);
+    
+    //"PUSH A TO START"の画像のロード
+    m_PushAToStartHandle = GraphManager::GetInstance().GetGraphData(kPushAToStartGraphName);
+
     camera->Update(VGet(0, 0, 150));
     SoundManager::GetInstance().ChangeBGM(m_titleBGMHandle);
 
+    MyEngine::Physics::GetInstance().Entry(player);
     MyEngine::Physics::GetInstance().Entry(planet);
+    MyEngine::Physics::GetInstance().Entry(redPlanet);
     MyEngine::Physics::GetInstance().Entry(nextPlanet);
     MyEngine::Physics::GetInstance().Entry(emeraldPlanet);
-    MyEngine::Physics::GetInstance().Entry(redPlanet);
-    MyEngine::Physics::GetInstance().Entry(player);
+  
 
     m_updateFunc = &TitleScene::NormalUpdate;
     m_drawFunc = &TitleScene::NormalDraw;
@@ -137,17 +167,20 @@ TitleScene::TitleScene(SceneManager& manager) :
 
     camera->SetEasingSpeed(35.f);
 
-    //カメラが開店するスピード
-    m_cameraRotateAngle = 0.02f;
+    //カメラが回転するスピード
+    m_cameraAngleRotateSpeed = 0.02f;
 }
 
 TitleScene::~TitleScene()
 {
    
+    
     MyEngine::Physics::GetInstance().Exit(player);
+    int a = player.use_count();
     MyEngine::Physics::GetInstance().Exit(planet);
     MyEngine::Physics::GetInstance().Exit(nextPlanet);
     
+    EffectManager::GetInstance().Clear();
 
 }
 
@@ -208,10 +241,12 @@ void TitleScene::NormalUpdate()
     m_fps = GetFPS();
 
     player->SetMatrix();
+    
     Quaternion q;
     q.SetQuaternion(camera->GetPos());
-    q.SetMove(m_cameraRotateAngle, Vec3::Up());
+    q.SetMove(m_cameraAngleRotateSpeed, Vec3::Up());
    
+
     camera->SetCameraPoint(q.Move(camera->GetPos(), Vec3::Zero()));
     camera->Update(VGet(0, 0, 150));
 
@@ -220,12 +255,8 @@ void TitleScene::NormalUpdate()
     {
        
         camera->SetCameraPoint(cameraSecondPosition);
-        //player->MoveToTargetPosWithSticker(nextPlanet->GetRigidbody()->GetPos());
         m_updateFunc = &TitleScene::WatchPlayerUpdate;
     }
-
-   
-    
 
     m_btnFrame += m_fadeSpeed;
     if (m_btnFrame > kFadeFrameMax)m_fadeSpeed *= -1;
@@ -239,9 +270,8 @@ void TitleScene::WatchPlayerUpdate()
     player->SetMatrix();
     Quaternion q;
    
-
     q.SetQuaternion(camera->GetPos());
-    q.SetMove(m_cameraRotateAngle, Vec3::Up());
+    q.SetMove(m_cameraAngleRotateSpeed, Vec3::Up());
 
     //camera->SetCameraPoint(q.Move(camera->GetPos(), Vec3::Zero()));
     camera->Update(player->GetRigidbody()->GetPos());
@@ -261,9 +291,6 @@ void TitleScene::WatchPlayerUpdate()
         
     }
 
-
-
-
     m_btnFrame += m_fadeSpeed;
     if (m_btnFrame > kFadeFrameMax)m_fadeSpeed *= -1;
     if (m_btnFrame < 0)m_fadeSpeed *= -1;
@@ -273,7 +300,6 @@ void TitleScene::FadeOutUpdate()
 {
     /*camera->Update(player->GetRigidbody()->GetPos());
     camera->SetCameraPoint(player->GetPos() + positioningPlayerToCamera * 10);*/
-    player->MoveToTargetWithStickStar(Vec3(0, 0, 0));
     m_fps = GetFPS();
     m_frame++;
    
@@ -296,35 +322,41 @@ void TitleScene::DirectionUpdate()
 void TitleScene::LoadingUpdate()
 {
     //ロード中
-
-    m_count++;
+    m_cameraMoveCount++;
+    
     //プレイヤーを映す
     camera->Update(player->GetRigidbody()->GetPos());
 
 	//カメラがプレイヤーに向けて近づいてる時間が一定になったら
-    if (m_count == kCameraMoveFrameMax)
+    if (m_cameraMoveCount == kCameraMoveFrameMax)
     {
 		//現時点でのプレイヤーの位置からカメラの位置を格納
         positioningPlayerToCamera = camera->GetPos() - player->GetPos();
         positioningPlayerToCamera.Normalize();
     }
+    
     //カメラがプレイヤーに向けて近づいてる時間が一定以上の場合
-    if (m_count > kCameraMoveFrameMax)
+    if (m_cameraMoveCount > kCameraMoveFrameMax)
     {
 		//カメラの位置を固定
         camera->SetCameraPoint(player->GetPos() + positioningPlayerToCamera * 10);
+       
         //プレイヤーの位置を固定
         player->DoNotMove();
-		//UIの更新処理をして会話を入れる
+		
+        //UIの更新処理をして会話を入れる
         UI::GetInstance().Update();
-		//残りの会話テキストがなくなったら
+		
+        //残りの会話テキストがなくなったら
         if (UI::GetInstance().TextRemaining() == 0)
         {
 			//フェードアウト処理に移行
             //フェードアウトのSEを再生
             PlaySoundMem(m_fadeSEHandle, DX_PLAYTYPE_BACK);
+            
             //止めていた位置を動かすように設定
             player->Move();
+            
             //ゲームスタートのSEも同時に再生する
             PlaySoundMem(m_gameStartSEHandle,DX_PLAYTYPE_BACK);
             m_updateFunc = &TitleScene::FadeOutUpdate;
@@ -343,7 +375,8 @@ void TitleScene::FadeDraw()
 {
     //透明度の計算
     int alpha = static_cast<int>(255 * (static_cast<float>(m_frame) / kFadeFrameMax));
-	//フェードアウトの処理以外なら
+	
+    //フェードアウトの処理以外なら
     if (!(m_updateFunc == &TitleScene::FadeOutUpdate))
     {
 		//タイトルロゴの描画
@@ -351,7 +384,8 @@ void TitleScene::FadeDraw()
         
         int btnalpha = static_cast<int>(255 * (static_cast<float>(m_btnFrame) / kFadeFrameMax));
         SetDrawBlendMode(DX_BLENDMODE_ADD, btnalpha);
-		//"PUSH A TO START"の描画
+		
+        //"PUSH A TO START"の描画
         DrawExtendGraph(1100, 790, 1850, 1000, m_PushAToStartHandle, true);
         
         //DrawFormatString(kTitleTextX, kTitleTextY, 0xffffff, "Push A to Start");
@@ -359,6 +393,7 @@ void TitleScene::FadeDraw()
 
     }
 
+    //フェードパネルの描画
     SetDrawBlendMode(DX_BLENDMODE_MULA, alpha);
     DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, 0x000000, true);
     DrawBox(0, 0, m_frame * kLineX, Game::kScreenWidth, kFadeBoxColor, true);
@@ -375,14 +410,16 @@ void TitleScene::FadeDraw()
         ChangeScene(std::make_shared<GamePlayingScene>(m_manager));
     }
     
+    //タイトル遷移時のフェード演出で使用する青い線の描画
     DrawLine(m_frame * kLineX, 0, m_frame * kLineX, Game::kScreenHeight, kLineColor);
 }
 
 void TitleScene::NormalDraw()
 {
+    //ロードが完了していたら
     if (!(m_updateFunc == &TitleScene::LoadingUpdate))
     {
-        //DrawFormatString(20, 20, 0xffffff, "BGM created by Udio");
+       
         int alpha = static_cast<int>(255 * (static_cast<float>(m_frame) / kFadeFrameMax));
         if (m_updateFunc == &TitleScene::NormalUpdate)
         {
@@ -390,7 +427,7 @@ void TitleScene::NormalDraw()
 
 
             int btnalpha = static_cast<int>(255 * (static_cast<float>(m_btnFrame) / kFadeFrameMax));
-            SetDrawBlendMode(DX_BLENDMODE_ADD, 0);
+            SetDrawBlendMode(DX_BLENDMODE_ADD, btnalpha);
 
             DrawExtendGraph(1100, 790, 1850, 1000, m_PushAToStartHandle, true);
            
@@ -403,9 +440,10 @@ void TitleScene::NormalDraw()
         SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
        
     }
-   
+    //タイトル遷移時のフェード演出で使用する青い線の描画
     DrawLine(m_frame * kLineX, 0, m_frame * kLineX, Game::kScreenHeight, kLineColor);
-    if(m_count > 70)
+    
+    if(m_cameraMoveCount > 70)
     {
         UI::GetInstance().Draw();
 

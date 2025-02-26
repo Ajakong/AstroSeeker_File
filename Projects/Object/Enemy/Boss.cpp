@@ -71,6 +71,7 @@ Boss::Boss(Vec3 pos, std::shared_ptr<Player>player):Enemy(Priority::Boss,ObjectT
 	m_isBattle(false),
 	m_onColStage(false)
 {
+	m_power = 20.f;
 	m_player = player;
 	m_hp = kHPFull;
 	m_rigid->SetPos(pos);
@@ -156,6 +157,8 @@ void Boss::SetMatrix()
 
 void Boss::PhaseOneUpdate()
 {
+	//最初は衝撃波一回のみ
+
 	m_actionFrame++;
 
 	//行動のクールダウンが完了したら
@@ -164,8 +167,8 @@ void Boss::PhaseOneUpdate()
 	switch (GetRand(1))
 	{
 	case(0):
-		m_rigid->AddVelocity(m_upVec * 2);
-		m_bossUpdate = &Boss::JumpingUpdate;
+		m_rigid->AddVelocity(m_upVec * 4);
+		m_bossUpdate = &Boss::FullpowerJumpUpdate;
 		break;
 	case(1):
 		m_rigid->AddVelocity(m_upVec * 4);
@@ -204,7 +207,6 @@ void Boss::PhaseTwoUpdate()
 	//タックルのレンジ内に入ったら
 	if (ToTargetVec.Length() < kTackleLength)
 	{
-		//m_bossUpdate = &Boss::TackleUpdate;
 		switch (GetRand(3))
 		{
 		case(0):
@@ -416,7 +418,7 @@ void Boss::JumpingUpdate()
 		else
 		{
 			m_jumpCount++;
-			m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() + m_upVec * -kBodyRadiusSize, m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::Electronic));
+			m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() + m_upVec * -kBodyRadiusSize, m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::Electronic, 0.5f));
 			MyEngine::Physics::GetInstance().Entry(m_impacts.back());
 			m_rigid->AddVelocity(m_upVec * 2);
 		}
@@ -435,7 +437,7 @@ void Boss::FullpowerJumpUpdate()
 	{
 		PlaySoundMem(m_dropSoundHandle, DX_PLAYTYPE_BACK);
 
-		m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() + m_upVec * -kBodyRadiusSize, m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::Electronic,2.f));
+		m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() + m_upVec * -kBodyRadiusSize, m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::Electronic,0.8f));
 		MyEngine::Physics::GetInstance().Entry(m_impacts.back());
 
 		//HPが少ないほど隙がなくなる

@@ -33,30 +33,58 @@ private:
 
     int m_selectNum = 0;
 
+    //ゲームが開始したか
     bool m_isGamePlaying = false;
 
+    // タイトルロゴの画像ハンドル
     int m_titleHandle = 0;
+
+
+    // "PUSH A TO START"の画像ハンドル
     int m_PushAToStartHandle;
 
+
+    // タイトルのBGMハンドル
     int m_titleBGMHandle;
+
+    // ゲーム開始時に流れるSEハンドル
     int m_gameStartSEHandle;
+
+    // フェード時の演出のSEハンドル
     int m_fadeSEHandle;
 
-	int m_stickOSTHandle = 0;
-    int m_count;
 
-    float m_cameraRotateAngle;
+    // カメラが動いている時間のカウント
+    int m_cameraMoveCount;
+
+
+    // カメラの回転速度
+    float m_cameraAngleRotateSpeed;
 
 
     //ハンドル集
     int m_skyDomeH;
     float m_skyDomeRotationAngle;
 
+
+    // タイトル用のPlayerインスタンス
     std::shared_ptr<TitlePlayer> player;
+
+	// Playerの初期惑星
+
 	std::shared_ptr<SpherePlanet> planet;
-    std::shared_ptr<SpherePlanet> nextPlanet;
-    std::shared_ptr<SpherePlanet> emeraldPlanet;
+    
+    // 演出上の赤い惑星
     std::shared_ptr<SpherePlanet> redPlanet;
+
+   /// 演出上の緑の惑星
+    std::shared_ptr<SpherePlanet> emeraldPlanet;
+    
+    // Playerの移動先の惑星
+    std::shared_ptr<SpherePlanet> nextPlanet;
+    
+   
+   
 	std::shared_ptr<Camera> camera;
 
     Vec3 positioningPlayerToCamera;

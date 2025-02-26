@@ -65,7 +65,7 @@ void Killer::Hit()
 
 void Killer::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag)
 {
-	if (colider->GetTag() == ObjectTag::Player&& m_target->GetSpinFlag())
+	if (colider->GetTag() == ObjectTag::Player&& colider->GetState()==State::Spin)
 	{
 
 		m_counterFlag = true;

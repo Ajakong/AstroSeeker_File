@@ -11,6 +11,7 @@
 #include"PolygonModelPlanet.h"
 #include"Physics.h"
 #include"ModelManager.h"
+#include"SeekerLine.h"
 
 using namespace std;
 using namespace World;
@@ -79,6 +80,17 @@ m_managerDraw(nullptr)
 	m_ui = make_shared<UI>();
 	player = playerPointer;
 	m_planet.push_back(make_shared<BoxPlanet>(Vec3(0, -50, 0), 0x00ffff, 1.f, Vec3(30, 30, 50)));
+
+	std::vector<Vec3>points;
+	points.push_back(Vec3(0, 0, 10));
+	points.push_back(Vec3(0, 10, 20));
+	points.push_back(Vec3(0, 20, 10));
+	points.push_back(Vec3(0, 10, 0));
+	points.push_back(Vec3(0, 0, 10));
+
+	m_seekerLine.push_back(make_shared<SeekerLine>(points, 0xff0000, true));
+	MyEngine::Physics::GetInstance().Entry(m_seekerLine.back());
+	
 	//m_planet.push_back(make_shared<SpherePlanet>(Vec3(0, -50, 0),0x00ff00, 1, 1));
 	//m_planet.push_back(make_shared<PolygonModelPlanet>(ModelManager::GetInstance().GetModelData("MechSpiderM1.mv1"), Vec3(0, -400, 0), 1, 1, 400.f));
 	//m_planet.push_back(make_shared<PolygonModelPlanet>(ModelManager::GetInstance().GetModelData("MechSpiderM1.mv1"), Vec3(0, -400, 0), 1, 1, 400.f));

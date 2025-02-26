@@ -62,6 +62,7 @@ m_attackCoolDownCount(0),
 //ハンドルの初期化
 m_modelHandle(-1)
 {
+	m_power = 20.f;
 	m_enemyUpdate = &Gorori::IdleUpdate;
 	m_rigid->SetPos(pos);
 	AddCollider(MyEngine::ColliderBase::Kind::Sphere, ColideTag::Body);

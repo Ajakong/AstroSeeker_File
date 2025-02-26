@@ -80,8 +80,11 @@ bool Application::Init()
 
     SetUseASyncChangeWindowModeFunction(TRUE, NULL, NULL);
 
+    //Zバッファを有効にする
     SetUseZBuffer3D(true);
     SetWriteZBuffer3D(true);
+
+    //バックカリング(メッシュの裏側(メッシュの法線方向ではない面)を描画しない)
     SetUseBackCulling(true);
 
     Effekseer_Init(8000);

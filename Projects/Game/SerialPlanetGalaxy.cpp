@@ -118,6 +118,7 @@ m_warpEffectHandle(-1)
 	m_camera->SetAimCamera(Vec3(0, 0, 0));
 	MyEngine::Physics::GetInstance().Entry(player);//物理演算クラスに登録
 
+	GalaxyCreater::GetInstance().GalaxyCreate(player, "SerialPlanetGalaxy");
 	GalaxyCreater::GetInstance().SetCamera(m_camera);
 	
 	//惑星の配置
@@ -233,7 +234,6 @@ void SerialPlanetGalaxy::GamePlayingUpdate()
 	if (player->GetBoostFlag())
 	{
 		m_camera->SetCameraPoint(player->GetPos() + player->GetNormVec().GetNormalized() * (kCameraDistanceUp - 40) - front * ((kCameraDistanceFront - 70) + kCameraDistanceAddFrontInJump * player->GetJumpFlag()));
-		//m_camera->SetCameraPoint(player->GetPos() + Vec3::Left() *30);
 	}
 	else
 	{

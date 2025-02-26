@@ -72,6 +72,8 @@ m_hp(kHp),
 m_attackCoolDownCount(0),
 m_centerToEnemyAngle(0)
 {
+	m_power = 10;
+
 	m_target=target;
 	SetCreate3DSoundFlag(true);
 	m_shotSEHandle = SoundManager::GetInstance().GetSoundData(kShotSEhandlePath);
@@ -199,9 +201,8 @@ void Takobo::OnCollideEnter(std::shared_ptr<MyEngine::Collidable> colider,Colide
 	}
 	if (colider->GetTag() == ObjectTag::Player)
 	{
-		auto player = std::dynamic_pointer_cast<Player>(colider);
 		//スピンを食らえばお前は死ぬ！
-		if (player->GetSpinFlag())
+		if (colider->GetState()==State::Spin)
 		{
 			Death();
 		}

@@ -19,6 +19,7 @@ public:
     float GetAnimBlendRate() { return m_animBlendRate; }
 
     void Update();
+    
     /// <summary>
     /// 立ち状態
     /// </summary>
@@ -34,6 +35,16 @@ public:
     /// </summary>
     void Move();
 
-    using playerState_t = void(TitlePlayer::*)();
-    playerState_t m_titlePlayerUpdate;
+    /// <summary>
+    /// StickStarで引数に向けて移動
+    /// </summary>
+    void MoveToTargetWithStickStar(Vec3 targetPos);
+
+    void SetTitleUpdateNum(int num) { m_titleUpdateNum = num; }
+
+    using titlePlayerState_t = void(TitlePlayer::*)();
+    titlePlayerState_t m_titlePlayerUpdate;
+
+private:
+    int m_titleUpdateNum;
 };

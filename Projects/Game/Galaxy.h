@@ -37,6 +37,8 @@ namespace World
 
 	protected:
 		std::shared_ptr<Player> player;
+
+		//モデルのみを描画するスクリーン(回転などの確認用)
 		int m_modelScreenHandle;
 
 		//このフラグを見てシーンを移行する

@@ -123,6 +123,5 @@ private:
 	int m_warpEffectHandle;
 	int m_bgmHandle;
 	int m_bossBattleBgmHandle;
-	int m_titleBGMHandle;
 };
 

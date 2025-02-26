@@ -8,8 +8,14 @@ namespace
 {
 	constexpr int kFontSize = 28;
     constexpr int kTextHeightDistance = 16;
+    
+    constexpr float kTextStartPos = 200.f;
+    constexpr float kExrate = 0.25f;
+
 
     const char* InputTextSEName = "InputText.mp3";
+
+
 }
 
 TextManager::TextManager()
@@ -39,12 +45,14 @@ void TextManager::Draw()
 {
     int textBoxTextsLength = 0;
 
-    // 全文字数を計算
+    // 最前テキストボックスの全文字数を計算 m_texts.front:最前面のテキストボックス texts:その行
     for (auto& texts : m_texts.front())
     {
-        textBoxTextsLength += texts.length();
+        //テキストボックスの行ごとの文字数を追加
+        textBoxTextsLength += static_cast<int>(texts.length());
     }
 
+    //一文字描画するときのインターバル
     m_drawTextFrame++;
 
     // 単文字描画のインターバル
@@ -91,7 +99,13 @@ void TextManager::Draw()
     // テキストを描画
     for (auto text = drawText.begin(); text != drawText.end();)
     {
-        DrawFormatStringFToHandle((Game::kScreenWidth/2)-Game::kScreenWidth*0.25f, 200 + listIndex * (kFontSize+ kTextHeightDistance), 0xffffff, m_fontHandle, text->c_str());
+        DrawFormatStringFToHandle(
+            static_cast<float>(Game::kScreenWidth/2)-Game::kScreenWidth*kExrate,
+            static_cast<float>(kTextStartPos + listIndex * (kFontSize+ kTextHeightDistance)),
+            0xffffff,
+            m_fontHandle,
+            text->c_str()
+        );
         listIndex++;
         text++;
     }

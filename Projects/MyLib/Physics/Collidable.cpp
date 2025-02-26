@@ -19,7 +19,8 @@ Collidable::Collidable(Priority priority, ObjectTag tag) :
 	m_postUpVec(Vec3::Up()),
 	m_nextUpVec(Vec3::Up()),
 	m_frontVec(Vec3::Front()),
-	m_sideVec(Vec3::Left())
+	m_sideVec(Vec3::Left()),
+	m_power(0)
 {
 	m_rigid = std::make_shared<Rigidbody>();
 	m_cbuffH = CreateShaderConstantBuffer(sizeof(UserData));
@@ -43,7 +44,8 @@ MyEngine::Collidable::Collidable(std::shared_ptr<Collidable> col) :
 	m_postUpVec(Vec3::Up()),
 	m_nextUpVec(Vec3::Up()),
 	m_frontVec(Vec3::Front()),
-	m_sideVec(Vec3::Left())
+	m_sideVec(Vec3::Left()),
+	m_power(0)
 {
 	m_rigid = std::make_shared<Rigidbody>();
 }

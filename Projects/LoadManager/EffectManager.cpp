@@ -30,6 +30,9 @@ void EffectManager::Update()
 			//このエフェクトがループ再生かどうか
 			if (eff.second.isLoop)
 			{
+				//ループするとき
+				auto ref=GetEffekseer3DManager();
+				
 				//ループ再生の場合はマスターがいなくなったら消す
 				if (eff.second.master.expired())
 				{
@@ -49,25 +52,35 @@ void EffectManager::Update()
 	}
 }
 
-void EffectManager::PlayEffect(const char* effectname,bool playLoop, float lifeTime, std::weak_ptr<MyEngine::Collidable> master)
+int EffectManager::PlayEffect(const char* effectname,bool playLoop, float lifeTime, std::weak_ptr<MyEngine::Collidable> master)
 {
 	
-	int size = m_pathAndEffectInfoes[effectname].size();
+	int size = static_cast<int>(m_pathAndEffectInfoes[effectname].size());
 	EffectInfo m = EffectInfo();
 	string fileName = "Data/Effect/";
 	//SetUseASyncLoadFlag(false);
 	m.emitterhandle = LoadEffekseerEffect((fileName + (string)effectname).c_str());
 	//SetUseASyncLoadFlag(true);
 	m.used = false;
-		
-	m_pathAndEffectInfoes[effectname][size+1] = m;
-	m_pathAndEffectInfoes[effectname][size+1].isLoop=playLoop;
-	m_pathAndEffectInfoes[effectname][size + 1].lifeTime = lifeTime;
 
-	m_pathAndEffectInfoes[effectname][size + 1].playhandle= PlayEffekseer3DEffect(m_pathAndEffectInfoes[effectname][size+1].emitterhandle);
-	m_pathAndEffectInfoes[effectname][size + 1].master = master;
+	int index = size + 1;
+		
+	m_pathAndEffectInfoes[effectname][index] = m;
+	m_pathAndEffectInfoes[effectname][index].isLoop=playLoop;
+	m_pathAndEffectInfoes[effectname][index].lifeTime = lifeTime;
+
+	m_pathAndEffectInfoes[effectname][index].playhandle= PlayEffekseer3DEffect(m_pathAndEffectInfoes[effectname][index].emitterhandle);
+	m_pathAndEffectInfoes[effectname][index].master = master;
 	m_playingEffectInfoes[effectname] = m_pathAndEffectInfoes[effectname];
 		
+	return index;
+}
+
+void EffectManager::SetPositionEffect(const char* effectname,int index, Vec3 position, MATRIX rotateMat)
+{
+	
+	auto effData = m_pathAndEffectInfoes[effectname][index];
+	SetPosPlayingEffekseer3DEffect(effData.playhandle, position.x, position.y, position.z);
 	
 }
 
@@ -86,6 +99,7 @@ void EffectManager::StopEffect(const char* effectname, int index)
 	if (it.empty())
 	{
 		m_pathAndEffectInfoes.erase(effectname);
+		m_playingEffectInfoes.erase(effectname);
 	}
 }
 
@@ -100,4 +114,5 @@ void EffectManager::Clear()
 		}
 	}
 	m_pathAndEffectInfoes.clear();
+	m_playingEffectInfoes.clear();
 }

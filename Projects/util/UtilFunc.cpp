@@ -29,6 +29,7 @@ void UtilFunc::DrawTriangle(const Vec3& center, const Vec3& normal, float size, 
     // 四角形の描画
     DrawPolygon3D(vertices, 1, GrHandle, false);
 }
+
 void UtilFunc::DrawCircle(const Vec3& center, const Vec3& normal, float size, unsigned int color, int GrHandle, int vertexCount)
 {
     // 法線ベクトルを基に、平面の基準となるベクトルを作成

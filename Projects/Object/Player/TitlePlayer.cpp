@@ -17,15 +17,20 @@
 #include"Physics.h"
 
 
-TitlePlayer::TitlePlayer() : Player()
+TitlePlayer::TitlePlayer() : Player(),
+m_titleUpdateNum(0)
 {
+	//アイドル状態に設定
 	ChangeAnim(AnimNum::AnimationNumIdle);
 	m_titlePlayerUpdate = &TitlePlayer::IdleUpdate;
+
+	//グラッピング弾に設定
 	m_shotUpdate = &Player::ShotTheStickStar;
 }
 
 TitlePlayer::~TitlePlayer()
 {
+
 	for (auto& item : m_sphere)
 	{
 		MyEngine::Physics::GetInstance().Exit(item);
@@ -35,6 +40,7 @@ TitlePlayer::~TitlePlayer()
 
 bool TitlePlayer::MoveToTargetPosWithSticker(Vec3 targetPos)
 {
+	//弾を撃っていないとき
 	if (m_sphere.size() != 0)if (!m_sphere.back()->GetStickFlag())return false;
 	m_shotDir = (targetPos - m_rigid->GetPos()).GetNormalized();
 	(this->*m_shotUpdate)();
@@ -59,19 +65,14 @@ void TitlePlayer::Update()
 {
 	m_upVec = Slerp(m_upVec, m_nextUpVec, 0.1f);
 	m_isSearchFlag = false;
-	m_radius = 0;
 
 	(this->*m_titlePlayerUpdate)();
 
 
 	int index = MV1SearchFrame(m_modelHandle, "mixamorig:Spine");
-	MATRIX shotDirMat = MGetRotVec2(m_nowVec.VGet(), m_shotDir.VGet());
-	m_nowVec = m_shotDir.VGet();
+	MATRIX shotDirMat = MGetRotVec2(m_postShotVec.VGet(), m_shotDir.VGet());
+	m_postShotVec = m_shotDir.VGet();
 
-	/*for (auto& item : m_sphere)
-	{
-		item->Update();
-	}*/
 	DeleteManage();
 
 
@@ -112,4 +113,60 @@ void TitlePlayer::DoNotMove()
 void TitlePlayer::Move()
 {
 	m_titlePlayerUpdate = &TitlePlayer::OperationUpdate;
+}
+
+void TitlePlayer::MoveToTargetWithStickStar(Vec3 targetPos)
+{
+	if (m_titleUpdateNum == 1)
+	{
+		if (m_sphere.size() == 0)
+		{
+			Vec3 targetVec = (targetPos - m_rigid->GetPos()).GetNormalized();
+			Vec3 shotPos = MV1GetFramePosition(m_modelHandle, m_leftHandFrameIndex);
+			m_sphere.push_back(std::make_shared<PlayerStickSphere>(Priority::Low, ObjectTag::PlayerBullet, shared_from_this(), shotPos, targetVec, m_sideVec, 1, 0xff0000));
+			MyEngine::Physics::GetInstance().Entry(m_sphere.back());
+			m_sphere.back()->Init();
+
+			m_playerUpdate = &Player::NeutralUpdate;
+		}
+		else
+		{
+			auto colidFlag = m_sphere.back()->GetStickFlag();
+			if (colidFlag)
+			{
+				m_titleUpdateNum = 2;
+				m_sphere.back()->Effect();
+
+			}
+		}
+
+	}
+
+	if (m_titleUpdateNum == 0)
+	{
+		if (m_sphere.size() == 0)
+		{
+			Vec3 targetVec = (targetPos - m_rigid->GetPos()).GetNormalized();
+			Vec3 shotPos = MV1GetFramePosition(m_modelHandle, m_leftHandFrameIndex);
+			m_sphere.push_back(std::make_shared<PlayerStickSphere>(Priority::Low, ObjectTag::PlayerBullet, shared_from_this(), shotPos, targetVec, m_sideVec, 1, 0xff0000));
+			MyEngine::Physics::GetInstance().Entry(m_sphere.back());
+			m_sphere.back()->Init();
+
+			MV1SetScale(m_modelHandle, VGet(0.01f, 0.01f, 0.01f));
+			m_moveDir = Cross(GetCameraRightVector(), m_upVec);
+			ChangeAnim(AnimNum::AnimationNumIdle);
+			m_playerUpdate = &Player::NeutralUpdate;
+		}
+		else
+		{
+
+			auto colidFlag = m_sphere.back()->GetStickFlag();
+			if (colidFlag)
+			{
+				m_titleUpdateNum = 1;
+				m_sphere.back()->Effect();
+
+			}
+		}
+	}
 }

@@ -21,11 +21,17 @@ public:
 	bool GetGameOver() const { return m_isGameOverFlag; }
 	bool GetClear() const { return m_isClearFlag; }
 
+	/// <summary>
+	/// 代入された正の数の数だけオブジェクトやステージの更新を止める(ヒットストップなどに使う)
+	/// </summary>
+	/// <param name="stopFrame">止めるフレーム</param>
 	void SetUpdateStopFrame(int stopFrame) { m_updateStopFrame = stopFrame; }
 
 private:
 
+	//ステージ
 	std::vector<std::shared_ptr<World::Galaxy>> m_galaxy;
+	//プレイヤー
 	std::shared_ptr<Player> m_player;
 
 	int m_updateStopFrame;

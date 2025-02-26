@@ -384,9 +384,6 @@
     <ClCompile Include="TextManager.cpp">
       <Filter>ソース ファイル\UI</Filter>
     </ClCompile>
-    <ClCompile Include="UI.cpp">
-      <Filter>ソース ファイル\UI</Filter>
-    </ClCompile>
     <ClCompile Include="Object\Item\Key.cpp">
       <Filter>ソース ファイル\Object\Item</Filter>
     </ClCompile>
@@ -437,6 +434,9 @@
     </ClCompile>
     <ClCompile Include="Object\Item\FragmentOfStar.cpp">
       <Filter>ソース ファイル\Object\Item</Filter>
+    </ClCompile>
+    <ClCompile Include="UI.cpp">
+      <Filter>ソース ファイル\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

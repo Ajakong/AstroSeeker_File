@@ -8,6 +8,7 @@ class Planet;
 class SamuraiAlter;
 class Boss;
 class UI;
+class SeekerLine;
 
 class DebugGalaxy : public World::Galaxy
 {
@@ -32,6 +33,8 @@ private:
 	std::vector<std::shared_ptr<Takobo>> takobo;
 	std::vector<std::shared_ptr<SamuraiAlter>> samuraiAlter;
 	std::vector<std::shared_ptr<Boss>> boss;
+
+	std::vector<std::shared_ptr<SeekerLine>> m_seekerLine;
 
 };
 

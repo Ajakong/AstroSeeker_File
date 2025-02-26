@@ -101,7 +101,7 @@ protected:
 	float m_animationSpeed;
 	int m_stanCount;
 
-	int m_speed;
+	float m_speed;
 	
 	//0.0f:prevが再生
 	//1.0:currentが再生

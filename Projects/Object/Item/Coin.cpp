@@ -4,22 +4,31 @@
 #include"ModelManager.h"
 namespace
 {
+	constexpr int kStarCoinPower = 10;
+
 	constexpr float kScale = 0.1f;
+	constexpr float kStarCoinRadius = 2.5f;
+
+	constexpr float kMoveMag = 0.1f;
+
 
 	const char* kGetSoundEffectName = "GetCoin.mp3";
 	const char* kCoinModelName = "Star";
 }
 
 Coin::Coin(Vec3 pos, bool antiGravity) : Item(pos,ObjectTag::Coin,antiGravity),
-m_getSoundEffectHandle(),
-m_modelHandle(),
+m_getSoundEffectHandle(-1),
+m_modelHandle(-1),
 m_rotateYAngle(1)
 {
+	//影響度の設定
+	m_power = kStarCoinPower;
+
+	//ハンドルの取得
 	m_getSoundEffectHandle=SoundManager::GetInstance().GetSoundData(kGetSoundEffectName);
 	m_modelHandle = ModelManager::GetInstance().GetModelData(kCoinModelName);
+	//モデルのスケールの設定
 	MV1SetScale(m_modelHandle, VGet(kScale, kScale, kScale));
-
-
 }
 
 Coin::~Coin()
@@ -28,10 +37,13 @@ Coin::~Coin()
 
 void Coin::Init()
 {
+	//タグの設定
 	SetObjectTag(ObjectTag::Coin);
+	
+	//当たり判定の追加
 	AddCollider(MyEngine::ColliderBase::Kind::Sphere, ColideTag::Body);
 	m_col = dynamic_pointer_cast<MyEngine::ColliderSphere>(m_colliders.back()->col);
-	m_col->radius = 2.5f;
+	m_col->radius = kStarCoinRadius;
 	m_col->m_isTrigger = true;
 }
 
@@ -58,47 +70,35 @@ void Coin::Update()
 	// モデルの行列を設定
 	MV1SetMatrix(m_modelHandle, transformMat);
 
-	auto pos=MV1GetPosition(m_modelHandle);
+	//モデルの位置を設定
+	MV1GetPosition(m_modelHandle);
 
+	//ローカル座標系で上下に移動する
 	Vec3 vel = m_upVec * sin(angle);
-	m_rigid->SetVelocity(vel * 0.1f);
-
-
+	m_rigid->SetVelocity(vel * kMoveMag);
 }
 
 void Coin::Draw()
 {
-	/*Vec3 zero = { 0,0,0 };
-	m_rigid->SetVelocity(Vec3(0, 0, 0));
-	Vec3 offSetVec = GetCameraRightVector();
-	offSetVec -= GetCameraUpVector();
-	offSetVec *= 0.9f;
-	Quaternion myQ;
-	angle += 0.05f;
-
-	Vec3 front = GetCameraFrontVector();
-	for (int i = 0; i < 3; i++)
-	{
-		myQ.SetQuaternion(offSetVec);
-		myQ.SetMove(DX_PI_F * 2 / 3 * i + angle, front);
-		Vec3 offSet = myQ.Move(offSetVec, zero);
-		DrawSphere3D((m_rigid->GetPos() + offSet).VGet(), 1.0, 8, 0x0000aa, 0x000000, false);
-	}
-
-	DrawSphere3D(m_rigid->GetPos().VGet(), m_col->radius, 8, 0xffff00, 0xffffff, false);*/
-
+	//モデルの描画
 	MV1DrawModel(m_modelHandle);
 }
 
 void Coin::OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag)
 {
+	//ステージと衝突
 	if (colider->GetTag() == ObjectTag::Stage)
 	{
+		//現在の惑星を設定
 		m_nowPlanetPos = colider->GetRigidbody()->GetPos();
 	}
+
+	//プレイヤーと衝突
 	if (colider->GetTag() == ObjectTag::Player)
 	{
 		PlaySoundMem(m_getSoundEffectHandle, DX_PLAYTYPE_BACK);
+		
+		//物理エンジンから抜ける
 		MyEngine::Physics::GetInstance().Exit(shared_from_this());
 	}
 }

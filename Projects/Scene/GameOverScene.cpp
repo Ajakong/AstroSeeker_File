@@ -34,33 +34,24 @@ void GameOverScene::Update()
 {
 	UI::GetInstance().Update();
 	(this->*m_updateFunc)();
-
-	
-
 	Pad::Update();
 }
 
 void GameOverScene::Draw()
 {
 	(this->*m_drawFunc)();
-
 	if (UI::GetInstance().TextRemaining() == 0)
 	{
-		
 		ChangeScene(std::make_shared<GamePlayingScene>(m_manager));
 	}
-
 	UI::GetInstance().Draw();
 }
 
 void GameOverScene::FadeInUpdate()
 {
 	m_frame--;
-
 	if (m_frame <= 0)
 	{
-		
-
 		m_updateFunc = &GameOverScene::NormalUpdate;
 		m_drawFunc = &GameOverScene::NormalDraw;
 	}
@@ -68,12 +59,10 @@ void GameOverScene::FadeInUpdate()
 
 void GameOverScene::NormalUpdate()
 {
-
 }
 
 void GameOverScene::FadeOutUpdate()
 {
-
 }
 
 void GameOverScene::ChangeScene(std::shared_ptr<Scene> nextScene)

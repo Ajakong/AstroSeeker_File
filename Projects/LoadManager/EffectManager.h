@@ -30,7 +30,8 @@ public:
 
 	void Update();
 
-	void PlayEffect(const char* filepath,bool playLoop,float lifeTime,std::weak_ptr<MyEngine::Collidable> master=std::weak_ptr<MyEngine::Collidable>());
+	int PlayEffect(const char* effectname,bool playLoop,float lifeTime,std::weak_ptr<MyEngine::Collidable> master=std::weak_ptr<MyEngine::Collidable>());
+	void SetPositionEffect(const char* effectname,int index, Vec3 position,MATRIX rotateMat);
 	void StopEffect(const char* effectname,int index);
 
 	void Clear();

@@ -46,7 +46,7 @@ void StampImpact::Update()
 
 void StampImpact::Draw()
 {
-	Draw3DCircle(m_rigid->GetPos(), m_nowRadius, kSegment);
+	Draw3DCircle(m_rigid->GetPos(), m_nowRadius, static_cast<int>(kSegment));
 	//DrawSphere3D(m_rigid->GetPos().VGet(),3,20,0xff0000, 0xff0000,true);
 }
 

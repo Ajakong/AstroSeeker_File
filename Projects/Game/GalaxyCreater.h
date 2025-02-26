@@ -60,7 +60,7 @@ class GalaxyCreater
 		std::string name;
 		std::string tag;
 		Vec3 pos;
-		
+
 	};
 
 	struct TalkObject
@@ -76,20 +76,60 @@ public:
 	static GalaxyCreater& GetInstance();
 
 	void SetCamera(std::shared_ptr<Camera>camera) { m_camera = camera; };
+
+
+	/// <summary>
+	/// ステージやオブジェクトを一気に生成(未実装)
+	/// </summary>
+	/// <param name="player">プレイヤーのポインタ</param>
+	/// <param name="galaxyName">ステージの名前</param>
+	void GalaxyCreate(std::shared_ptr<Player> player, std::string galaxyName);
+
+	/// <summary>
+	/// オブジェクトの生成
+	/// </summary>
+	/// <param name="player">プレイヤーのポインタ</param>
 	void ObjectCreate(std::shared_ptr<Player> player);
-	void SeekerLineCreate();
+
+	/// <summary>
+	/// 惑星(ステージ)の生成
+	/// </summary>
 	void PlanetCreate();
+
+	/// <summary>
+	/// 会話するオブジェクトの生成
+	/// </summary>
 	void TalkObjectCreate();
+
+	/// <summary>
+	/// 条件達成時に起動するオブジェクトの生成(カギのかかったオブジェクト)
+	/// </summary>
+	/// <returns>生成されたオブジェクトのポインタ</returns>
 	std::vector<std::shared_ptr<MyEngine::Collidable>> LockedObjectCreate();
 
-
+	/// <summary>
+	/// 敵の生成
+	/// </summary>
+	/// <param name="player">プレイヤーのポインタ</param>
+	/// <returns>敵のポインタ</returns>
 	std::vector<std::shared_ptr<Enemy>> EnemyCreate(std::shared_ptr<Player>player);
-	std::vector<std::shared_ptr<Enemy>> KeyLockObjectCreate();
 	
+	/// <summary>
+	/// 解除する条件となるオブジェクトの生成
+	/// </summary>
+	/// <returns>オブジェクトのポインタ</returns>
+	std::vector<std::shared_ptr<Enemy>> KeyLockObjectCreate();
+
 	void Clear();
 	int GetSize() { return static_cast<int>(m_lockedObjects.size()); }
+
+	/// <summary>
+	/// 引数の番号のカギのかかったオブジェクトの取得
+	/// </summary>
+	/// <param name="connectNumber">解除されたオブジェクトの番号</param>
+	/// <returns>そのオブジェクトのポインタ</returns>
 	std::shared_ptr<MyEngine::Collidable> GetCollidable(int connectNumber);
-	
+
 private:
 	std::shared_ptr<Camera> m_camera;
 	std::vector<Location> m_objectData;
@@ -101,6 +141,7 @@ private:
 	std::vector<LockedObject> m_lockedData;
 	std::vector<std::shared_ptr<MyEngine::Collidable>> m_lockedObjects;
 
+	std::string m_galaxyName;
 
 	int m_createObjectSEHandle;
 };
