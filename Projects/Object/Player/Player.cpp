@@ -176,15 +176,13 @@ m_prevAnimNo(0),
 m_currentAnimNo(-1),
 
 //フラグの初期化
-m_isJumpFlag(false),
-m_isBoostFlag(false),
-m_isSpinFlag(false),
-m_isDeathFlag(false),
-m_isAimFlag(false),
-m_isOperationFlag(false),
-m_isVisibleFlag(false),
-m_isSearchFlag(false),
-m_isClearFlag(false),
+m_isJump(false),
+m_isDead(false),
+m_isAiming(false),
+m_isOperation(false),
+m_isVisible(false),
+m_isSearch(false),
+m_isClear(false),
 
 //プレイヤーステートプロパティの初期化
 m_hp(kPlayerHPMax),
@@ -266,7 +264,7 @@ void Player::Init()
 void Player::Update()
 {
 
-	m_isSearchFlag = false;
+	m_isSearch = false;
 
 	//コントローラーの入力状態がプレイヤー操作状態じゃなかったら
 	if (!Pad::IsState("PlayerInput"))
@@ -283,10 +281,10 @@ void Player::Update()
 	if (Pad::IsTrigger(PAD_INPUT_Y))
 	{
 		//エイム中の時
-		if (m_isAimFlag)
+		if (m_isAiming)
 		{
 			//エイム状態を解除する
-			m_isAimFlag = false;
+			m_isAiming = false;
 		}
 		else
 		{
@@ -294,7 +292,7 @@ void Player::Update()
 			m_shotDir = m_frontVec;
 
 			//エイム状態にする
-			m_isAimFlag = true;
+			m_isAiming = true;
 		}
 	}
 
@@ -305,7 +303,7 @@ void Player::Update()
 	if ((Pad::IsPress(PAD_INPUT_4)))
 	{
 		//デバッグ描画モード
-		m_isSearchFlag = true;
+		m_isSearch = true;
 	}
 
 	//弾の射撃方向を操作
@@ -332,23 +330,22 @@ void Player::Update()
 	//無敵時間が上限を超えたら
 	if (m_visibleCount > kVisibleCountMax)
 	{
-		m_isVisibleFlag = false;
+		m_isVisible = false;
 		m_visibleCount = 0;
 	}
 	//無敵状態だったら
-	if (m_isVisibleFlag)
+	if (m_isVisible)
 	{
 		m_visibleCount++;
 	}
 
 	//ダメージを受けていたら
-	if (m_isOnDamageFlag)
+	if (m_state==State::Damage)
 	{
 		m_damageFrame--;
 		if (m_damageFrame < 0)
 		{
 			m_damageFrame = 0;
-			m_isOnDamageFlag = false;
 		}
 
 	}
@@ -357,14 +354,14 @@ void Player::Update()
 	if (m_hp <= 0)
 	{
 		m_visibleCount = 0;
-		m_isVisibleFlag = true;
+		m_isVisible = true;
 
 		//死亡状態または会話状態でなかったら
 		if (m_playerUpdate != &Player::DeathUpdate && m_playerUpdate != &Player::TalkingUpdate)
 		{
 			UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
 			UI::GetInstance().InText("Aボタンを連打して自分で心肺蘇生するんだ！");
-			m_isAimFlag = false;
+			m_isAiming = false;
 			//死亡するごとに志望アニメーションの進行速度を上げる
 			ChangeAnim(AnimNum::AnimationNumDeath, kDeathAnimationInitialSpeed + m_revivalCount / 2);
 
@@ -392,7 +389,7 @@ void Player::Update()
 			UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
 			UI::GetInstance().InText("吹き飛ばしだぁ！！");
 
-			m_isDeathFlag = true;
+			m_isDead = true;
 		}
 	}
 
@@ -482,8 +479,6 @@ void Player::SetBoost(Vec3 sideVec)
 {
 	//加速中は加速方向の右方向にローカル座標系の右方向を固定
 	m_sideVec = sideVec * -1;
-	//加速中フラグを立てる
-	m_isBoostFlag = true;
 	//浮遊アニメーションに変換
 	ChangeAnim(AnimNum::AnimationNumFall);
 }
@@ -502,7 +497,7 @@ void Player::SetIsOperation(bool flag)
 		//状態の変更
 		m_playerUpdate = &Player::OperationUpdate;
 		//フラグを立てる
-		m_isOperationFlag = true;
+		m_isOperation = true;
 	}
 	else//他のオブジェクトに操作されている状態を解除する場合
 	{
@@ -511,12 +506,14 @@ void Player::SetIsOperation(bool flag)
 		//アイドル状態に移行
 		ChangeAnim(AnimNum::AnimationNumIdle);
 		//フラグを下ろす
-		m_isOperationFlag = false;
+		m_isOperation = false;
 	}
 }
 
 void Player::OnDamege(Vec3 knockBackVec, float damage)
 {
+	m_state = State::Damage;
+
 	//ノックバック
 	m_rigid->SetVelocity(knockBackVec);
 	StartJoypadVibration(DX_INPUT_PAD1, kOnDamageJoypadVibrationPower, kOnDamageJoypadVibrationTime);
@@ -526,8 +523,7 @@ void Player::OnDamege(Vec3 knockBackVec, float damage)
 	//ダメージを受ける
 	m_hp -= damage;
 
-	m_isOnDamageFlag = true;
-	m_isVisibleFlag = true;
+	m_isVisible = true;
 	m_damageFrame = kDamageFrameMax;
 	ChangeAnim(AnimNum::AnimationNumHit);
 }
@@ -540,8 +536,8 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 	if (colider->GetTag() == ObjectTag::Stage)
 	{
 		printf("Stage\n");
-		m_isOperationFlag = false;
-		m_isJumpFlag = false;
+		m_isOperation = false;
+		m_isJump = false;
 
 		//ヒップドロップ中
 		if (m_playerUpdate == &Player::DropAttackUpdate)
@@ -555,8 +551,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 	if (colider->GetTag() == ObjectTag::Crystal)
 	{
 		printf("Crystal\n");
-		m_isJumpFlag = false;
-		m_isBoostFlag = false;
+		m_isJump = false;
 
 	}
 
@@ -566,7 +561,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		printf("Kuribo\n");
 
 		//スピンしていたら
-		if (m_isSpinFlag)
+		if (m_state=State::Spin)
 		{
 			auto kuribo = std::dynamic_pointer_cast<Kuribo>(colider);
 			//ノックバックするベクトルを計算
@@ -586,7 +581,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		if (ownTag == ColideTag::Body)
 		{
 			//無敵なら返す
-			if (m_isVisibleFlag)return;
+			if (m_isVisible)return;
 
 			m_postState = m_state;
 			//HPを減らす
@@ -609,7 +604,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		Vec3 knockBackVec = Vec3(m_rigid->GetPos() - colider->GetRigidbody()->GetPos()).GetNormalized() * 3;
 
 		//スピンを当てたら
-		if (m_isSpinFlag)
+		if (m_state = State::Spin)
 		{
 			//パリィSEを流す
 			PlaySoundMem(m_parrySEHandle, DX_PLAYTYPE_BACK);
@@ -619,7 +614,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		else
 		{
 			//無敵なら返す
-			if (m_isVisibleFlag)return;
+			if (m_isVisible)return;
 
 			//衝突SEを流す
 			PlaySoundMem(m_hitSEHandle, DX_PLAYTYPE_BACK);
@@ -634,7 +629,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 
 		//ノックバックのベクトル計算
 		Vec3 knockBackVec = (m_rigid->GetPos() - colider->GetRigidbody()->GetPos()).GetNormalized() * 4;
-		if (m_isSpinFlag)
+		if (m_state = State::Spin)
 		{
 			//パリィSEを流す
 			PlaySoundMem(m_parrySEHandle, DX_PLAYTYPE_BACK);
@@ -647,7 +642,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		else
 		{
 			//無敵なら返す
-			if (m_isVisibleFlag)return;
+			if (m_isVisible)return;
 
 			//衝突SEを流す
 			PlaySoundMem(m_hitSEHandle, DX_PLAYTYPE_BACK);
@@ -663,7 +658,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 
 		//ノックバックのベクトルの計算
 		Vec3 knockBackVec = (colider->GetRigidbody()->GetVelocity());
-		if (m_isSpinFlag)
+		if (m_state = State::Spin)
 		{
 			//パリィSEを流す
 			PlaySoundMem(m_parrySEHandle, DX_PLAYTYPE_BACK);
@@ -676,7 +671,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		else
 		{
 			//無敵なら返す
-			if (m_isVisibleFlag)return;
+			if (m_isVisible)return;
 
 			m_postState = m_state;
 			//衝突SEを流す
@@ -691,7 +686,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		printf("Electro\n");
 
 		//無敵なら返す
-		if (m_isVisibleFlag)return;
+		if (m_isVisible)return;
 
 		m_postState = m_state;
 		//衝撃波に衝突時のSEを流す
@@ -712,7 +707,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 			//ボスがダッシュ中またはタックル中の時
 			if (colider->GetState() == State::Running || colider->GetState() == State::Tackle)
 			{
-				if (m_isVisibleFlag)return;//無敵なら返す
+				if (m_isVisible)return;//無敵なら返す
 				m_postState = m_state;
 
 				//ノックバックのベクトルの計算
@@ -733,7 +728,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		printf("ClearObject\n");
 
 		//クリア条件を満たす
-		m_isClearFlag = true;
+		m_isClear = true;
 	}
 }
 
@@ -763,7 +758,7 @@ void Player::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 	if (colider->GetTag() == ObjectTag::EnemyAttack)
 	{
 		//無敵なら返す
-		if (m_isVisibleFlag)return;
+		if (m_isVisible)return;
 		m_postState = m_state;
 		//衝突SEを流す
 		PlaySoundMem(m_hitSEHandle, DX_PLAYTYPE_BACK);
@@ -780,7 +775,7 @@ void Player::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		m_postState = m_state;
 
 		//無敵なら返す
-		if (m_isVisibleFlag)return;
+		if (m_isVisible)return;
 		//衝撃波衝突SEを流す
 		PlaySoundMem(m_elecSEHandle, DX_PLAYTYPE_BACK);
 		Vec3 knockBackVec = (colider->GetRigidbody()->GetVelocity()) * -1;
@@ -848,7 +843,7 @@ void Player::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 	if (colider->GetTag() == ObjectTag::ClearObject)
 	{
 		//クリア条件を満たす
-		m_isClearFlag = true;
+		m_isClear = true;
 	}
 }
 
@@ -956,7 +951,7 @@ void Player::NeutralUpdate()
 		ChangeAnim(AnimNum::AnimationNumJump);
 
 		//ジャンプフラグを立てる
-		m_isJumpFlag = true;
+		m_isJump = true;
 		//通常ジャンプの2倍の強さでジャンプ
 		move += m_upVec.GetNormalized() * kJumpPower * 2;
 		//大ジャンプ状態に移行
@@ -1027,7 +1022,7 @@ void Player::WalkingUpdate()
 		//ジャンプされる
 		m_postState = m_state;
 		ChangeAnim(AnimNum::AnimationNumJump);
-		m_isJumpFlag = true;
+		m_isJump = true;
 		ans += m_upVec.GetNormalized() * kJumpPower;
 		m_playerUpdate = &Player::JumpingUpdate;
 	}
@@ -1089,7 +1084,7 @@ void Player::DashUpdate()
 		m_postState = m_state;
 		m_cameraEasingSpeed = kOnNeutralCameraEasingSpeed;
 		ChangeAnim(AnimNum::AnimationNumJump);
-		m_isJumpFlag = true;
+		m_isJump = true;
 		ans += m_upVec.GetNormalized() * kJumpPower;
 		m_playerUpdate = &Player::DashJumpUpdate;
 	}
@@ -1375,8 +1370,6 @@ void Player::AimingUpdate()
 
 void Player::SpinActionUpdate()
 {
-	//スピンフラグを立てる
-	m_isSpinFlag = true;
 
 	//スピンアクションを実行
 	(this->*m_spinAttackUpdate)();
@@ -1400,7 +1393,6 @@ void Player::SpiningUpdate()
 	{
 		//アイドル状態に移行
 		m_spinAngle = 0;
-		m_isSpinFlag = false;
 		m_postState = m_state;
 		ChangeAnim(AnimNum::AnimationNumIdle);
 		m_playerUpdate = &Player::NeutralUpdate;
@@ -1409,7 +1401,7 @@ void Player::SpiningUpdate()
 
 void Player::RollingAttackUpdate()
 {
-	m_state = State::Roll;
+	m_state = State::Spin;
 	m_stateName = "RollingAttack";
 
 	//正面ベクトルの更新
@@ -1419,8 +1411,7 @@ void Player::RollingAttackUpdate()
 	//Bボタンが入力されているか
 	if (Pad::IsTrigger(PAD_INPUT_B))
 	{
-		//アイドル状態に移行
-		m_isSpinFlag = false;
+		
 		m_postState = m_state;
 		ChangeAnim(AnimNum::AnimationNumIdle);
 		m_playerUpdate = &Player::NeutralUpdate;
@@ -1448,7 +1439,6 @@ void Player::JumpingSpinUpdate()
 	{
 		//ジャンプ状態に移行
 		m_spinAngle = 0;
-		m_isSpinFlag = false;
 		m_postState = m_state;
 		ChangeAnim(AnimNum::AnimationNumJump);
 		m_playerUpdate = &Player::JumpingUpdate;
@@ -1458,7 +1448,7 @@ void Player::JumpingSpinUpdate()
 void Player::CommandJump()
 {
 	//ジャンプフラグを立てる
-	m_isJumpFlag = true;
+	m_isJump = true;
 	//アニメーションを変更
 	ChangeAnim(AnimNum::AnimationNumJump);
 	//プレイヤーをジャンプ状態に移行
@@ -1478,7 +1468,7 @@ void Player::BoostUpdate()
 	m_moveDir = m_frontVec;
 
 	//加速が終了したら
-	if (!m_isBoostFlag)
+	if (!m_state==State::Boosting)
 	{
 		//アイドル状態に移行
 		m_postState = m_state;
@@ -1508,7 +1498,7 @@ void Player::OperationUpdate()
 	m_upVec = Cross(m_moveDir, m_sideVec);
 
 	//他のオブジェクトに操作されているオブジェクトが解除されたとき
-	if (!m_isOperationFlag)
+	if (!m_isOperation)
 	{
 		//ジャンプ中状態に変換
 		SetAntiGravity(false);
@@ -1684,7 +1674,7 @@ void Player::DeathUpdate()
 		//死亡したら
 		UI::GetInstance().InText("ドレイク？");
 		UI::GetInstance().InText("ドレイィィィィク！！！！！");
-		m_isDeathFlag = true;
+		m_isDead = true;
 	}
 }
 
@@ -1736,7 +1726,7 @@ void Player::SetShotDir()
 	lerpSpeed *= std::clamp(inputDuration / 0.5f, 0.0f, 1.0f); // 0.5秒以内の入力で速度を抑制
 
 	m_shotDir = m_shotDir * (1.0f - lerpSpeed) + inputDir * lerpSpeed;
-	if (!m_isAimFlag)
+	if (!m_isAiming)
 	{
 		m_shotDir = m_frontVec;
 		return;
@@ -1748,8 +1738,8 @@ void Player::DeleteManage()
 	//デストロイフラグが立っている弾を削除する
 	auto result = remove_if(m_sphere.begin(), m_sphere.end(), [this](const auto& sphere)
 		{
-			bool isOut = sphere->IsDestroy() == true;
-			if (isOut == true)
+			bool isOut = sphere->IsDestroy();
+			if (isOut)
 			{
 				sphere->OnDestroy();
 				MyEngine::Physics::GetInstance().Exit(sphere);

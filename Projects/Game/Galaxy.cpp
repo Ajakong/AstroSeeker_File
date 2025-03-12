@@ -11,8 +11,8 @@ namespace
 
 Galaxy::Galaxy(std::shared_ptr<Player> playerPointer) :
 	//フラグの初期化
-	m_isClearFlag(false),
-	m_isGameOverFlag(false),
+	m_isClear(false),
+	m_isGameOver(false),
 	m_managerUpdate(nullptr),
 	m_managerDraw(nullptr)
 {

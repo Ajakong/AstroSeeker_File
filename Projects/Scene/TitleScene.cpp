@@ -308,8 +308,8 @@ void TitleScene::FadeOutUpdate()
 void TitleScene::DirectionUpdate()
 {
     camera->Update(player->GetRigidbody()->GetPos());
-    bool moveFlag = player->MoveToTargetPosWithSticker(nextPlanet->GetRigidbody()->GetPos());
-    if (moveFlag)
+    bool isMove = player->MoveToTargetPosWithSticker(nextPlanet->GetRigidbody()->GetPos());
+    if (isMove)
     {
         m_updateFunc = &TitleScene::LoadingUpdate;
         //m_drawFunc = &TitleScene::FadeDraw;

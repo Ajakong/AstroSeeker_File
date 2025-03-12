@@ -21,6 +21,12 @@ namespace
 	constexpr float kOneRapAngle = 360.f;
 	constexpr float kWatchThisTime = 200.f;
 
+	constexpr float kCameraLocalPositionX = 0.f;
+
+	constexpr float kCameraLocalPositionY = 100.f;
+	constexpr float kCameraLocalPositionZ = -200.f;
+
+
 	constexpr float kCameraRotationSpeed = 20000.f;//速:小～大:遅
 }
 
@@ -43,11 +49,11 @@ Camera::Camera(Vec3 pos):
 	//奥行0.1～1000までをカメラの描画範囲とする
 	
 	// FOV(視野角)を60度に
-	SetupCamera_Perspective(kCameraFOV * (static_cast<float>(DX_PI_F) / 180.0f));
+	SetupCamera_Perspective(kCameraFOV * (DX_PI_F / 180.0f));
 
 	m_pos = pos;
 	m_centerPosition = pos;
-	m_playerToCameraVec = { 0.f,100.f,-200.f };
+	m_playerToCameraVec = { kCameraLocalPositionX,kCameraLocalPositionY,-kCameraLocalPositionZ };
 	m_postLookPointPos = { 0,0,0 };
 	m_fowardVec = { 0.f,0.f,0.1f };
 
@@ -76,13 +82,13 @@ void Camera::Update(Vec3 LookPoint)
 	if (m_isBoost)
 	{
 		// FOV(視野角)を60度に
-		SetupCamera_Perspective(kCameraFOV * (static_cast<float>(DX_PI_F)*2 / 180.0f));
+		SetupCamera_Perspective(kCameraFOV * (DX_PI_F*2.f / 180.0f));
 
 	}
 	else
 	{
 		// FOV(視野角)を60度に
-		SetupCamera_Perspective(kCameraFOV * (static_cast<float>(DX_PI_F) / 180.0f));
+		SetupCamera_Perspective(kCameraFOV * (DX_PI_F / 180.0f));
 
 	}
 	

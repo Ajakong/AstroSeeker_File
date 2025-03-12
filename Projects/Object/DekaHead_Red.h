@@ -8,6 +8,6 @@ public:
 
 	virtual std::list<std::list<std::string>> GetTexts();
 
-	bool m_useFlag;
+	bool m_isUsed;
 };
 

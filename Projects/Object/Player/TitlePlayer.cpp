@@ -45,7 +45,7 @@ bool TitlePlayer::MoveToTargetPosWithSticker(Vec3 targetPos)
 	m_shotDir = (targetPos - m_rigid->GetPos()).GetNormalized();
 	(this->*m_shotUpdate)();
 
-	if (m_isOperationFlag)
+	if (m_isOperation)
 	{
 		return true;
 	}
@@ -64,7 +64,7 @@ void TitlePlayer::SetShot()
 void TitlePlayer::Update()
 {
 	m_upVec = Slerp(m_upVec, m_nextUpVec, 0.1f);
-	m_isSearchFlag = false;
+	m_isSearch = false;
 
 	(this->*m_titlePlayerUpdate)();
 
@@ -131,8 +131,9 @@ void TitlePlayer::MoveToTargetWithStickStar(Vec3 targetPos)
 		}
 		else
 		{
-			auto colidFlag = m_sphere.back()->GetStickFlag();
-			if (colidFlag)
+			//何かに衝突しているか
+			auto isColid = m_sphere.back()->GetStickFlag();
+			if (isColid)
 			{
 				m_titleUpdateNum = 2;
 				m_sphere.back()->Effect();
@@ -160,8 +161,8 @@ void TitlePlayer::MoveToTargetWithStickStar(Vec3 targetPos)
 		else
 		{
 
-			auto colidFlag = m_sphere.back()->GetStickFlag();
-			if (colidFlag)
+			auto isColid = m_sphere.back()->GetStickFlag();
+			if (isColid)
 			{
 				m_titleUpdateNum = 1;
 				m_sphere.back()->Effect();

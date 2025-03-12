@@ -20,9 +20,6 @@ public:
     void Update();
     void Draw();
 
-
-    void getSlectNumber(int a) { m_selectNum = a; }
-
 private:
 
     int m_btnFrame = 0;

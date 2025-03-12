@@ -37,7 +37,7 @@ void CannonSphere::Update()
 
 	if (m_surviveFrame > kSurviveFrameMax)
 	{
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 }
 

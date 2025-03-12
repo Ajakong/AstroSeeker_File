@@ -53,7 +53,7 @@ void Key::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, 
 		auto obj = GalaxyCreater::GetInstance().GetCollidable(m_connectObjectNumber);
 		obj->SetIsActive(true);
 		//MyEngine::Physics::GetInstance().Entry(obj);
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 		Mission::GetInstance().MissionClear();
 	}
 }
@@ -71,7 +71,7 @@ void Key::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, 
 		auto obj = GalaxyCreater::GetInstance().GetCollidable(m_connectObjectNumber);
 		obj->SetIsActive(true);
 		//MyEngine::Physics::GetInstance().Entry(obj);
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 		Mission::GetInstance().MissionClear();
 	}
 }

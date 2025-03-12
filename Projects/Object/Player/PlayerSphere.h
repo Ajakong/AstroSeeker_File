@@ -16,7 +16,7 @@ public:
 
 	virtual void Effect();
 
-	virtual bool GetStickFlag() { return m_stickFlag; }
+	virtual bool GetStickFlag() { return m_isStick; }
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
@@ -29,7 +29,7 @@ protected:
 	Vec3 m_startPos;
 	Vec3 m_sideVec;
 	int m_lifeTime;
-	bool m_stickFlag;
+	bool m_isStick;
 
 	int m_modelHandle;
 private:

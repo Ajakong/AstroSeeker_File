@@ -166,7 +166,7 @@ namespace MyEngine
 
 		// 当たり判定を無視（スルー）する対象かどうか
 		bool IsThroughTarget(std::shared_ptr<Collidable>) const;
-		virtual bool IsDestroy() { return m_isDestroyFlag; }
+		virtual bool IsDestroy() { return m_isDestroy; }
 
 		Vec3 GetKnockBackVelocity() { return (m_rigid->GetVelocity())*-1; }
 		
@@ -201,7 +201,7 @@ namespace MyEngine
 		//影響力
 		float m_power;
 		
-		bool m_isDestroyFlag;
+		bool m_isDestroy;
 		bool m_isIgnore;
 
 		int m_cbuffH;

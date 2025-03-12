@@ -46,11 +46,6 @@ namespace
 	const char* modelFileName = "Gorori.mv1";
 }
 
-/*プロトタイプ宣言*/
-Vec3 ToVec(Vec3 a, Vec3 b);
-Vec3 norm(Vec3 a);
-float lerp(float start, float end, float t);
-
 Gorori::Gorori(Vec3 pos, std::shared_ptr<Collidable>target) :Enemy(Priority::High, ObjectTag::Gorori),
 m_hp(kHp),
 m_target(target),
@@ -91,7 +86,7 @@ void Gorori::Update()
 	{
 		m_dropItem = std::make_shared<Coin>(m_rigid->GetPos(), true);
 		Physics::GetInstance().Entry(m_dropItem);
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 }
 
@@ -216,7 +211,7 @@ void Gorori::AttackUpdate()
 
 Vec3 Gorori::GetAttackDir() const
 {
-	Vec3 vec = ToVec(m_rigid->GetPos(), m_target->GetRigidbody()->GetPos()).GetNormalized();
+	Vec3 vec = m_rigid->GetPos()-m_target->GetRigidbody()->GetPos().GetNormalized();
 
 	return vec;
 }

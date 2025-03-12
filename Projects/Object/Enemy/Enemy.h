@@ -4,10 +4,7 @@
 
 class EnemyMover;
 class EnemyAI;
-/*プロトタイプ宣言*/
-Vec3 ToVec(Vec3 a, Vec3 b);
-Vec3 norm(Vec3 a);
-float lerp(float start, float end, float t);
+
 class Enemy : public MyEngine :: Collidable
 {
 public:

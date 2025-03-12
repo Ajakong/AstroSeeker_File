@@ -17,8 +17,6 @@ public:
     virtual void Draw();
     void End();
 
-    void getSlectNumber(int a) { m_selectNum = a; }
-
 private:
 
     int m_btnFrame = 0;

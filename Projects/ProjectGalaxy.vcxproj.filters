@@ -43,9 +43,6 @@
     <Filter Include="ソース ファイル\Object\Enemy\Killer">
       <UniqueIdentifier>{eeb50e86-29a4-4446-87c6-bfffcf5aa700}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ソース ファイル\Object\Enemy\KillerTheSeeker">
-      <UniqueIdentifier>{3aa7a438-cf88-4447-8fd0-0da9c78e25ce}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ソース ファイル\Object\ClearObject">
       <UniqueIdentifier>{75a19a5b-c5ba-4e08-9fc1-c4ffbfd96855}</UniqueIdentifier>
     </Filter>
@@ -233,9 +230,6 @@
     </ClCompile>
     <ClCompile Include="Object\Enemy\Killer.cpp">
       <Filter>ソース ファイル\Object\Enemy\Killer</Filter>
-    </ClCompile>
-    <ClCompile Include="Object\Enemy\KillerTheSeeker.cpp">
-      <Filter>ソース ファイル\Object\Enemy\KillerTheSeeker</Filter>
     </ClCompile>
     <ClCompile Include="Object\Enemy\Takobo.cpp">
       <Filter>ソース ファイル\Object\Enemy\Takobo</Filter>

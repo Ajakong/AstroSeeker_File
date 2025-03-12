@@ -56,7 +56,7 @@ void EnemySphere::Hit()
 
 void EnemySphere::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag)
 {
-	m_isDestroyFlag = true;
+	m_isDestroy = true;
 }
 
 void EnemySphere::StraightUpdate()

@@ -22,12 +22,12 @@ namespace World
 		/// ゲームオーバーフラグを取得する
 		/// </summary>
 		/// <returns>ゲームオーバーフラグ</returns>
-		bool GetGameOver() const { return m_isGameOverFlag; }
+		bool GetGameOver() const { return m_isGameOver; }
 		/// <summary>
 		/// クリアフラグを取得する
 		/// </summary>
 		/// <returns>クリアフラグ</returns>
-		bool GetClear() const { return m_isClearFlag; }
+		bool GetClear() const { return m_isClear; }
 
 		using managerState_t = void(Galaxy::*)();
 		managerState_t m_managerUpdate;
@@ -42,8 +42,8 @@ namespace World
 		int m_modelScreenHandle;
 
 		//このフラグを見てシーンを移行する
-		bool m_isGameOverFlag = false;
-		bool m_isClearFlag = false;
+		bool m_isGameOver = false;
+		bool m_isClear = false;
 	};
 }
 

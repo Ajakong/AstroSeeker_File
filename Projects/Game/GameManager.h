@@ -18,8 +18,8 @@ public:
 	void Update();
 	void Draw();
 
-	bool GetGameOver() const { return m_isGameOverFlag; }
-	bool GetClear() const { return m_isClearFlag; }
+	bool GetGameOver() const { return m_isGameOver; }
+	bool GetClear() const { return m_isClear; }
 
 	/// <summary>
 	/// 代入された正の数の数だけオブジェクトやステージの更新を止める(ヒットストップなどに使う)
@@ -36,7 +36,7 @@ private:
 
 	int m_updateStopFrame;
 	//このフラグを見てシーンを移行する
-	bool m_isGameOverFlag = false;
-	bool m_isClearFlag = false;
+	bool m_isGameOver = false;
+	bool m_isClear = false;
 };
 

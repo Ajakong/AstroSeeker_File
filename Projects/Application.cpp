@@ -248,7 +248,7 @@ void Application::Run()
     /*fclose(out); fclose(in); FreeConsole();*/
     Terminate();
 
-    bool memoryLeaksFlag=_CrtDumpMemoryLeaks();
+    bool isMemoryLeaks=_CrtDumpMemoryLeaks();
    
 }
 

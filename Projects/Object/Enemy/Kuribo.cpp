@@ -248,7 +248,7 @@ void Kuribo::JumpUpdate()
 	m_initTime++;
 	if (m_initTime >= 60)
 	{
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 }
 
@@ -349,14 +349,14 @@ void Kuribo::DeathUpdate()
 	{
 		m_dropItem = std::make_shared<Coin>(m_rigid->GetPos(), true);
 		Physics::GetInstance().Entry(m_dropItem);
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 	//死ぬアニメーションが終わったら
 	if (animFrame > 60)
 	{
 		m_dropItem = std::make_shared<Coin>(m_rigid->GetPos(),true);
 		Physics::GetInstance().Entry(m_dropItem);
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 	
 }

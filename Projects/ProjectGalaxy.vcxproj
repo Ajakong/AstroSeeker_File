@@ -203,7 +203,6 @@
     <ClCompile Include="Object\Enemy\EnemySphere.cpp" />
     <ClCompile Include="Object\Enemy\Gorori.cpp" />
     <ClCompile Include="Object\Enemy\Killer.cpp" />
-    <ClCompile Include="Object\Enemy\KillerTheSeeker.cpp" />
     <ClCompile Include="Object\Enemy\Kuribo.cpp" />
     <ClCompile Include="Object\Enemy\SamuraiAlter.cpp" />
     <ClCompile Include="Object\Enemy\SpaceEmperor.cpp" />

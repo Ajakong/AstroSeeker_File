@@ -142,7 +142,7 @@ void Boss::Update()
 		SoundManager::GetInstance().ChangeBGM(SoundManager::GetInstance().GetSoundData(kSuperMatrialBGMName));
 		m_dropItem = std::make_shared<ClearObject>(m_rigid->GetPos(), true);
 		Physics::GetInstance().Entry(m_dropItem);
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 		UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
 		std::list<std::string> text1;
 		text1.push_back("ばかなぁこのおれが。。。");
@@ -855,6 +855,7 @@ void Boss::DeleteObject(std::vector<std::shared_ptr<T>>& objects)
 {
 	auto result = remove_if(objects.begin(), objects.end(), [this](const auto& object)
 		{
+			//削除されるオブジェクトか
 			if (object->GetDeleteFlag())
 			{
 				MyEngine::Physics::GetInstance().Exit(object);

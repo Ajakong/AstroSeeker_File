@@ -10,7 +10,7 @@ public:
 	Vec3 GetVelocity() { return m_velocity; }
 	void SetVelocity(Vec3 vel) { m_velocity = vel; }
 
-	void OnDestroy() { m_isDestroyFlag = true; }
+	void OnDestroy() { m_isDestroy = true; }
 
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
 protected:

@@ -15,7 +15,7 @@ void ClearObject::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag o
 {
 	if (colider->GetTag() == ObjectTag::Player)
 	{
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 }
 

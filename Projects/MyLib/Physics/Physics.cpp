@@ -1005,10 +1005,6 @@ void MyEngine::Physics::FixNextPos(const std::shared_ptr<Rigidbody> primaryRigid
 			auto secondarySphere = dynamic_pointer_cast<ColliderSphere>(secondaryCollider->col);
 			auto primaryPolygon = dynamic_pointer_cast<ColliderPolygonModel>(primaryCollider->col);
 
-			if (secondaryCollider->tag == ColideTag::Foot)
-			{
-				int a = 0;
-			}
 			// 球の中心位置を計算
 			auto spherePos = secondaryRigid->GetPos() + secondaryCollider->col->GetShift();
 
@@ -1110,10 +1106,6 @@ void MyEngine::Physics::CheckSendOnCollideInfo(SendCollideInfo& preSendInfo, Sen
 	// 離れた時の通知を追加
 	for (auto& info : preSendInfo)
 	{
-		if (info.send.lock() == nullptr)
-		{
-			int a = 0;
-		}
 		if (isTrigger) AddOnCollideInfo(info, OnCollideInfoKind::TriggerExit);
 		else           AddOnCollideInfo(info, OnCollideInfoKind::CollideExit);
 	}

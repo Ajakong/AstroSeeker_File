@@ -64,21 +64,21 @@ void GameManager::Update()
 	if (m_galaxy.back()->GetGameOver())
 	{
 		//ゲームオーバーにする
-		m_isGameOverFlag = true;
+		m_isGameOver = true;
 	}
 
 	//ステージでクリアフラグがたったら
 	if (m_galaxy.back()->GetClear())
 	{
 		//クリアにする
-		m_isClearFlag = true;
+		m_isClear = true;
 	}
 
 
 	//これは後々ステージを追加したときよう
 	/*if (m_galaxy.size() == 0)
 	{
-		m_isClearFlag = true;
+		m_isClear = true;
 		m_galaxy.pop_back();
 	}*/
 	

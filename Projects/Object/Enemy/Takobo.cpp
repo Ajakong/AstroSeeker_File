@@ -152,8 +152,8 @@ void Takobo::DeleteManage()
 	{
 		auto result = remove_if(m_sphere.begin(), m_sphere.end(), [this](const auto& sphere)
 		{
-			bool isOut = sphere->IsDestroy() == true;
-			if (isOut == true)
+			bool isOut = sphere->IsDestroy();
+			if (isOut)
 			{
 				m_sphereNum--;
 				sphere->OnDestroy();
@@ -167,8 +167,8 @@ void Takobo::DeleteManage()
 	{
 		auto result = remove_if(m_killer.begin(), m_killer.end(), [this](const auto& sphere)
 		{
-			bool isOut = sphere->IsDestroy() == true;
-			if (isOut == true)
+			bool isOut = sphere->IsDestroy();
+			if (isOut)
 			{
 				m_sphereNum--;
 				sphere->OnDestroy();
@@ -213,7 +213,7 @@ void Takobo::OnCollideEnter(std::shared_ptr<MyEngine::Collidable> colider,Colide
 
 		if (attack->GetCounterFlag())
 		{
-			m_hp -= 60;
+			m_hp -= colider->GetPower();
 			Vec3 dir = m_rigid->GetPos() - colider->GetRigidbody()->GetPos();
 			dir.Normalize();
 			m_rigid->AddVelocity(dir * 2);
@@ -226,7 +226,7 @@ void Takobo::OnTriggerEnter(std::shared_ptr<MyEngine::Collidable> colider, Colid
 	if (colider->GetTag() == ObjectTag::PlayerImpact)
 	{
 		m_rigid->AddVelocity(m_upVec);
-		m_hp -= 20;
+		m_hp -= colider->GetPower();
 	}
 }
 
@@ -310,7 +310,7 @@ void Takobo::ChangeAnim(int animIndex, int speed)
 
 void Takobo::IdleUpdate()
 {
-	if (ToVec(m_rigid->GetPos(), m_target->GetRigidbody()->GetPos()).Length() > kFiringRange) return;
+	if ((m_rigid->GetPos()- m_target->GetRigidbody()->GetPos()).Length() > kFiringRange) return;
 	//攻撃インターバルの更新
 	m_attackCoolDownCount++;
 
@@ -349,7 +349,7 @@ void Takobo::DeathUpdate()
 	m_dropItem = std::make_shared<Coin>(m_rigid->GetPos(), true);
 	Physics::GetInstance().Entry(m_dropItem);
 
-	m_isDestroyFlag = true;
+	m_isDestroy = true;
 }
 
 void Takobo::AttackSphereUpdate()
@@ -369,7 +369,7 @@ void Takobo::AttackSphereUpdate()
 			Vec3 headPos = MV1GetFramePosition(m_modelHandle, m_modelHeadIndex);
 			//着弾地点の設定
 			m_strikePoint = m_target->GetRigidbody()->GetPos();
-			Vec3 toVec = ToVec(m_rigid->GetPos(), m_strikePoint);
+			Vec3 toVec = m_rigid->GetPos()- m_strikePoint;
 			//攻撃方向の確定
 			m_attackDir = toVec.GetNormalized();
 			m_shotUpVec = m_target->GetUpVec();
@@ -393,8 +393,8 @@ void Takobo::AttackSphereUpdate()
 
 Vec3 Takobo::GetAttackDir() const
 {
-	Vec3 toVec = ToVec(m_rigid->GetPos(), m_target->GetRigidbody()->GetPos());
-	Vec3 vec = norm(ToVec(m_rigid->GetPos(), m_target->GetRigidbody()->GetPos()));
+	Vec3 toVec = m_rigid->GetPos()- m_target->GetRigidbody()->GetPos();
+	Vec3 vec = (m_rigid->GetPos()- m_target->GetRigidbody()->GetPos()).GetNormalized();
 	vec = VGet(vec.x * abs(toVec.x), vec.y * abs(toVec.y), vec.z * abs(toVec.z));
 	return vec;
 }

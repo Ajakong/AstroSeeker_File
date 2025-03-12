@@ -72,11 +72,11 @@ void Killer::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag
 	}
 	else
 	{
-		//m_isDestroyFlag = true;
+		//m_isDestroy = true;
 	}
 	if (m_counterFlag && colider->GetTag() == ObjectTag::Takobo)
 	{
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 }
 
@@ -95,7 +95,7 @@ void Killer::SearchUpDate()
 	m_surviveFrame++;
 	if (m_surviveFrame >= kSurviveFrameMax)
 	{
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 	Vec3 toVec = m_target->GetRigidbody()->GetPos() - m_rigid->GetPos();
 	m_velocity = toVec.GetNormalized();

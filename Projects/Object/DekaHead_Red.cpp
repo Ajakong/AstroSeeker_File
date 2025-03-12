@@ -10,7 +10,7 @@ namespace
 
 DekaHead_Red::DekaHead_Red(Vec3 pos) : 
 	TalkObject(pos,ModelManager::GetInstance().GetModelData(kModelName)),
-	m_useFlag(false)
+	m_isUsed(false)
 {
 
 }
@@ -24,7 +24,7 @@ std::list<std::list<std::string>> DekaHead_Red::GetTexts()
 {
 	UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Dekahead_Red);
 	std::list<std::list<std::string>> talkText;
-	if (m_useFlag)
+	if (m_isUsed)
 	{
 		std::list<std::string> one;
 		one.push_back("まずは金色のタマをとってウォーミングアップだな");
@@ -46,7 +46,7 @@ std::list<std::list<std::string>> DekaHead_Red::GetTexts()
 		three.push_back("まずは金色のスターをとって体をうごかせってよ");
 		talkText.push_back(three);
 	
-		m_useFlag = true;
+		m_isUsed = true;
 	}
 	
 	return talkText;

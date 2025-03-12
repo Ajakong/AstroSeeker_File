@@ -30,7 +30,7 @@ void Crystal::Update()
 {
 	if (m_hp < 0)
 	{
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 }
 

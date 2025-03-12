@@ -259,7 +259,7 @@ void SpaceEmperor::DeathUpdate()
 	m_userData->dissolveY -= 0.01f;
 	if (m_userData->dissolveY < 0)
 	{
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 }
 

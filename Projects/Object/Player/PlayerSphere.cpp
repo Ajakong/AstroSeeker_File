@@ -25,7 +25,7 @@ PlayerSphere::PlayerSphere(MyEngine::Collidable::Priority priority, ObjectTag ta
 m_player(std::dynamic_pointer_cast<Player>(player)),
 m_sideVec(sideVec),
 m_lifeTime(0),
-m_stickFlag(false)
+m_isStick(false)
 {
 	m_modelHandle = ModelManager::GetInstance().GetModelData(kModelName);
 	m_rigid->SetVelocity(VGet(m_velocity.x * 4, m_velocity.y * 4, m_velocity.z * 4));
@@ -98,7 +98,7 @@ void PlayerSphere::Effect()
 
 void PlayerSphere::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag)
 {
-	m_isDestroyFlag = true;	
+	m_isDestroy = true;	
 }
 
 void PlayerSphere::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
@@ -113,6 +113,6 @@ void PlayerSphere::StraightUpdate()
 	
 	if (m_lifeTime > kLifeTimeMax)
 	{
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 }

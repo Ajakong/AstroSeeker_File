@@ -89,8 +89,8 @@ void PlayerStickSphere::Draw()
 
 	//SetCameraPositionAndTargetAndUpVec(camerapos, cameraTarget, cameraUpVec);
 	//SetCameraNearFar(cameraNear, cameraFar);
-	//m_stickFlagがtrueの時に赤くなる
-	DrawLine3D(m_startPos.VGet(), m_rigid->GetPos().VGet(), 0xffffff - (0x00ffff * m_stickFlag));
+	//m_isStickがtrueの時に赤くなる
+	DrawLine3D(m_startPos.VGet(), m_rigid->GetPos().VGet(), 0xffffff - (0x00ffff * m_isStick));
 
 	//GraphFilterBlt(m_gaussFilterScreen, m_highBrightScreen, DX_GRAPH_FILTER_GAUSS, 16, 200);
 	//GraphFilterBlt(m_highBrightScreen, DX_SCREEN_BACK, DX_GRAPH_FILTER_GAUSS, 16, 900);
@@ -111,9 +111,9 @@ void PlayerStickSphere::Effect()
 	/*if (m_player->GetOperationFlag())
 	{
 		m_player->SetIsOperation(false);
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}*/
-	if (m_stickFlag)
+	if (m_isStick)
 	{
 		
 		if (m_isMoving)
@@ -144,7 +144,7 @@ void PlayerStickSphere::Effect()
 
 void PlayerStickSphere::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
 {
-	m_stickFlag = true;
+	m_isStick = true;
 	auto priority = colider->GetPriority();
 	m_isMoving = priority == Priority::Lowest;
 	m_moveUpdate = &PlayerStickSphere::StickUpdate;
@@ -157,7 +157,7 @@ void PlayerStickSphere::OnTriggerEnter(std::shared_ptr<Collidable> colider, Coli
 	auto ptr = std::dynamic_pointer_cast<Item>(colider);
 	if (ptr != nullptr)
 	{
-		m_stickFlag = true;
+		m_isStick = true;
 		auto priority = colider->GetPriority();
 		m_isMoving = priority == Priority::Lowest;
 		m_moveUpdate = &PlayerStickSphere::StickUpdate;
@@ -193,7 +193,7 @@ void PlayerStickSphere::ComeBackUpdate()
 	{
 
 		StopSoundMem(m_operationHandle);
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 }
 
@@ -204,6 +204,6 @@ void PlayerStickSphere::ComeBackWithObjectUpdate()
 	m_contactedCollidable->GetRigidbody()->SetPos(m_rigid->GetPos()+m_collidableContactPosition);
 	if ((m_rigid->GetPos() - m_startPos).Length() <= 1.2f)
 	{
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 }

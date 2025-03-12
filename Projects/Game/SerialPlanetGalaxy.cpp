@@ -283,11 +283,11 @@ void SerialPlanetGalaxy::GamePlayingUpdate()
 
 	if (player->GetDeathFlag())
 	{
-		m_isGameOverFlag = true;
+		m_isGameOver = true;
 	}
 	if (player->IsClear())
 	{
-		m_isClearFlag = true;
+		m_isClear = true;
 	}
 
 	player->SetMatrix();//行列を反映
@@ -387,8 +387,8 @@ void SerialPlanetGalaxy::DeleteObject(std::vector<std::shared_ptr<T>>& objects)
 	//remove_ifは移動させた要素は有効だが未規定な値になる
 	auto result = remove_if(objects.begin(), objects.end(), [this](const auto& object)
 		{
-			auto flag= object->IsDestroy();
-	return  flag;// IsDestroy() が true の場合削除
+			auto isDestroy= object->IsDestroy();
+	return  isDestroy;// IsDestroy() が true の場合削除
 		});
 	objects.erase(result, objects.end());
 }

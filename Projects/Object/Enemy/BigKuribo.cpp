@@ -47,7 +47,7 @@ void BigKuribo::DeathUpdate()
 	{
 		auto obj = std::make_shared<Key>(m_rigid->GetPos(), m_upVec * 2, m_connectObjectNumber,false);
 		Physics::GetInstance().Entry(obj);
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 	if (animFrame > 60)
 	{
@@ -55,6 +55,6 @@ void BigKuribo::DeathUpdate()
 
 		auto obj = std::make_shared<Key>(m_rigid->GetPos(),m_upVec*2, m_connectObjectNumber,false);
 		Physics::GetInstance().Entry(obj);
-		m_isDestroyFlag = true;
+		m_isDestroy = true;
 	}
 }
