@@ -142,6 +142,7 @@ namespace MyEngine
 		Vec3 GetUpVec() { return m_upVec; }
 		Vec3 GetNextUpVec() { return m_nextUpVec; }
 		Vec3 GetFrontVec() { return m_frontVec; }
+		Vec3 GetSideVec() { return m_sideVec; }
 		State GetState()const { return m_state; }
 		State GetPostState() const { return m_postState; }
 		Priority GetPriority() const { return m_priority; }
@@ -151,6 +152,7 @@ namespace MyEngine
 		void SetIsActive(bool flag) { m_isActive = flag; }
 
 		void SetUpVec(Vec3 vel) { m_upVec = vel; }
+		void SetSideVec(Vec3 sideVec) { m_sideVec = sideVec; }
 		void SetNextUpVec(Vec3 vel) { m_nextUpVec = vel; }
 		void AddNextUpVec(Vec3 vel) { m_nextUpVec += vel; }
 

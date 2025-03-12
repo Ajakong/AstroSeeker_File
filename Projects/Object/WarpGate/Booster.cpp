@@ -140,7 +140,7 @@ void Booster::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTa
 		colider->GetRigidbody()->SetVelocity(m_dir * m_power);
 		auto player = std::dynamic_pointer_cast<Player>(colider);
 		player->SetPos(m_rigid->GetPos());
-		player->m_playerUpdate = &Player::BoostUpdate;
+		player->SetBoostUpdate();
 		player->SetBoost(m_sideVec);
 		SetIsActive(false);
 	}

@@ -3,6 +3,7 @@
 
 class Camera;
 class Player;
+class Kuribo;
 class Takobo;
 class Planet;
 class SamuraiAlter;
@@ -28,11 +29,13 @@ public:
 
 private:
 	std::shared_ptr<UI> m_ui;
-	std::shared_ptr<Camera> camera;
+	std::shared_ptr<Camera> m_camera;
+	std::vector<std::shared_ptr<Kuribo>> m_kuribo;
+
 	std::vector<std::shared_ptr<Planet>> m_planet;
-	std::vector<std::shared_ptr<Takobo>> takobo;
-	std::vector<std::shared_ptr<SamuraiAlter>> samuraiAlter;
-	std::vector<std::shared_ptr<Boss>> boss;
+	std::vector<std::shared_ptr<Takobo>> m_takobo;
+	std::vector<std::shared_ptr<SamuraiAlter>> m_samuraiAlter;
+	std::vector<std::shared_ptr<Boss>> m_boss;
 
 	std::vector<std::shared_ptr<SeekerLine>> m_seekerLine;
 

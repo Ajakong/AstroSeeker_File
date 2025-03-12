@@ -42,7 +42,7 @@ namespace
 
 	const UI::UIinfo kTalkingCharaGraph{ 0,0,775,890,0.3f };
 
-	const UI::UIinfo kAimGraph{ 3140 ,200,400,370 };
+	const UI::UIinfo kAimGraph{ 3140 ,200,400,370,0.3f };
 
 	constexpr int kHPBarUIOffsetX = 40;
 	constexpr int kHPBarUIOffsetY = 40;

@@ -25,7 +25,8 @@ int FontManager::GetFontData(const char* fontfilename,const char* fontname,int s
 	//使用するフォントを準備する
 	if (AddFontResourceEx((fileName+fontfilename).c_str(), FR_PRIVATE, NULL) > 0) {
 	}
-	else {
+	else
+	{
 		// フォント読込エラー処理
 		MessageBox(NULL, "フォント読込失敗", "", MB_OK);
 	}
@@ -38,7 +39,8 @@ int FontManager::GetFontData(const char* fontfilename,const char* fontname,int s
 		m_pathAndFontInfoes[fontname] = m;
 		return m.handle;
 	}
-	else {
+	else 
+	{
 		m_pathAndFontInfoes[fontname].used = true;
 		return m_pathAndFontInfoes[fontname].handle;
 	}

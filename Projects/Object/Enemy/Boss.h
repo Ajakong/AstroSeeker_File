@@ -11,6 +11,19 @@ class Killer;
 class Boss : public Enemy
 {
 public:
+	//アニメーション番号
+	enum AnimNum : int
+	{
+		AnimationNumIdle,//立ち
+		AnimationNumWalk,//歩きアニメーション
+		AnimationNumJump,//ジャンプアニメーション
+		AnimationNumTackle,//タックルアニメーション
+		AnimationNumStun,//怯み
+		AnimationNumStandUp,//起立
+		AnimationNumRoll,//屈み
+		AnimationNumPumpUp,//バフ
+		AnimationNumBackFlip
+	};
 	Boss(Vec3 pos,std::shared_ptr<Player>player);
 	virtual ~Boss();
 
@@ -23,8 +36,40 @@ public:
 	bool GetIsBattle() { return m_isBattle; }
 
 	void WakeUp() { m_isWakeUp = true; }
-private:
 
+	
+private:
+	//行動決定関数群
+
+	/// <summary>
+	/// 起動
+	/// </summary>
+	void Wake();
+	/// <summary>
+	/// ダメージ
+	/// </summary>
+	void Away();
+	/// <summary>
+	/// 立ちモードに移行
+	/// </summary>
+	void Neutral();
+	/// <summary>
+	/// 三連続ジャンプ攻撃
+	/// </summary>
+	void TripleJump();
+	/// <summary>
+	/// 後隙が生まれるジャンプ攻撃
+	/// </summary>
+	void FullPowerJump();
+	/// <summary>
+	/// 突進攻撃
+	/// </summary>
+	void Tackle();
+	/// <summary>
+	/// 隙
+	/// </summary>
+	/// <param name="stanFrame">隙の長さ</param>
+	void Stan(int stanFrame);
 	/// <summary>
 	/// 第1フェーズの行動
 	/// </summary>
@@ -38,12 +83,21 @@ private:
 	/// </summary>
 	void PhaseThreeUpdate();
 
-
+	//プレイヤー待ち状態
 	void InitUpdate();
+	//スタン状態から立ち状態に変わる
+	void WakeUpdate();
 	/// <summary>
 	/// 休憩
 	/// </summary>
 	void RestUpdate();
+	/// <summary>
+	/// 攻撃受け
+	/// </summary>
+	void DamageUpdate();
+	/// <summary>
+	/// フェーズを管理する更新処理
+	/// </summary>
 	void NeutralUpdate();
 	/// <summary>
 	/// 怒り
@@ -53,10 +107,6 @@ private:
 	/// 惑星破壊
 	/// </summary>
 	void DestroyPlanetUpdate();
-	/// <summary>
-	/// のけぞり
-	/// </summary>
-	void KnockBackUpdate();
 	/// <summary>
 	/// 衝撃波
 	/// </summary>
@@ -138,6 +188,8 @@ private:
 	int m_color;
 
 	int m_shotCreateFrame;
+
+	int m_animationLoopCount;
 	
 
 	bool m_isHit;
@@ -146,6 +198,9 @@ private:
 	bool m_isTalk;
 	bool m_isTackle;
 	bool m_isBattle;
+
+	bool m_animationStop;
+	bool m_animationLoop;
 	
 
 	std::shared_ptr<Player> m_player;

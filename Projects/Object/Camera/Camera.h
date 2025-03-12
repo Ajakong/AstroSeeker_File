@@ -27,7 +27,6 @@ public:
 	float GetCameraAngle() const { return m_cameraAngle; }
 	void SetUpVec(Vec3 upDir) { if (m_watchCount == 0) m_upVec = upDir; }
 	Vec3 GetUpVec() const { return m_upVec; }
-	void SetPlayerNormVec(Vec3 norm) { m_playerNormVec = norm; }
 	void SetFrontVec(Vec3 front) { m_frontVec = front; }
 	void Setting(bool boost,bool aim);
 	void SetBoost(bool boost) { m_isBoost = boost; }
@@ -76,6 +75,7 @@ private:
 
 	Vec3 m_frontVec;
 	Quaternion m_myQ;
+	Vec3 m_centerPosition;// 回転の中心座標
 	Vec3 m_pos;			// ポジション.
 	Vec3 m_cameraPoint;//カメラが移動してほしい位置
 	Vec3 m_playerCameraPoint;
@@ -84,8 +84,9 @@ private:
 	float m_cameraAngle = -DX_PI_F / 2;
 	float m_pitchAngle;
 	Vec3 m_velocity;
-	Vec3 m_playerNormVec;
 	Vec3 m_nextUpVec;
+
+	//プレイヤーの上方向ベクトル
 	Vec3 m_upVec;
 	Vec3 m_watchThisPos;
 	/// <summary>

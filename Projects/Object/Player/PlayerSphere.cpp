@@ -10,7 +10,7 @@ namespace
 	/// <summary>
 	/// 球の当たり判定半径
 	/// </summary>
-	constexpr float kSphereRadius = 1.0f;
+	constexpr float kSphereRadius = 0.2f;
 	/// <summary>
 	/// 球の生成間隔
 	/// </summary>

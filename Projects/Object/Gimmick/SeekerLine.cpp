@@ -135,37 +135,16 @@ void SeekerLine::Update()
 void SeekerLine::Draw()
 {
 
-	auto camerapos = GetCameraPosition();
-	auto cameraTarget = GetCameraTarget();
-	auto cameraUpVec = GetCameraUpVector();
-	auto cameraMat = GetCameraViewMatrix();
-	auto cameraNear = GetCameraNear();
-	auto cameraFar = GetCameraFar();
-
 	DrawSphere3D(m_points[0].VGet(), kRadius, 8, 0xffff00, 0xffffff, false);
-	// 通常の描画結果を書き込むスクリーンを描画対象にする
-	SetDrawScreen(m_gaussFilterScreen);
-	// 画面をクリア
-	ClearDrawScreen();
-
-	SetCameraPositionAndTargetAndUpVec(camerapos, cameraTarget, cameraUpVec);
+	
+	
 	for (int i = 0; i < m_points.size(); i++)
 	{
 		if (i <= 0)continue;
 		DrawLine3D((m_points.begin() + i-1)->VGet(), (m_points.begin() + i)->VGet(), m_color);
 		if ((m_points.begin() + i) == m_points.end())return;
 	}
-	
-	GraphFilterBlt(m_gaussFilterScreen, m_highBrightScreen, DX_GRAPH_FILTER_GAUSS, 16, 200);
-	GraphFilterBlt(m_highBrightScreen, DX_SCREEN_BACK, DX_GRAPH_FILTER_GAUSS, 16, 900);
 
-	// 描画対象を裏画面にする
-	SetDrawScreen(DX_SCREEN_BACK);
-
-	SetCameraPositionAndTargetAndUpVec(camerapos, cameraTarget, cameraUpVec);
-	SetCameraNearFar(cameraNear, cameraFar);
-
-	DrawGraph(0, 0, m_highBrightScreen, false);
 }
 
 void SeekerLine::OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag)

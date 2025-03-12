@@ -166,6 +166,7 @@
     <ClCompile Include="LoadManager\ScreenManager.cpp" />
     <ClCompile Include="LoadManager\SoundManager.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Messenger.cpp" />
     <ClCompile Include="Mission.cpp" />
     <ClCompile Include="MyLib\ColideTag.cpp" />
     <ClCompile Include="MyLib\DebugDraw.cpp" />
@@ -265,6 +266,7 @@
     <ClInclude Include="LoadManager\ModelManager.h" />
     <ClInclude Include="LoadManager\ScreenManager.h" />
     <ClInclude Include="LoadManager\SoundManager.h" />
+    <ClInclude Include="Messenger.h" />
     <ClInclude Include="Mission.h" />
     <ClInclude Include="MyLib\ColideTag.h" />
     <ClInclude Include="MyLib\DebugDraw.h" />

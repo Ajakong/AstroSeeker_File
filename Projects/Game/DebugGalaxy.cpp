@@ -2,6 +2,7 @@
 #include"UI.h"
 #include "DebugGalaxy.h"
 #include"Player.h"
+#include"Kuribo.h"
 #include"Takobo.h"
 #include"Boss.h"
 #include"SamuraiAlter.h"
@@ -79,8 +80,17 @@ m_managerDraw(nullptr)
 {
 	m_ui = make_shared<UI>();
 	player = playerPointer;
-	m_planet.push_back(make_shared<BoxPlanet>(Vec3(0, -50, 0), 0x00ffff, 1.f, Vec3(30, 30, 50)));
+	m_planet.push_back(make_shared<SpherePlanet>(Vec3(0, -50, 0), 0x00ffff, 1.f,ModelManager::GetInstance().GetModelData("Moon"),1,4));
 
+	MyEngine::Physics::GetInstance().Entry(m_planet.back());
+
+	m_kuribo.push_back(make_shared<Kuribo>(Vec3(0, 8, 5)));
+	m_kuribo.push_back(make_shared<Kuribo>(Vec3(5, 5, 5)));
+
+	for (auto item : m_kuribo)
+	{
+		MyEngine::Physics::GetInstance().Entry(item);
+	}
 	std::vector<Vec3>points;
 	points.push_back(Vec3(0, 0, 10));
 	points.push_back(Vec3(0, 10, 20));
@@ -91,18 +101,9 @@ m_managerDraw(nullptr)
 	m_seekerLine.push_back(make_shared<SeekerLine>(points, 0xff0000, true));
 	MyEngine::Physics::GetInstance().Entry(m_seekerLine.back());
 	
-	//m_planet.push_back(make_shared<SpherePlanet>(Vec3(0, -50, 0),0x00ff00, 1, 1));
-	//m_planet.push_back(make_shared<PolygonModelPlanet>(ModelManager::GetInstance().GetModelData("MechSpiderM1.mv1"), Vec3(0, -400, 0), 1, 1, 400.f));
-	//m_planet.push_back(make_shared<PolygonModelPlanet>(ModelManager::GetInstance().GetModelData("MechSpiderM1.mv1"), Vec3(0, -400, 0), 1, 1, 400.f));
-	//m_planet.push_back(make_shared<PolygonModelPlanet>(ModelManager::GetInstance().GetModelData("UFO_GreenMan.mv1"), Vec3(0, -400, 0), 1, 1, 10.f));
-	//takobo.push_back(make_shared<Takobo>(Vec3(0, 0, -30),player));
-
-	/*boss.push_back(make_shared<Boss>(Vec3(0, 50, 100)));
-	MyEngine::Physics::GetInstance().Entry(boss.back());*/
 	
-	//samuraiAlter.push_back(make_shared<SamuraiAlter>(Vec3(0, 0, -30)));
-	//MyEngine::Physics::GetInstance().Entry(samuraiAlter.back());
-	camera = make_shared<Camera>();
+
+	m_camera = make_shared<Camera>();
 	for (auto& item : m_planet)
 	{
 		MyEngine::Physics::GetInstance().Entry(item);//物理演算クラスに登録
@@ -119,14 +120,6 @@ DebugGalaxy::~DebugGalaxy()
 
 void DebugGalaxy::Init()
 {
-	//MyEngine::Physics::GetInstance().Entry(player);//物理演算クラスに登録
-
-	//for (auto& item : m_planet)
-	//{
-	//	item->Init();
-	//	MyEngine::Physics::GetInstance().Entry(item);//物理演算クラスに登録
-	//}
-
 	SetGlobalAmbientLight(GetColorF(1.0f, 1.0f, 1.0f, 1.0f));
 
 	player->SetMatrix();//モデルに行列を反映
@@ -138,9 +131,11 @@ void DebugGalaxy::Init()
 
 void DebugGalaxy::Update()
 {
-	camera->SetEasingSpeed(player->GetCameraEasingSpeed());
-	if (player->GetIsAiming())camera->Update(player->GetShotDir());
-	else camera->Update(player->GetLookPoint());
+	MyEngine::Physics::GetInstance().Update();//当たり判定の更新
+
+	m_camera->SetEasingSpeed(player->GetCameraEasingSpeed());
+	if (player->GetIsAiming())m_camera->Update(player->GetShotDir());
+	else m_camera->Update(player->GetLookPoint());
 
 	//Vec3 planetToPlayer = player->GetPos() - player->GetNowPlanetPos();
 	Vec3 sideVec = player->GetSideVec();
@@ -148,37 +143,38 @@ void DebugGalaxy::Update()
 
 	//相対的な軸ベクトルの設定
 
-	camera->Setting(player->GetBoostFlag(),player->GetIsAiming());
+	m_camera->Setting(player->GetBoostFlag(),player->GetIsAiming());
 	//本当はカメラとプレイヤーの角度が90度以内になったときプレイヤーの頭上を見たりできるようにしたい。
-	camera->SetUpVec(player->GetNormVec());
+	m_camera->SetUpVec(player->GetNormVec());
 
-	//PlayerがBoost中の時は
+	//相対的な軸ベクトルの設定
+	// 
+	//本当はカメラとプレイヤーの角度が90度以内になったときプレイヤーの頭上を見たりできるようにしたい。
+	m_camera->SetUpVec(player->GetUpVec());
+	m_camera->Setting(player->GetBoostFlag(), player->GetIsAiming());
+
 	if (player->GetBoostFlag())
 	{
-		//カメラの位置を遠ざける
-		camera->SetCameraPoint(player->GetPos() + player->GetNormVec().GetNormalized() * (kCameraDistanceUp - 40) - front * ((kCameraDistanceFront - 70) + kCameraDistanceAddFrontInJump * player->GetJumpFlag()));
+		m_camera->SetCameraPoint(player->GetPos() + player->GetNormVec().GetNormalized() * (kCameraDistanceUp - 40) - front * ((kCameraDistanceFront - 70) + kCameraDistanceAddFrontInJump * player->GetJumpFlag()));
 	}
-	//そうではないとき
 	else
 	{
-		//もしエイム中なら
+		Vec3 upVec = player->GetNormVec().GetNormalized();
 		if (player->GetIsAiming())
 		{
-			///カメラの位置をPlayerの近くに
-			camera->SetCameraPoint(player->GetPos() + player->GetShotDir() * -5 + player->GetNormVec() * 8 + player->GetSideVec() * 2);
+			m_camera->SetCameraPoint(player->GetPos() + player->GetShotDir() * -5 + player->GetNormVec() * 8 + player->GetSideVec() * 2);
 		}
 		else
 		{
-			//そうでもないなら通常モード
-			camera->SetCameraPoint(player->GetPos() + player->GetNormVec().GetNormalized() * kCameraDistanceUp - front * (kCameraDistanceFront + kCameraDistanceAddFrontInJump * player->GetJumpFlag()));
+			m_camera->SetCameraPoint(player->GetPos() + player->GetUpVec() * kCameraDistanceUp - front * (kCameraDistanceFront + kCameraDistanceAddFrontInJump * player->GetJumpFlag()));
 		}
 	}
 
 
-	MyEngine::Physics::GetInstance().Update();//当たり判定の更新
+	
 
 	player->SetMatrix();//行列を反映
-
+	for (auto& item : m_kuribo)item->SetMatrix();
 }
 
 void DebugGalaxy::Draw()
@@ -191,17 +187,8 @@ void DebugGalaxy::Draw()
 
 	MyEngine::Physics::GetInstance().Draw();
 
-
-	if (player->IsSearch())
-	{
-		DxLib::SetDrawBlendMode(DX_BLENDMODE_MUL, 255);
-		// ちょっと暗い矩形を描画
-		DxLib::DrawBox(0, 0, 1600, 900,
-			0x444488, true);
-		DxLib::SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-	}
-
 	int alpha = static_cast<int>(255 * (static_cast<float>(player->GetDamageFrame()) / 60.0f));
+
 #ifdef DEBUG
 	Vec3 UIPos = ((Vec3(GetCameraPosition()) + Vec3(GetCameraFrontVector()) * 110) + Vec3(GetCameraLeftVector()) * -70 + Vec3(GetCameraUpVector()) * 37);
 	DrawLine3D(UIPos.VGet(), Vec3(UIPos + Vec3::Up() * 20).VGet(), 0xff0000);
@@ -218,6 +205,8 @@ void DebugGalaxy::Draw()
 	DxLib::SetDrawBlendMode(DX_BLENDMODE_MULA, alpha);
 	DxLib::DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, 0xff4444, true);
 	DxLib::SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
+
 
 	DrawFormatString(0, 25 * 0, 0xffffff, "HP:%f", player->GetHp());
 

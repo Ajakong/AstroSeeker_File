@@ -95,6 +95,7 @@ public:
 
 		return ans;
 	}
+
 	void SetQuaternion(Vec3 pos) { w = 1.0; x = pos.x; y = pos.y; z = pos.z; }
 
 	void SetMove(float _angle, Vec3 _axis)//回転軸と角速度の設定

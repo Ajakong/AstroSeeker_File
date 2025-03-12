@@ -29,7 +29,8 @@ int GraphManager::GetGraphData(const char* graphname)
 		m_pathAndGraphInfoes[graphname] = m;
 		return m.handle;
 	}
-	else {
+	else 
+	{
 		m_pathAndGraphInfoes[graphname].used = true;
 		return m_pathAndGraphInfoes[graphname].handle;
 	}

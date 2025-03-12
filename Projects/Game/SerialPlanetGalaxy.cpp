@@ -248,7 +248,9 @@ void SerialPlanetGalaxy::GamePlayingUpdate()
 		}
 		else
 		{
-			m_camera->SetCameraPoint(player->GetPos() + player->GetUpVec()* kCameraDistanceUp - front * (kCameraDistanceFront + kCameraDistanceAddFrontInJump * player->GetJumpFlag()));
+			m_camera->SetCameraPoint(
+				player->GetPos() + player->GetUpVec()* kCameraDistanceUp - front * (kCameraDistanceFront + kCameraDistanceAddFrontInJump * player->GetJumpFlag())
+			);
 		}
 	}
 
@@ -265,13 +267,16 @@ void SerialPlanetGalaxy::GamePlayingUpdate()
 		}
 		else if (watchLockedObject)
 		{
-			int a = 0;
+			//処理なし
 		}
 		else if (m_boss->GetIsBattle())
 		{
 			m_camera->Update(m_boss->GetRigidbody()->GetPos());
 		}
-		else m_camera->Update(player->GetLookPoint());
+		else
+		{
+			m_camera->Update(player->GetLookPoint());
+		}
 	}
 	
 	userData->dissolveY = player->GetRegenerationRange();//シェーダー用プロパティ
@@ -285,8 +290,6 @@ void SerialPlanetGalaxy::GamePlayingUpdate()
 		m_isClearFlag = true;
 	}
 
-
-	
 	player->SetMatrix();//行列を反映
 	for (auto& item : m_enemies) { item->SetMatrix(); }
 	for (auto& item : m_keyLockEnemies) { item->SetMatrix(); }
@@ -309,7 +312,6 @@ void SerialPlanetGalaxy::GamePlayingDraw()
 
 	MyEngine::Physics::GetInstance().Draw();
 
-
 	for (auto& item : m_planet)
 	{
 		item->SetIsSearch(player->IsSearch());
@@ -324,7 +326,7 @@ void SerialPlanetGalaxy::GamePlayingDraw()
 		DxLib::DrawBox(0, 0, 1600, 900,
 			0x444488, true);
 		DxLib::SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
-#ifdef _DEBUG
+#ifdef DEBUG
 		//デバッグ用描画
 		int alpha = static_cast<int>(255 * (static_cast<float>(player->GetDamageFrame()) / 60.0f));
 		Vec3 UIPos = ((Vec3(GetCameraPosition()) + Vec3(GetCameraFrontVector()) * 110) + Vec3(GetCameraLeftVector()) * -50 + Vec3(GetCameraUpVector()) * 37);

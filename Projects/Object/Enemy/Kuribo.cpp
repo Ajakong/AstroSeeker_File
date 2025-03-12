@@ -202,8 +202,6 @@ void Kuribo::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag
 			ChangeAnim(AnimNum::AnimationNumRoar);
 			m_moveUpdate = &Kuribo::DeathUpdate;
 		}
-		
-		
 	}
 
 	if (colider->GetTag() == ObjectTag::PlayerBullet)

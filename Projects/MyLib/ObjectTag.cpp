@@ -1,58 +1,37 @@
 ﻿#include "ObjectTag.h"
+#include<map>
+
+namespace
+{
+	const std::map<ObjectTag, std::string> kString =
+	{
+		{ObjectTag::Stage,"Stage"},
+		{ObjectTag::Player,"Player"},
+		{ObjectTag::Stage,"Enemy"},
+		{ObjectTag::Stage,"Takobo"},
+		{ObjectTag::Stage,"Kuribo"},
+		{ObjectTag::Stage,"Gorori"},
+		{ObjectTag::Stage,"KillerTheSeeker"},
+		{ObjectTag::Stage,"SpaceEmperor"},
+		{ObjectTag::Stage,"EnemyAttack"},
+		{ObjectTag::Stage,"PlayerBullet"},
+		{ObjectTag::Stage,"EnemyBullet"},
+		{ObjectTag::Stage,"WarpGate"},
+		{ObjectTag::Stage,"FullPowerDropItem"},
+		{ObjectTag::Stage,"StickStarItem"},
+		{ObjectTag::Stage,"Coin"},
+		{ObjectTag::Stage,"ClearObject"},
+		{ObjectTag::Stage,"StarCapture"},
+		{ObjectTag::Stage,"SeekerLine"},
+		{ObjectTag::Stage,"Crystal"},
+		{ObjectTag::Stage,"InvisibleObject"},
+		{ObjectTag::Stage,"End"},
+	};
+
+}
 
 std::string ObjectTag_String(ObjectTag tag)
 {
-	{
-		switch (tag)
-		{
-		case ObjectTag::Stage: return "Stage";
-			break;
-		case ObjectTag::Player: return"Player";
-			break;
-		case ObjectTag::Enemy: return "Enemy";
-			break;
-		case ObjectTag::Takobo: return "Takobo";
-			break;
-		case ObjectTag::Kuribo: return "Kuribo";
-			break;
-		case ObjectTag::Gorori: return "Gorori";
-			break;
-		case ObjectTag::KillerTheSeeker: return "KillerTheSeeker";
-			break;
-		case ObjectTag::SpaceEmperor: return "SpaceEmperor";
-			break;
-		case ObjectTag::EnemyAttack: return "EnemyAttack";
-			break;
-		case ObjectTag::PlayerBullet: return "PlayerBullet";
-			break;
-		case ObjectTag::PlayerImpact: return "PlayerImpact";
-			break;
-		case ObjectTag::EnemyBullet: return "EnemyBullet";
-			break;
-		case ObjectTag::WarpGate: return "WarpGate";
-			break;
-		case ObjectTag::FullPowerDropItem: return "FullPowerDropItem";
-			break;
-		case ObjectTag::StickStarItem: return "StickStarItem";
-			break;
-		case ObjectTag::Coin: return "Coin";
-			break;
-		case ObjectTag::ClearObject: return "ClearObject";
-			break;
-		case ObjectTag::StarCapture: return "StarCapture";
-			break;
-		case ObjectTag::SeekerLine: return "SeekerLine";
-			break;
-		case ObjectTag::Crystal: return "Crystal";
-			break;
-		case ObjectTag::InvisibleObject: return "InvisibleObject";
-			break;
-		case ObjectTag::End: return "End";
-			break;
-		default: return"このオブジェクトはObjectTag_Stringに定義されていません";
-			break;
-
-		}
-		return"エラー : 関数ObjectTag_Stringを確認してください";
-	}
+	//ここで止まったら定数内にオブジェクトが定義されていない
+	return kString.at(tag);
 }

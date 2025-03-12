@@ -20,6 +20,7 @@ namespace MyEngine
 	private:
 		friend Galaxy;
 
+		//衝突種類
 		enum class OnCollideInfoKind
 		{
 			CollideEnter,
@@ -30,36 +31,35 @@ namespace MyEngine
 			TriggerExit
 		};
 
+		//衝突情報
 		struct CollideHitInfo
 		{
 			bool isHit = false;
-			Vec3 hitPos;
-			Vec3 Norm;
+			Vec3 hitPos;//衝突位置
+			Vec3 Norm;//衝突した相手オブジェクトの法線(位置補正方向)
 		};
 
-		struct CollideFuncArgs
-		{
-			std::shared_ptr<Collidable> send;
-			Collidable::CollideInfo myCollide;
-			Collidable::CollideInfo sendCollide;
-		};
+		//CollideInfoに追加する衝突情報
 		struct SendInfo
 		{
-			std::weak_ptr<Collidable> own;
-			std::weak_ptr<Collidable> send;
+			std::weak_ptr<Collidable> own;//衝突した
+			std::weak_ptr<Collidable> send;//衝突された
 			ColideTag ownTag;
 			ColideTag sendTag; 
-			Vec3 hitPos;
+			Vec3 hitPos;//衝突位置
 		};
+
+		//最終的な衝突データ
 		struct OnCollideInfoData
 		{
-			std::weak_ptr<Collidable> own;
-			std::weak_ptr<Collidable> send;
+			std::weak_ptr<Collidable> own;//衝突した
+			std::weak_ptr<Collidable> send;//衝突された
 			ColideTag ownTag;
 			ColideTag sendTag;
-			Vec3 hitPos;
-			OnCollideInfoKind kind;
+			Vec3 hitPos;//衝突位置
+			OnCollideInfoKind kind;//衝突種類
 		};
+
 		using SendCollideInfo = std::list<SendInfo>;
 	private:
 
@@ -72,19 +72,31 @@ namespace MyEngine
 
 		static Physics& GetInstance();
 
+		/// <summary>
+		/// 物理的挙動を行うオブジェクトを追加する
+		/// </summary>
+		/// <param name="collidable">追加したいオブジェクト</param>
 		void Entry(const std::shared_ptr<Collidable>& collidable);
+
+		/// <summary>
+		/// オブジェクトの削除
+		/// </summary>
+		/// <param name="collidable">削除したいオブジェクト</param>
 		void Exit(const std::shared_ptr<Collidable>& collidable);
+
 		/// <summary>
 		/// オブジェクトの初期情報追加
-		/// 
 		/// </summary>
-		/// <param name="col"></param>
+		/// <param name="col">初期情報が必用なオブジェクト</param>
 		void Initialize(std::shared_ptr<Collidable> col);
+
 		void Update();
+
 		void Draw();
 
 		void Clear();
 
+		//オブジェクトの情報群
 		std::vector<std::shared_ptr<Collidable>> m_collidables;
 
 	private:
@@ -104,8 +116,22 @@ namespace MyEngine
 		std::vector<std::shared_ptr<Collidable>> GetCollisionList() const;
 		void CheckCollide();
 
+		/// <summary>
+		/// 当たり判定
+		/// </summary>
+		/// <param name="rigidA">オブジェクトAのRigidBody</param>
+		/// <param name="rigidB">オブジェクトBのRigidBody</param>
+		/// <param name="colliderA">オブジェクトAの当たり判定情報</param>
+		/// <param name="colliderB">オブジェクトBの当たり判定情報</param>
+		/// <returns></returns>
 		CollideHitInfo IsCollide(const std::shared_ptr<Rigidbody> rigidA, const std::shared_ptr<Rigidbody> rigidB, const std::shared_ptr<Collidable::CollideInfo> & colliderA, const std::shared_ptr<Collidable::CollideInfo>& colliderB) const;
+
+		/// <summary>
+		/// 衝突後の位置補正　Primary:補正優先度が高いオブジェクト　secondary:補正優先度が低いオブジェクト
+		/// </summary>
+		/// <param name="info">衝突情報</param>
 		void FixNextPos(const std::shared_ptr<Rigidbody> primaryRigid, std::shared_ptr<Rigidbody> secondaryRigid, const std::shared_ptr<Collidable::CollideInfo>& primaryCollider, const std::shared_ptr<Collidable::CollideInfo>& secondaryCollider, const CollideHitInfo info);
+
 		/// <summary>
 		/// 判定通知リストに追加する
 		/// </summary>
@@ -114,6 +140,7 @@ namespace MyEngine
 		/// <param name="info">通知リスト</param>
 		/// <param name="hitPos">当たった座標</param>
 		void AddNewCollideInfo(const std::weak_ptr<Collidable>& objA, const std::weak_ptr<Collidable>& objB, ColideTag ownTag, ColideTag sendTag, SendCollideInfo& info, const Vec3& hitPos = Vec3()); void CheckSendOnCollideInfo(SendCollideInfo& preSendInfo, SendCollideInfo& newSendInfo, bool isTrigger);
+		
 		/// <summary>
 		/// obj1とobj2の当たり情報をどちらも格納
 		/// </summary>

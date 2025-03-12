@@ -33,7 +33,8 @@ int ModelManager::GetModelData(const char* modelname, bool isShadow)
 		m_pathAndModelInfoes[modelname] = m;
 		return m.handle;
 	}
-	else {
+	else 
+	{
 		if (isShadow)
 		{
 			m_shadowModelHandle.push_back(MV1DuplicateModel(m_pathAndModelInfoes[modelname].handle));

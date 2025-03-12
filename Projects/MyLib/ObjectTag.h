@@ -34,5 +34,9 @@ enum class ObjectTag
 	End//一番最後のタグ
 };
 
- 
+/// <summary>
+/// 受け取ったタグをStringで返す
+/// </summary>
+/// <param name="tag"></param>
+/// <returns></returns>
 std::string ObjectTag_String(ObjectTag tag);

@@ -20,21 +20,22 @@ namespace
 
 	constexpr float kOneRapAngle = 360.f;
 	constexpr float kWatchThisTime = 200.f;
+
+	constexpr float kCameraRotationSpeed = 20000.f;//速:小～大:遅
 }
 
 Camera::Camera(Vec3 pos):
+	//カメラのパラメータの初期化
 	m_cameraAngle(0),
 	m_pitchAngle(0),
-	
 	m_watchCount(0),
-	m_isFirstPerson(0),
-
 	m_easingSpeed(-1),
 	m_postEasingSpeed(0),
-	
+	//フラグの初期化
 	m_isAim(false),
 	m_isBoost(false),
-	
+	m_isFirstPerson(false),
+
 	m_upVec(Vec3(0, 1, 0))
 {
 	
@@ -45,6 +46,7 @@ Camera::Camera(Vec3 pos):
 	SetupCamera_Perspective(kCameraFOV * (static_cast<float>(DX_PI_F) / 180.0f));
 
 	m_pos = pos;
+	m_centerPosition = pos;
 	m_playerToCameraVec = { 0.f,100.f,-200.f };
 	m_postLookPointPos = { 0,0,0 };
 	m_fowardVec = { 0.f,0.f,0.1f };
@@ -70,7 +72,7 @@ void Camera::Update(Vec3 LookPoint)
 		}
 	}
 	
-	//ぷれいやーが惑星移動中
+	//プレイヤーが惑星移動中
 	if (m_isBoost)
 	{
 		// FOV(視野角)を60度に
@@ -99,7 +101,16 @@ void Camera::SetCamera(Vec3 LookPoint)
 	velocity.y = (m_cameraPoint.y - m_pos.y) / m_easingSpeed;
 	velocity.z = (m_cameraPoint.z - m_pos.z) / m_easingSpeed;
 	m_pos += velocity;//イージング
+
 	m_playerCameraPoint = m_pos;
+
+	// 入力された左スティック方向
+	int directX = 0, directY = 0;
+	GetJoypadAnalogInputRight(&directX, &directY, DX_INPUT_PAD1);
+	//プレイヤーの上方向を回転軸にして左スティックのX方向入力の強度に応じて回転
+	m_myQ=m_myQ.CreateRotationQuaternion(static_cast<float>(directX) / kCameraRotationSpeed, m_upVec);
+	//ローカル座標系(原点中心)で回転させたのちに平行移動
+	m_pos = m_myQ.Move(m_pos-LookPoint, LookPoint);
 
 	SetCameraPositionAndTargetAndUpVec(m_pos.VGet(), Vec3(m_lookPoint + m_upVec).VGet(), m_upVec.VGet());
 	m_postLookPointPos = m_lookPoint;
@@ -113,16 +124,12 @@ void Camera::Set()
 void Camera::SetAimCamera(Vec3 LookPoint)
 {
 	m_lookPoint = LookPoint;
-	/*SetLightPositionHandle(m_lightHandle, Vec3(LookPoint + m_upVec * 12).VGet());
-	SetLightDirectionHandle(m_lightHandle, (m_upVec * -1).VGet());*/
 
 	m_pos = m_cameraPoint;
 
 	m_playerCameraPoint = m_pos;
-	//DrawSphere3D(m_pos.VGet(), 20, 8, 0xffffff, 0xffffff, true);
 
 	SetCameraPositionAndTargetAndUpVec(m_pos.VGet(),Vec3(m_pos+LookPoint).VGet(), m_upVec.VGet());
-	//SetCameraPositionAndTargetAndUpVec(VGet(0,400,-500), VGet(0,0,0), m_upVec.VGet());
 
 	m_postLookPointPos = m_lookPoint+m_pos;
 }

@@ -1,8 +1,8 @@
-//#pragma once
+ï»¿//#pragma once
 //#include"Vec2.h"
 //#include"Vec3.h"
 //
-////ƒTƒCƒY‚ğ•\‚·\‘¢‘Ì
+////ã‚µã‚¤ã‚ºã‚’è¡¨ã™æ§‹é€ ä½“
 //struct Size {
 //public:
 //	Size() :w(0), h(0) {}
@@ -11,7 +11,7 @@
 //	float h;
 //};
 //
-/////‹éŒ`‚ğ•\Œ»‚·‚é\‘¢‘Ì
+/////çŸ©å½¢ã‚’è¡¨ç¾ã™ã‚‹æ§‹é€ ä½“
 //class Rect {
 //public:
 //	Vec2 center;
@@ -26,25 +26,25 @@
 //	const float Width()const { return size.w; }
 //	const float Height()const { return size.h; }
 //
-//	///‹éŒ`‚ğ•`‰æ‚·‚é
-//	///@param color F‚ğ0x00000000`0xffffffff‚Åw’è‚·‚é(ƒfƒtƒHƒ‹ƒg”’)
+//	///çŸ©å½¢ã‚’æç”»ã™ã‚‹
+//	///@param color è‰²ã‚’0x00000000ï½0xffffffffã§æŒ‡å®šã™ã‚‹(ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆç™½)
 //	void Draw(unsigned int color = 0xffffffff);
 //
-//	///‹éŒ`‚ğ•`‰æ‚·‚é(ƒIƒtƒZƒbƒg‚Â‚«)
-//	///@param offset ‚¸‚ç‚µ‚½ˆÊ’u‚É•\¦‚µ‚½‚¢ê‡‚ÉƒIƒtƒZƒbƒg’l‚ğw’è
-//	///@param color F‚ğ0x00000000`0xffffffff‚Åw’è‚·‚é(ƒfƒtƒHƒ‹ƒg”’)
+//	///çŸ©å½¢ã‚’æç”»ã™ã‚‹(ã‚ªãƒ•ã‚»ãƒƒãƒˆã¤ã)
+//	///@param offset ãšã‚‰ã—ãŸä½ç½®ã«è¡¨ç¤ºã—ãŸã„å ´åˆã«ã‚ªãƒ•ã‚»ãƒƒãƒˆå€¤ã‚’æŒ‡å®š
+//	///@param color è‰²ã‚’0x00000000ï½0xffffffffã§æŒ‡å®šã™ã‚‹(ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆç™½)
 //	void Draw(const Vec2& offset, unsigned int color = 0xffffffff);
 //	
-//	///¶A‰EAãA‰º‚©‚ç‹éŒ`‚ğì‚é
-//	///@param left ¶
-//	///@param right ‰E
-//	///@param top ã
-//	///@param bottom ‰º
+//	///å·¦ã€å³ã€ä¸Šã€ä¸‹ã‹ã‚‰çŸ©å½¢ã‚’ä½œã‚‹
+//	///@param left å·¦
+//	///@param right å³
+//	///@param top ä¸Š
+//	///@param bottom ä¸‹
 //	static Rect CreateRectFromLRTB(float left, float right, float top, float bottom);
 //
-//	///“ñ‚Â‚Ì‹éŒ`‚©‚çd‚È‚è‹éŒ`‚ğì‚é
-//	///@param rcA ‹éŒ`A
-//	///@param rcB ‹éŒ`B
+//	///äºŒã¤ã®çŸ©å½¢ã‹ã‚‰é‡ãªã‚ŠçŸ©å½¢ã‚’ä½œã‚‹
+//	///@param rcA çŸ©å½¢A
+//	///@param rcB çŸ©å½¢B
 //	static Rect CreateOverlappedRangeRect(const Rect& rcA, const Rect& rcB);
 //};
 //

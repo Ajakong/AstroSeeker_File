@@ -127,7 +127,7 @@ void TitlePlayer::MoveToTargetWithStickStar(Vec3 targetPos)
 			MyEngine::Physics::GetInstance().Entry(m_sphere.back());
 			m_sphere.back()->Init();
 
-			m_playerUpdate = &Player::NeutralUpdate;
+			Player::SetNeutralUpdate();
 		}
 		else
 		{
@@ -155,7 +155,7 @@ void TitlePlayer::MoveToTargetWithStickStar(Vec3 targetPos)
 			MV1SetScale(m_modelHandle, VGet(0.01f, 0.01f, 0.01f));
 			m_moveDir = Cross(GetCameraRightVector(), m_upVec);
 			ChangeAnim(AnimNum::AnimationNumIdle);
-			m_playerUpdate = &Player::NeutralUpdate;
+			Player::SetNeutralUpdate();
 		}
 		else
 		{

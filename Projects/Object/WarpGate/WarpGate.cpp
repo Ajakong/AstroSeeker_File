@@ -105,7 +105,7 @@ void WarpGate::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownT
 		PlaySoundMem(SoundManager::GetInstance().GetSoundData("boost.mp3"), DX_PLAYTYPE_BACK);
 		colider->GetRigidbody()->SetVelocity(Vec3(m_warpPos - colider->GetRigidbody()->GetPos()).GetNormalized() * 20);
 		auto player = std::dynamic_pointer_cast<Player>(colider);
-		player->m_playerUpdate = &Player::BoostUpdate;
+		player->SetBoostUpdate();
 		player->SetBoost(m_sideVec);
 	}
 }

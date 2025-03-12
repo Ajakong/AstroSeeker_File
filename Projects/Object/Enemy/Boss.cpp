@@ -3,26 +3,36 @@
 #include"Player.h"
 #include"Physics.h"
 #include"SoundManager.h"
+#include"ModelManager.h"
 #include"Easing.h"
 
 #include"GalaxyCreater.h"
 #include"UI.h"
 namespace
 {
+	//HPの最大値
 	constexpr int kHPFull = 170;
+	//胴体の当たり判定サイズ
 	constexpr float kBodyRadiusSize = 10.f;
-	constexpr int kKnockBackFrameMax = 50;
 
 	constexpr float kAnimFrameSpeed = 30.0f;//アニメーション進行速度
 
 	//アニメーションの切り替えにかかるフレーム数
-	constexpr float kAnimChangeFrame = 8.0f;
+	constexpr float kAnimChangeFrame = 10.0f;
+	//アニメーションが切り替わるブレンド速度
 	constexpr float kAnimChangeRateSpeed = 1.0f / kAnimChangeFrame;
 
+	//1秒間のフレーム数
 	constexpr float kFrameParSecond = 60.0f;
+	
+	//走り回るときの速度
 	constexpr float kRunningSpeed = 3.0f;
 
 	constexpr float kOnPhaseTwoHp = 100;
+
+	constexpr float kScaleMag = 0.1f;
+
+	constexpr float kModelHeightSize = 100.f * kScaleMag;
 
 
 	constexpr int kTackleMaxChargeFrame = 80;
@@ -44,7 +54,7 @@ namespace
 	const char* kBossBattleBGMName = "bossbattle.mp3";
 	const char* kSuperMatrialBGMName = "SuperMaterial.mp3";
 
-	const char* kBossModelName = "SpaceMutant.mv1";
+	const char* kBossModelName = "SpaceMutant";
 }
 Boss::Boss(Vec3 pos, std::shared_ptr<Player>player):Enemy(Priority::Boss,ObjectTag::Boss),
 	//アニメーションを初期化
@@ -69,7 +79,9 @@ Boss::Boss(Vec3 pos, std::shared_ptr<Player>player):Enemy(Priority::Boss,ObjectT
 	m_isWakeUp(false),
 	m_isTackle(false),
 	m_isBattle(false),
-	m_onColStage(false)
+	m_onColStage(false),
+	m_animationStop(false),
+	m_animationLoop(false)
 {
 	m_power = 20.f;
 	m_player = player;
@@ -83,12 +95,16 @@ Boss::Boss(Vec3 pos, std::shared_ptr<Player>player):Enemy(Priority::Boss,ObjectT
 	m_color = 0xff00ff;
 	m_bossUpdate = &Boss::InitUpdate;
 
-	m_modelHandle = MV1LoadModel(kBossModelName);
+	m_modelHandle = ModelManager::GetInstance().GetModelData(kBossModelName);
 	m_damageSoundHandle=SoundManager::GetInstance().GetSoundData(kDamageSEName);
 	m_criticalHandle = SoundManager::GetInstance().GetSoundData(kCriticalHitSEName);
 	m_dropSoundHandle = SoundManager::GetInstance().GetSoundData(kDropSEName);
 
+	MV1SetScale(m_modelHandle, VGet(kScaleMag,kScaleMag,kScaleMag));
+
 	m_phaseUpdate = &Boss::PhaseOneUpdate;
+
+	ChangeAnim(AnimNum::AnimationNumStun);
 }
 
 Boss::~Boss()
@@ -142,17 +158,92 @@ void Boss::Update()
 	DeleteObject(m_impacts);
 
 	m_onColStage = false;
+
+	if (!m_animationStop)
+	{
+		m_animationLoopCount += UpdateAnim(m_currentAnimNo);
+		//変更前のアニメーション100%
+		DxLib::MV1SetAttachAnimBlendRate(m_modelHandle, m_prevAnimNo, 1.0f - m_animBlendRate);
+		//変更後のアニメーション0%
+		DxLib::MV1SetAttachAnimBlendRate(m_modelHandle, m_currentAnimNo, m_animBlendRate);
+		m_animBlendRate += kAnimChangeRateSpeed;
+
+		if (m_animBlendRate > 1.0f)
+		{
+			m_animBlendRate = 1.0f;
+		}
+	}
+
+	
+	//モデルの回転
+	MV1SetRotationZYAxis(m_modelHandle, (m_frontVec * -1).VGet(), m_upVec.GetNormalized().VGet(), 0);
+	MV1SetPosition(m_modelHandle, m_rigid->GetPos().VGet());
+
+	m_collision->SetShiftPosNum(m_upVec * kModelHeightSize);
 }
 
 void Boss::Draw()
 {
-	DrawSphere3D(m_rigid->GetPos().VGet(), kBodyRadiusSize,8,m_color,0x000000,true);
 	MV1DrawModel(m_modelHandle);
 }
 
 void Boss::SetMatrix()
 {
+	
+}
 
+void Boss::Wake()
+{
+	m_animationLoop = true;
+	ChangeAnim(AnimNum::AnimationNumStandUp);
+	m_bossUpdate = &Boss::WakeUpdate;
+}
+
+void Boss::Away()
+{
+	m_color = 0xff00ff;
+	ChangeAnim(AnimNum::AnimationNumBackFlip);
+
+	m_bossUpdate = &Boss::DamageUpdate;
+}
+
+void Boss::Neutral()
+{
+	m_animationLoop = true;
+	ChangeAnim(AnimNum::AnimationNumIdle);
+	m_animationStop = false;
+	//怯み状態から戻す
+	m_color = 0xff00ff;
+	m_bossUpdate = &Boss::NeutralUpdate;
+}
+
+void Boss::TripleJump()
+{
+	ChangeAnim(AnimNum::AnimationNumRoll);
+	m_rigid->AddVelocity(m_upVec * 2);
+	m_bossUpdate = &Boss::JumpingUpdate;
+}
+
+void Boss::FullPowerJump()
+{
+	ChangeAnim(AnimNum::AnimationNumJump);
+	m_rigid->AddVelocity(m_upVec * 4);
+	m_bossUpdate = &Boss::FullpowerJumpUpdate;
+}
+
+void Boss::Tackle()
+{
+	ChangeAnim(AnimNum::AnimationNumTackle);
+	m_bossUpdate = &Boss::TackleUpdate;
+}
+
+void Boss::Stan(int stanFrame)
+{
+	m_animationLoop = false;
+	m_actionFrame = -stanFrame;
+	m_bossUpdate = &Boss::LandingUpdate;
+
+	ChangeAnim(AnimNum::AnimationNumStun);
 }
 
 void Boss::PhaseOneUpdate()
@@ -167,20 +258,16 @@ void Boss::PhaseOneUpdate()
 	switch (GetRand(1))
 	{
 	case(0):
-		m_rigid->AddVelocity(m_upVec * 4);
-		m_bossUpdate = &Boss::FullpowerJumpUpdate;
+		FullPowerJump();
 		break;
 	case(1):
-		m_rigid->AddVelocity(m_upVec * 4);
-		m_bossUpdate = &Boss::FullpowerJumpUpdate;
+		FullPowerJump();
 		break;
 	}
 
 	//HPが一定以下になったら次のフェーズに移行
 	if (m_hp <= kOnPhaseTwoHp)
 	{
-		
-
 		UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
 
 		std::list<std::string> texts1;
@@ -210,18 +297,16 @@ void Boss::PhaseTwoUpdate()
 		switch (GetRand(3))
 		{
 		case(0):
-			m_bossUpdate = &Boss::TackleUpdate;
+			Tackle();
 			break;
 		case(1):
-			m_bossUpdate = &Boss::TackleUpdate;
+			Tackle();
 			break;
 		case(2):
-			m_rigid->AddVelocity(m_upVec * 2);
-			m_bossUpdate = &Boss::JumpingUpdate;
+			TripleJump();
 			break;
 		case(3):
-			m_rigid->AddVelocity(m_upVec * 4);
-			m_bossUpdate = &Boss::FullpowerJumpUpdate;
+			FullPowerJump();
 			break;
 		}
 	}
@@ -230,12 +315,10 @@ void Boss::PhaseTwoUpdate()
 		switch (GetRand(1))
 		{
 		case(0):
-			m_rigid->AddVelocity(m_upVec * 2);
-			m_bossUpdate = &Boss::JumpingUpdate;
+			TripleJump();
 			break;
 		case(1):
-			m_rigid->AddVelocity(m_upVec * 4);
-			m_bossUpdate = &Boss::FullpowerJumpUpdate;
+			FullPowerJump();
 			break;
 		}
 	}
@@ -254,18 +337,16 @@ void Boss::PhaseThreeUpdate()
 		switch (GetRand(3))
 		{
 		case(0):
-			m_bossUpdate = &Boss::TackleUpdate;
+			Tackle();
 			break;
 		case(1):
-			m_bossUpdate = &Boss::TackleUpdate;
+			Tackle();
 			break;
 		case(2):
-			m_rigid->AddVelocity(m_upVec * 2);
-			m_bossUpdate = &Boss::JumpingUpdate;
+			TripleJump();
 			break;
 		case(3):
-			m_rigid->AddVelocity(m_upVec * 4);
-			m_bossUpdate = &Boss::FullpowerJumpUpdate;
+			FullPowerJump();
 			break;
 		}
 	}
@@ -274,12 +355,10 @@ void Boss::PhaseThreeUpdate()
 		switch (GetRand(1))
 		{
 		case(0):
-			m_rigid->AddVelocity(m_upVec * 2);
-			m_bossUpdate = &Boss::JumpingUpdate;
+			TripleJump();
 			break;
 		case(1):
-			m_rigid->AddVelocity(m_upVec * 4);
-			m_bossUpdate = &Boss::FullpowerJumpUpdate;
+			FullPowerJump();
 			break;
 		}
 	}
@@ -323,7 +402,8 @@ void Boss::InitUpdate()
 			UI::GetInstance().InNextText("ここで決めてしまうぞ！");
 			m_isBattle = true;
 			SoundManager::GetInstance().ChangeBGM(SoundManager::GetInstance().GetSoundData(kBossBattleBGMName));
-			m_bossUpdate = &Boss::NeutralUpdate;
+
+			Wake();
 		}
 
 		//バトルフェーズ2の時
@@ -351,14 +431,32 @@ void Boss::InitUpdate()
 			UI::GetInstance().InNextText("すべてを出し切るぞ！");
 			m_isBattle = true;
 			SoundManager::GetInstance().ChangeBGM(SoundManager::GetInstance().GetSoundData(kBossBattleBGMName));
-			m_bossUpdate = &Boss::NeutralUpdate;
+
+			Wake();
 		}
+	}
+}
+
+void Boss::WakeUpdate()
+{
+	if (m_animationLoopCount > 0)
+	{
+		m_bossUpdate = &Boss::NeutralUpdate;
 	}
 }
 
 void Boss::RestUpdate()
 {
 
+}
+
+void Boss::DamageUpdate()
+{
+	if (m_animationLoopCount > 0)
+	{
+		//HPが減っているほど隙が短くなる
+		Stan(m_hp);
+	}
 }
 
 void Boss::NeutralUpdate()
@@ -374,22 +472,6 @@ void Boss::AnglyUpdate()
 void Boss::DestroyPlanetUpdate()
 {
 }
-
-void Boss::KnockBackUpdate()
-{
-	m_color = 0xffff00;
-	m_state = State::Attack;
-	m_knockBackFrame++;
-	
-	//ノックバックが終わったら
-	if (m_knockBackFrame > kKnockBackFrameMax)
-	{
-		m_color = 0xff00ff;
-		m_knockBackFrame = 0;
-		m_bossUpdate = &Boss::NeutralUpdate;
-	}
-}
-
 void Boss::JumpingUpdate()
 {
 	m_color = 0xffff00;
@@ -441,8 +523,7 @@ void Boss::FullpowerJumpUpdate()
 		MyEngine::Physics::GetInstance().Entry(m_impacts.back());
 
 		//HPが少ないほど隙がなくなる
-		m_actionFrame = -m_hp-20;
-		m_bossUpdate = &Boss::LandingUpdate;
+		Stan(m_hp + 20);
 
 	}
 }
@@ -479,8 +560,7 @@ void Boss::TackleUpdate()
 		{
 			m_tackleChargeFrame = 0;
 			//HPが少ないほど隙がなくなる
-			m_actionFrame = -m_hp;
-			m_bossUpdate = &Boss::LandingUpdate;
+			Stan(m_hp);
 		}
 	}
 }
@@ -505,8 +585,7 @@ void Boss::RunningUpdate()
 	{
 		m_runningFrame = 0;
 		//HPが少ないほど隙がなくなる
-		m_actionFrame = -m_hp;
-		m_bossUpdate = &Boss::LandingUpdate;
+		Stan(m_hp);
 	}
 
 }
@@ -515,6 +594,8 @@ void Boss::LandingUpdate()
 {
 	m_color = 0x00ff00;
 	m_state = State::Land;
+	
+	
 
 	//話していなかったら
 	if (!m_isTalk)
@@ -539,13 +620,17 @@ void Boss::LandingUpdate()
 
 	}
 
+	if (m_animationLoopCount > 0)
+	{
+		m_animationStop = true;
+	}
+
 	//行動のクールタイムがマイナスの時はひるんでいる
 	m_actionFrame++;
 	if (m_actionFrame > 0)
 	{
-		//怯み状態から戻す
-		m_color = 0xff00ff;
-		m_bossUpdate = &Boss::NeutralUpdate;
+		m_animationStop = false;
+		Wake();
 	}
 }
 
@@ -600,8 +685,9 @@ bool Boss::UpdateAnim(int attachNo)
 	//現在再生中のアニメーションの総カウントを取得する
 	float total = MV1GetAttachAnimTotalTime(m_modelHandle, attachNo);
 	bool isLoop = false;
-	while (now >= total)
+	if(now >= total)
 	{
+		if(m_animationLoop)
 		now -= total;
 		isLoop = true;
 	}
@@ -633,6 +719,8 @@ void Boss::ChangeAnim(int animIndex, int speed)
 	DxLib::MV1SetAttachAnimBlendRate(m_modelHandle, m_prevAnimNo, 1.0f - m_animBlendRate);
 	//変更後のアニメーション0%
 	DxLib::MV1SetAttachAnimBlendRate(m_modelHandle, m_currentAnimNo, m_animBlendRate);
+
+	m_animationLoopCount = 0;
 }
 
 void Boss::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
@@ -667,9 +755,9 @@ void Boss::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag,
 			Vec3 dir = colider->GetRigidbody()->GetPos();
 			dir.Normalize();
 			m_rigid->SetVelocity((dir + m_upVec) * 2);
-			//HPが少ないほど隙がなくなる
-			m_actionFrame = -m_hp-200;
-			m_bossUpdate = &Boss::LandingUpdate;
+			m_hp -= 20;
+			Away();
+			//Stan(m_hp + 200);
 		}
 
 		//ボスが怯み中にプレイヤーがスピンしていたら
@@ -677,8 +765,8 @@ void Boss::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag,
 		{
 			m_rigid->SetVelocity(m_upVec * 2);
 			m_hp -= 20;
-			m_color = 0xff00ff;
-			m_bossUpdate = &Boss::NeutralUpdate;
+			Away();
+			
 			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
 		}
 	}

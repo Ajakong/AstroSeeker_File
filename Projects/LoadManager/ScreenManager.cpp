@@ -25,7 +25,8 @@ int ScreenManager::GetScreenData(const char* screenname,int width, int height)
 		m_pathAndScreenInfoes[screenname] = m;
 		return m.handle;
 	}
-	else {
+	else 
+	{
 		m_pathAndScreenInfoes[screenname].used = true;
 		return m_pathAndScreenInfoes[screenname].handle;
 	}

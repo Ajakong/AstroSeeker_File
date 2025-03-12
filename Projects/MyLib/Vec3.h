@@ -11,12 +11,11 @@ public:
 	float y;
 	float z;
 
-
-
 	Vec3();
 	Vec3(float inX, float inY, float inZ);
 	Vec3(int inX, int inY, int inZ);
 	Vec3(DxLib::VECTOR vec);
+
 	static Vec3 Up();
 	static Vec3 Down();
 	static Vec3 Right();

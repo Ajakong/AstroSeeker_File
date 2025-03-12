@@ -25,6 +25,7 @@
 
 
 #include"UI.h"
+#include"Game.h"
 
 ///Collidableにpowerを持たせて衝突時はそのパワー分のダメージを受けるようにする(現在はPlayer側が直値を書き込んでいる)
 ///その他直値の解決
@@ -232,7 +233,7 @@ m_currentOxygen(0)
 	//メンバ関数の初期設定
 	m_shotUpdate = &Player::ShotTheStickStar;
 	m_jumpActionUpdate = &Player::JumpingSpinUpdate;
-	m_dropAttackUpdate = &Player::DropAttackUpdate;
+	m_dropAttackUpdate = &Player::NormalDropAttackUpdate;
 	m_spinAttackUpdate = &Player::SpiningUpdate;
 
 	//カメラの追ってきてほしい速度の初期設定
@@ -429,12 +430,13 @@ void Player::SetMatrix()
 	//回転は難しいのでモデルの向き(Y,Z)を無理やり設定
 	MV1SetRotationZYAxis(m_modelHandle, (m_moveDir * -1).VGet(), m_upVec.GetNormalized().VGet(), 0);
 
-	//当たり判定の更新
 
+	//当たり判定の更新
 	//※直径分ずらすため半径を2倍にしている
 	m_headCol->SetShiftPosNum(m_upVec * (m_footCol->GetRadius() * 2 + m_bodyCol->GetRadius() * 2 + m_headCol->GetRadius()));
 	m_bodyCol->SetShiftPosNum(m_upVec * (m_footCol->GetRadius() * 2 + m_bodyCol->GetRadius()));
 	m_footCol->SetShiftPosNum(m_upVec * m_footCol->GetRadius());
+
 	m_lookPoint = m_rigid->GetPos() + m_upVec * kCamerLookPointHeight;
 
 }
@@ -1393,7 +1395,7 @@ void Player::SpiningUpdate()
 	m_rigid->AddVelocity(move);
 
 	//回転させる
-	m_spinAngle += DX_PI_F;
+	m_spinAngle += kAngleRotateSpeed;
 	if (m_spinAngle >= DX_PI_F * 2)
 	{
 		//アイドル状態に移行
@@ -1441,7 +1443,7 @@ void Player::JumpingSpinUpdate()
 	m_rigid->SetVelocity(move);
 
 	//回転させる
-	m_spinAngle += DX_PI_F;
+	m_spinAngle += kAngleRotateSpeed*5;
 	if (m_spinAngle >= DX_PI_F * 2)
 	{
 		//ジャンプ状態に移行

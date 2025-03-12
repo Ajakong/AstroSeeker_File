@@ -46,7 +46,8 @@ int SoundManager::GetSoundData(const char* soundname)
 		m.used = false;
 		m_pathAndSoundInfoes[soundname] = m;
 	}
-	else {
+	else 
+	{
 		m_pathAndSoundInfoes[soundname].used = true;
 	
 	}

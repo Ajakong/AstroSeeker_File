@@ -28,17 +28,14 @@ namespace
 
     const char* kTitleGraphName = "galaxy_titleLogo_pro.png";
     const char* kPushAToStartGraphName = "PushAToStart.png";
-    const char* kFrameName = "Frame.png";
+
     const char* kTitleBGMName = "AstroSeeker_Theme_free.mp3";
     const char* kGamePlayBGMName = "BattleOfAstro.mp3";
-    
-    const char* kTitleFadeSEName = "TitleSE_Fade.mp3";
-
-
-
-    const char* kStickName = "parry.mp3";
-    const char* kGameStartSEName = "StartGame_SE.mp3";
     const char* kGameBGMName = "GamePlaying.mp3";
+
+    const char* kTitleFadeSEName = "TitleSE_Fade.mp3";
+    const char* kGameStartSEName = "StartGame_SE.mp3";
+
     const char* kPlayerModelName = "SpaceHarrier";
     const char* kPlanetModelName = "GoldenBall";
     const char* kNextPlanetModelName = "Neptune";
@@ -61,6 +58,10 @@ namespace
     constexpr int kFadeBoxColor = 0x001111;
     constexpr int kLineColor = 0x44ffff;
     constexpr int kLineX = 30;
+
+    constexpr float kCameraRotationSpeed = 0.02f;
+    constexpr float kCameraEasingSpeed = 35.f;
+    
 
     const Vec3 cameraFirstPosition = { -50,0,200 };
     const Vec3 cameraSecondPosition = { -5,10,10 };
@@ -165,23 +166,19 @@ TitleScene::TitleScene(SceneManager& manager) :
 
 
 
-    camera->SetEasingSpeed(35.f);
+    camera->SetEasingSpeed(kCameraEasingSpeed);
 
     //カメラが回転するスピード
-    m_cameraAngleRotateSpeed = 0.02f;
+    m_cameraAngleRotateSpeed = kCameraRotationSpeed;
 }
 
 TitleScene::~TitleScene()
 {
-   
-    
     MyEngine::Physics::GetInstance().Exit(player);
-    int a = player.use_count();
     MyEngine::Physics::GetInstance().Exit(planet);
     MyEngine::Physics::GetInstance().Exit(nextPlanet);
     
     EffectManager::GetInstance().Clear();
-
 }
 
 void TitleScene::Load()
@@ -273,7 +270,7 @@ void TitleScene::WatchPlayerUpdate()
     q.SetQuaternion(camera->GetPos());
     q.SetMove(m_cameraAngleRotateSpeed, Vec3::Up());
 
-    //camera->SetCameraPoint(q.Move(camera->GetPos(), Vec3::Zero()));
+ 
     camera->Update(player->GetRigidbody()->GetPos());
 
 
