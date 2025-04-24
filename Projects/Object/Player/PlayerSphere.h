@@ -17,15 +17,15 @@ public:
 	virtual void Effect();
 
 	virtual bool GetStickFlag() { return m_isStick; }
+	virtual std::weak_ptr<Player> GetPlayerPointer() {return m_player; }
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
-	std::weak_ptr<Player>m_player;
 
 protected:
 	virtual void  StraightUpdate();//球を直線状に飛ばす
 protected:
-	
+	std::weak_ptr<Player>m_player;
 	Vec3 m_startPos;
 	Vec3 m_sideVec;
 	int m_lifeTime;

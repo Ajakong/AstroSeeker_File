@@ -42,9 +42,9 @@ public:
 
     void SetTitleUpdateNum(int num) { m_titleUpdateNum = num; }
 
+private:
     using titlePlayerState_t = void(TitlePlayer::*)();
     titlePlayerState_t m_titlePlayerUpdate;
 
-private:
     int m_titleUpdateNum;
 };

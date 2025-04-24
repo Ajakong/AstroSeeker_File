@@ -57,6 +57,11 @@ Vec3 Vec3::Front()
 	return Vec3(0.0f,0.0f,1.0f);
 }
 
+Vec3 Vec3::Back()
+{
+	return Vec3(0.0f, 0.0f, -1.0f);
+}
+
 Vec3 Vec3::Zero()
 {
 	return Vec3(0.0f,0.0f,0.0f);

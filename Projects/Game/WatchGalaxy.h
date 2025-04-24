@@ -12,13 +12,13 @@ public:
 	void Update();
 	void Draw();
 
+private:
 	using managerState_t = void(WatchGalaxy::*)();
 	managerState_t m_managerUpdate;
 
 	using managerState_t = void(WatchGalaxy::*)();
 	managerState_t m_managerDraw;
 
-private:
 	std::shared_ptr<Camera> camera;
 	std::vector<std::shared_ptr<Planet>> planet;
 	std::shared_ptr<Player> player;

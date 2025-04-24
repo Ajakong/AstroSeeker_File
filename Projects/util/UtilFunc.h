@@ -2,7 +2,6 @@
 #include"Vec3.h"
 namespace UtilFunc
 {
-	
 	/// <summary>
 	/// 法線を表に三角形を描画する関数
 	/// </summary>

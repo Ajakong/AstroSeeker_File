@@ -18,6 +18,20 @@ public:
 
     void SetMaterialXNum(int num) { m_materialXNum = num; }
 private:
+   
+    // 更新状態を表す関数
+    void FadeInUpdate();
+    void NormalUpdate();
+    void FadeOutUpdate();
+
+    void ChangeScene(std::shared_ptr<Scene> nextScene);
+
+    // 描画状態を表す関数
+    void FadeDraw();
+    void FadeOutDraw();
+    void NormalDraw();
+
+private:
     float m_angle;//sinカーブのためだけ
 
     int m_materialXNum = 0;
@@ -40,16 +54,5 @@ private:
     UpdateFunc_t m_updateFunc;
     DrawFunc_t m_drawFunc;
 
-    // 更新状態を表す関数
-    void FadeInUpdate();
-    void NormalUpdate();
-    void FadeOutUpdate();
-
-    void ChangeScene(std::shared_ptr<Scene> nextScene);
-
-    // 描画状態を表す関数
-    void FadeDraw();
-    void FadeOutDraw();
-    void NormalDraw();
 };
 

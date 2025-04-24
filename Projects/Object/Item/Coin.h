@@ -17,6 +17,7 @@ public:
     void Draw();
 
     virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
+
 private:
     Quaternion m_myQ;
 

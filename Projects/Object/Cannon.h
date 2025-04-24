@@ -25,7 +25,6 @@ public:
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
 
 private:
-
 	ObjectTag m_bulletTag;
 	std::vector<std::shared_ptr<CannonSphere>> m_cannonSphere;
 	int m_createBulletFrame;
@@ -36,7 +35,6 @@ private:
 	Quaternion myQ;
 
 	std::shared_ptr<MyEngine::ColliderSphere> m_col;
-
 
 	Vec3 m_cylinderPos;
 };

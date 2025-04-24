@@ -21,9 +21,6 @@ public:
 	Vec3 GetVelocity() { return m_velocity; }
 	void SetVelocity(Vec3 vel) { m_velocity = vel; }
 	bool GetCounterFlag() { return m_counterFlag; }
-	//メンバ関数ポインタ
-	using MoveState_t = void(Killer::*)();
-	MoveState_t m_moveUpdate;
 
 protected:
 	virtual void RisingUpdate();
@@ -32,7 +29,11 @@ protected:
 	virtual void  StraightUpdate();//球を直線状に飛ばす
 
 	virtual void CounterUpdate();
+
 private:
+	//メンバ関数ポインタ
+	using MoveState_t = void(Killer::*)();
+	MoveState_t m_moveUpdate;
 	std::shared_ptr<Player> m_target;
 	int m_pointeLightHandle;
 	int m_risingFrame;

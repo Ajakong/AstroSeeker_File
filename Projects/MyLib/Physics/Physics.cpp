@@ -180,7 +180,7 @@ void MyEngine::Physics::Draw()
 		
 		obj->Draw();
 
-#ifdef _DEBUG
+#ifdef DEBUG
 		Vec3 objPos = obj->GetRigidbody()->GetPos();
 
 		DrawLine3D(objPos.VGet(), (objPos + obj->GetUpVec() * 6).VGet(),0xff0000);
@@ -254,10 +254,7 @@ void MyEngine::Physics::Initialize(std::shared_ptr<Collidable> collidable)
 					continue;
 				}
 			}
-
 		}
-
-
 	}
 }
 
@@ -269,6 +266,7 @@ void MyEngine::Physics::UpdatePlanetPhysics()
 		// それぞれが持つ判定全てを比較
 		for (auto& object : m_collidables)
 		{
+			//if (object->IsAntiGravity())continue;
 			if (!object->GetIsActive())continue;
 			for (auto& col : object->m_colliders)
 			{

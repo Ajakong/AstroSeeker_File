@@ -32,17 +32,17 @@ namespace
 	const char* kHPLowerSEName = "HPLower.mp3";
 
 	
-	const UI::UIinfo kIdemBoxUIInfo{ 0,0,255,255,1.f };
-	const UI::UIinfo kHPBarUIInfo { 125,730,820,140,1.f };
-	const UI::UIinfo kWindowScreenUIInfo{ 620,15,400,500,0.7f };
-	const UI::UIinfo kPushLushInputAUIInfo{ 90,100,835,850,0.3f };
-	const UI::UIinfo kPushLushInputAUI2Info{ 90,100,835,850,0.3f };
-	const UI::UIinfo kInputAUIInfo{ 200,105,620,695,0.002f };
-	const UI::UIinfo kStarUIInfo{ 0,0,810,810,0.1f };
+	const UIinfo kIdemBoxUIInfo{ 0,0,255,255,1.f };
+	const UIinfo kHPBarUIInfo { 125,730,820,140,1.f };
+	const UIinfo kWindowScreenUIInfo{ 620,15,400,500,0.7f };
+	const UIinfo kPushLushInputAUIInfo{ 90,100,835,850,0.3f };
+	const UIinfo kPushLushInputAUI2Info{ 90,100,835,850,0.3f };
+	const UIinfo kInputAUIInfo{ 200,105,620,695,0.002f };
+	const UIinfo kStarUIInfo{ 0,0,810,810,0.1f };
 
-	const UI::UIinfo kTalkingCharaGraph{ 0,0,775,890,0.3f };
+	const UIinfo kTalkingCharaGraph{ 0,0,775,890,0.3f };
 
-	const UI::UIinfo kAimGraph{ 3140 ,200,400,370,0.3f };
+	const UIinfo kAimGraph{ 3140 ,200,400,370,0.3f };
 
 	constexpr int kHPBarUIOffsetX = 40;
 	constexpr int kHPBarUIOffsetY = 40;

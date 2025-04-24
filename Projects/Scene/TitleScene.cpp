@@ -214,6 +214,7 @@ void TitleScene::Draw()
     DxLib::MV1DrawModel(m_skyDomeH);
     // 物理エンジンの描画
     MyEngine::Physics::GetInstance().Draw();
+    DrawEffekseer3D();
     // シーン固有の描画
     (this->*m_drawFunc)();
   
@@ -360,7 +361,6 @@ void TitleScene::LoadingUpdate()
             m_drawFunc = &TitleScene::FadeDraw;
         }
     }
-    
 }
 
 void TitleScene::ChangeScene(std::shared_ptr<Scene> next)
@@ -409,6 +409,12 @@ void TitleScene::FadeDraw()
     
     //タイトル遷移時のフェード演出で使用する青い線の描画
     DrawLine(m_frame * kLineX, 0, m_frame * kLineX, Game::kScreenHeight, kLineColor);
+
+    ////心電図を作りたい
+    //for (int i = 0; i < Game::kScreenHeight; i++)
+    //{
+    //    DrawPixel(m_frame * kLineX + sin(i/50.f)*50.f, i, kLineColor);
+    //}
 }
 
 void TitleScene::NormalDraw()
@@ -439,7 +445,7 @@ void TitleScene::NormalDraw()
     }
     //タイトル遷移時のフェード演出で使用する青い線の描画
     DrawLine(m_frame * kLineX, 0, m_frame * kLineX, Game::kScreenHeight, kLineColor);
-    
+
     if(m_cameraMoveCount > 70)
     {
         UI::GetInstance().Draw();

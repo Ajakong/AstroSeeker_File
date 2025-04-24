@@ -94,5 +94,7 @@ void GameManager::Draw()
 	int coinNum = m_player->GetStarNum();
 	bool aim = m_player->GetIsAiming();
 	bool becameDeath = m_player->GetState() == MyEngine::Collidable::State::Death;
+
+	DrawEffekseer3D();
 	UI::GetInstance().Draw(hp, coinNum, aim,becameDeath);
 }

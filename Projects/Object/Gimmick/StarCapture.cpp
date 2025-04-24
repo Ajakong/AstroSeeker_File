@@ -91,7 +91,7 @@ void StarCapture::OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag o
 
 		auto sphere = dynamic_pointer_cast<PlayerSphere>(colider);
 
-		m_player = sphere->m_player.lock();
+		m_player = sphere->GetPlayerPointer().lock();
 	}
 
 	if (m_colliders.size() <= 1)return;

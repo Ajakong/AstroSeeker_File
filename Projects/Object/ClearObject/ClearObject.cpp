@@ -36,20 +36,20 @@ void ClearObject::Draw()
 	offSetVec -= GetCameraUpVector();
 	offSetVec *= 9/5;
 	Quaternion myQ;
-	angle += 0.05f;
+	m_angle += 0.05f;
 
 	Vec3 front = GetCameraFrontVector();
 	for (int i = 0; i < 3; i++)
 	{
 		myQ.SetQuaternion(offSetVec);
-		myQ.SetMove(DX_PI_F * 2 / 3 * i + angle, front);
+		myQ.SetMove(DX_PI_F * 2 / 3 * i + m_angle, front);
 		Vec3 offSet = myQ.Move(offSetVec, zero);
 		DrawSphere3D((m_rigid->GetPos() + offSet).VGet(), 1, 8, 0xffffff, 0xff00ff, false);
 	}
 	for (int i = 0; i < 6; i++)
 	{
 		myQ.SetQuaternion(offSetVec*2);
-		myQ.SetMove(DX_PI_F * 1 / 3 * i + angle, front);
+		myQ.SetMove(DX_PI_F * 1 / 3 * i + m_angle, front);
 		Vec3 offSet = myQ.Move(offSetVec, zero);
 		DrawSphere3D((m_rigid->GetPos() + offSet).VGet(), 1, 8, 0x0000ff, 0xff00ff, false);
 	}

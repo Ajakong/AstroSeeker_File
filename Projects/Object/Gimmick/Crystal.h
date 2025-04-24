@@ -10,11 +10,10 @@ public:
 	void Update();
 	void Draw();
 
-	
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
+
 private:
 	int m_hp;
 	Vec3 m_size;
-
 };
 

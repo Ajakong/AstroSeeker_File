@@ -13,6 +13,8 @@ public:
 	void SetStopFrame(int stopFrame);
 private:
 	GameStopManager();
+
+private:
 	
 	std::shared_ptr<GameManager> m_gameManager;
 

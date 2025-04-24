@@ -7,8 +7,6 @@ class SceneManager;
 /// </summary>
 class Scene
 {
-protected:
-	SceneManager& m_manager;
 public:
 	/// <summary>
 	/// 生成時にSceneManagerの参照を受け取っておく
@@ -29,7 +27,8 @@ public:
 	/// </summary>
 	virtual void Draw() = 0;
 
-
+protected:
+	SceneManager& m_manager;
 };
 
 

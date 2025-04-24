@@ -25,6 +25,7 @@ namespace MyEngine
 		void DebugDraw();
 		ModelData GetModelData() { return m_data; }
 		std::vector<Triangle> GetTriangles() { return m_triangles; }
+
 	private:
 		ModelData m_data;
 		std::vector<Triangle> m_triangles;

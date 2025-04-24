@@ -22,14 +22,20 @@ protected:
 	virtual void StickUpdate();
 	virtual void ComeBackUpdate();
 	virtual void ComeBackWithObjectUpdate();
+
 protected:
 	Vec3 m_sideVec;
+	Vec3 m_emitPoint;//生成地点
+
+
 	int m_lifeTime;
 	int m_pushCount;
 	int m_operationHandle;
 
-	int m_gaussFilterScreen;
-	int m_highBrightScreen;
+	int m_lineEffectIndex;
+	int m_sphereEffectIndex;
+	int m_boostEffectIndex;
+	int m_gravityWaveEffectIndex;
 	/// <summary>
 	/// 接触しているオブジェクトを動かせるか
 	/// </summary>

@@ -73,8 +73,10 @@ void Coin::Update()
 	//モデルの位置を設定
 	MV1GetPosition(m_modelHandle);
 
+	m_angle += 0.02f;
+
 	//ローカル座標系で上下に移動する
-	Vec3 vel = m_upVec * sin(angle);
+	Vec3 vel = m_upVec * sin(m_angle);
 	m_rigid->SetVelocity(vel * kMoveMag);
 }
 

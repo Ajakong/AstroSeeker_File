@@ -10,6 +10,15 @@ public:
 	void Draw();
 
 private:
+	// 更新関数
+	void AppearUpdate();	// 登場状態
+	void NormalUpdate();		// 通常状態
+	void DisappearUpdate();	// 退場状態
+
+	// 描画関数
+	void ExpandDraw();	// 拡張縮張描画
+	void NormalDraw();	// 非フェード描画
+private:
 	int m_frameHandle;
 	int m_btnFrame;
 	int m_fadeSpeed;
@@ -28,13 +37,5 @@ private:
 	using DrawFunc_t = void (PauseScene::*)();
 	DrawFunc_t m_drawFunc;
 
-	// 更新関数
-	void AppearUpdate();	// 登場状態
-	void NormalUpdate();		// 通常状態
-	void DisappearUpdate();	// 退場状態
-
-	// 描画関数
-	void ExpandDraw();	// 拡張縮張描画
-	void NormalDraw();	// 非フェード描画
 };
 

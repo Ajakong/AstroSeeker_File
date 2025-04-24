@@ -5,6 +5,7 @@
 
 #include"SoundManager.h"
 #include"ScreenManager.h"
+#include"EffectManager.h"
 
 #include"Game.h"
 namespace
@@ -18,8 +19,18 @@ namespace
 	/// </summary>
 	constexpr int kSphereCreateFrame = 50;
 
+	constexpr float kComeBackLength = 20.f;
+	constexpr float kComeBackSpeedMag = 10.f;
+	constexpr float kComeBackDeleteLength = 2.f;
+	constexpr float kStickCancelLength = 5.f;
+	constexpr float kSphereMoveSpeed = 3.f;
+
 	constexpr int kLifeTimeMax = 100;
 	const char* kName = "Sphere";
+	const char* kLineEffectName = "Line.efk";
+	const char* kSphereEffectName = "StickSphere.efk";
+	const char* kBoostEffectName = "BoostEffect.efk";
+	const char* kGravityWaveEffectName = "GravityWave.efk";
 
 	const char* kOperationSEName = "Fastener.mp3";
 
@@ -33,103 +44,93 @@ PlayerStickSphere::PlayerStickSphere(MyEngine::Collidable::Priority priority, Ob
 m_sideVec(sideVec),
 m_lifeTime(0),
 m_pushCount(0),
+m_lineEffectIndex(0),
+m_sphereEffectIndex(0),
+m_boostEffectIndex(0),
 m_operationHandle(SoundManager::GetInstance().GetSoundData(kOperationSEName))
 {
 	
 	m_player.lock() = std::dynamic_pointer_cast<Player>(player);
-	/*m_rigid->SetVelocity(VGet(m_velocity.x * 2, m_velocity.y * 2, m_velocity.z * 2));
-	m_rigid->SetPos(pos);
-	AddCollider(MyEngine::ColliderBase::Kind::Sphere, ColideTag::Body);
-	auto item = dynamic_pointer_cast<MyEngine::ColliderSphere>(m_colliders.back()->col);
-	item->radius = m_radius;
-	m_color = color;*/
+
 	//moveNumによって挙動が変わるのかもしれない(実装するかわからん)
-	//if (moveNum == 0)
-	{
-		m_moveUpdate = &PlayerStickSphere::StraightUpdate;
-	}
+	m_moveUpdate = &PlayerStickSphere::StraightUpdate;
 
 	SetAntiGravity(true);
-	m_gaussFilterScreen = ScreenManager::GetInstance().GetScreenData(kGaussFilterScreenName, Game::kScreenWidth, Game::kScreenHeight);
-	m_highBrightScreen = ScreenManager::GetInstance().GetScreenData(kHighBrightScreenName, Game::kScreenWidth, Game::kScreenHeight);
+
+	m_emitPoint = m_player.lock()->GetLeftHandPos();
 }
 
 
 PlayerStickSphere::~PlayerStickSphere()
 {
-	
+	//エフェクト情報の削除
+	EffectManager::GetInstance().StopEffect(kLineEffectName, m_lineEffectIndex);
+	EffectManager::GetInstance().StopEffect(kSphereEffectName, m_sphereEffectIndex);
+	EffectManager::GetInstance().StopEffect(kBoostEffectName, m_boostEffectIndex);
+	EffectManager::GetInstance().StopEffect(kGravityWaveEffectName, m_gravityWaveEffectIndex);
 }
 
 void PlayerStickSphere::Init()
 {
+	m_lineEffectIndex = EffectManager::GetInstance().PlayEffect(kLineEffectName, true, 0, shared_from_this());
+	m_sphereEffectIndex = EffectManager::GetInstance().PlayEffect(kSphereEffectName, true, 0, shared_from_this());
+	
 
 }
 
 void PlayerStickSphere::Update()
 {
+	
 	m_startPos = m_player.lock()->GetLeftHandPos();
+	
 	(this->*m_moveUpdate)();
+	//弾の描画
+	EffectManager::GetInstance().SetInformationEffect(kSphereEffectName, m_sphereEffectIndex, m_rigid->GetPos(), Quaternion::GetIdentity(), Vec3(kSphereRadius, kSphereRadius, kSphereRadius));
+
+	//m_isStickがtrueの時に赤くなる
+	//DrawLine3D(m_startPos.VGet(), m_rigid->GetPos().VGet(), 0xffffff - (0x00ffff * m_isStick));
+
+	//ラインの描画
+	EffectManager::GetInstance().SetInformationEffect(kLineEffectName, m_lineEffectIndex, m_player.lock()->GetPos(), Quaternion::GetIdentity(), Vec3(kSphereRadius, kSphereRadius, kSphereRadius));
+
+	if (m_player.lock()->GetOperationFlag())
+	{
+		auto rotQuaternion = Quaternion::GetQuaternion(m_player.lock()->GetFrontVec() * -1,Vec3::Back());
+		//プレイヤーの移動軌跡の描画
+		EffectManager::GetInstance().SetInformationEffect(kBoostEffectName, m_boostEffectIndex, m_player.lock()->GetPos(), rotQuaternion, Vec3(1, 1, 1));
+		Vec3 dir = (m_player.lock()->GetPos() - m_rigid->GetPos()).GetNormalized();
+		rotQuaternion = Quaternion::GetQuaternion(Vec3::Front(), dir);
+		//EffectManager::GetInstance().SetInformationEffect(kGravityWaveEffectName, m_gravityWaveEffectIndex,m_rigid->GetPos() + dir * 200 + Vec3::Up() * 5, rotQuaternion, Vec3(10.f, 10.f, 10.f));
+	}
 }
 
 void PlayerStickSphere::Draw()
 {
-	/*auto camerapos = GetCameraPosition();
-	auto cameraTarget = GetCameraTarget();
-	auto cameraUpVec = GetCameraUpVector();
-	auto cameraMat = GetCameraViewMatrix();
-	auto cameraNear = GetCameraNear();
-	auto cameraFar = GetCameraFar();*/
-
-	DrawSphere3D(m_rigid->GetPos().VGet(), kSphereRadius, 10, 0xffff00, m_color, true);
-	
-	//// 通常の描画結果を書き込むスクリーンを描画対象にする
-	//SetDrawScreen(m_gaussFilterScreen);
-	//// 画面をクリア
-	//ClearDrawScreen();
-
-	//SetCameraPositionAndTargetAndUpVec(camerapos, cameraTarget, cameraUpVec);
-	//SetCameraNearFar(cameraNear, cameraFar);
-	//m_isStickがtrueの時に赤くなる
-	DrawLine3D(m_startPos.VGet(), m_rigid->GetPos().VGet(), 0xffffff - (0x00ffff * m_isStick));
-
-	//GraphFilterBlt(m_gaussFilterScreen, m_highBrightScreen, DX_GRAPH_FILTER_GAUSS, 16, 200);
-	//GraphFilterBlt(m_highBrightScreen, DX_SCREEN_BACK, DX_GRAPH_FILTER_GAUSS, 16, 900);
-
-	//// 描画対象を裏画面にする
-	//SetDrawScreen(DX_SCREEN_BACK);
-
-	//SetCameraPositionAndTargetAndUpVec(camerapos, cameraTarget, cameraUpVec);
-	//SetCameraNearFar(cameraNear, cameraFar);
-	//DrawGraph(0, 0, m_highBrightScreen, false);
-	
-
-	
 }
 
 void PlayerStickSphere::Effect()
 {
-	/*if (m_player->GetOperationFlag())
-	{
-		m_player->SetIsOperation(false);
-		m_isDestroy = true;
-	}*/
 	if (m_isStick)
 	{
-		
 		if (m_isMoving)
 		{
 			m_moveUpdate = &PlayerStickSphere::ComeBackWithObjectUpdate;
 		}
-		else if ((m_player.lock()->GetPos() - m_rigid->GetPos()).Length() < 20)
+		else if ((m_player.lock()->GetPos() - m_rigid->GetPos()).Length() < kComeBackLength)
 		{
 			m_moveUpdate = &PlayerStickSphere::ComeBackUpdate;
 		}
 		else
 		{
-			
 			//Aが入力された回数(押された分速度が上がる)
 			m_pushCount++;
 			
+			if (!m_player.lock()->GetOperationFlag())
+			{
+				m_boostEffectIndex = EffectManager::GetInstance().PlayEffect(kBoostEffectName, true, 0, shared_from_this());
+				m_gravityWaveEffectIndex = EffectManager::GetInstance().PlayEffect(kGravityWaveEffectName, true, 0, shared_from_this());
+
+			}
 			//プレイヤーを操作されている状態に移行する
 			m_player.lock()->SetIsOperation(true);
 			
@@ -137,7 +138,6 @@ void PlayerStickSphere::Effect()
 			Vec3 tensionDir = (m_rigid->GetPos() - m_player.lock()->GetPos()).GetNormalized();
 			m_player.lock()->SetVelocity(tensionDir * kTensionSpeed * static_cast<float>(m_pushCount));
 		}
-		
 	}
 	else m_moveUpdate = &PlayerStickSphere::ComeBackUpdate;
 }
@@ -168,7 +168,7 @@ void PlayerStickSphere::OnTriggerEnter(std::shared_ptr<Collidable> colider, Coli
 
 void PlayerStickSphere::StraightUpdate()
 {
-	m_rigid->SetVelocity(m_velocity*4);
+	m_rigid->SetVelocity(m_velocity* kSphereMoveSpeed);
 }
 
 void PlayerStickSphere::StickUpdate()
@@ -176,8 +176,7 @@ void PlayerStickSphere::StickUpdate()
 	SetAntiGravity(true);
 	m_rigid->SetVelocity(Vec3::Zero());
 	
-	//m_rigid->SetPos(m_contactedCollidable->GetRigidbody()->GetPos() + m_collidableContactPosition);
-	if ((m_rigid->GetPos() - m_startPos).Length() <= 5.0f)
+	if ((m_rigid->GetPos() - m_startPos).Length() <= kStickCancelLength)
 	{
 		m_player.lock()->SetIsOperation(false);
 		m_moveUpdate = &PlayerStickSphere::ComeBackUpdate;
@@ -186,12 +185,13 @@ void PlayerStickSphere::StickUpdate()
 
 void PlayerStickSphere::ComeBackUpdate()
 {
-	
-	float speed = (m_startPos - m_rigid->GetPos()).Length()/10;
+	//弾の帰還速度
+	float speed = (m_startPos - m_rigid->GetPos()).Length()/ kComeBackSpeedMag;
 	m_rigid->SetVelocity((m_startPos - m_rigid->GetPos()).GetNormalized() * speed);
-	if ((m_rigid->GetPos() - m_startPos).Length() <= 2.f)
+	
+	//弾とプレイヤーの距離が近づいたら削除
+	if ((m_rigid->GetPos() - m_startPos).Length() <= kComeBackDeleteLength)
 	{
-
 		StopSoundMem(m_operationHandle);
 		m_isDestroy = true;
 	}
@@ -199,10 +199,10 @@ void PlayerStickSphere::ComeBackUpdate()
 
 void PlayerStickSphere::ComeBackWithObjectUpdate()
 {
-
-	m_rigid->SetVelocity((m_startPos - m_rigid->GetPos()).GetNormalized() * 3);
+	m_rigid->SetVelocity((m_startPos - m_rigid->GetPos()).GetNormalized() * kSphereMoveSpeed);
+	//衝突しているオブジェクトとの位置関係の固定
 	m_contactedCollidable->GetRigidbody()->SetPos(m_rigid->GetPos()+m_collidableContactPosition);
-	if ((m_rigid->GetPos() - m_startPos).Length() <= 1.2f)
+	if ((m_rigid->GetPos() - m_startPos).Length() <= kComeBackDeleteLength)
 	{
 		m_isDestroy = true;
 	}

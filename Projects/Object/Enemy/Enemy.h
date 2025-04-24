@@ -17,6 +17,7 @@ public:
 	virtual void SetMatrix() {};
 	virtual Vec3 GetShotUpVec() { return m_upVec; }
 	virtual int GetHP() { return m_hp; }
+
 protected:
 	int m_hp;
 	int m_modelHandle;

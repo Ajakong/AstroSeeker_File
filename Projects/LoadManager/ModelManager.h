@@ -4,15 +4,13 @@
 #include<vector>
 #include"DxLib.h"
 
-struct ModelInfo {
+struct ModelInfo 
+{
 	int handle;//ハンドル
 	bool used;//一度以上使用済みか？
 };
 class ModelManager
 {
-private:
-	std::map<std::string, ModelInfo> m_pathAndModelInfoes;
-
 public:
 	ModelManager();
 	~ModelManager();
@@ -24,6 +22,8 @@ public:
 	void Clear();
 	void ClearShadowModel();
 
+private:
+	std::map<std::string, ModelInfo> m_pathAndModelInfoes;
 	std::vector<int>m_duplicateModelHandles;
 	std::vector<int>m_shadowModelHandle;
 };

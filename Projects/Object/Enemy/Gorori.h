@@ -29,9 +29,6 @@ public:
 
 	void SetTarget(std::shared_ptr<Collidable> target);
 
-	//メンバ関数ポインタ
-	using enemyState_t = void(Gorori::*)();
-	enemyState_t m_enemyUpdate;
 private:
 	/// <summary>
 	/// 徘徊状態
@@ -45,24 +42,22 @@ private:
 
 	Vec3 GetAttackDir() const;
 private:
+	//メンバ関数ポインタ
+	using enemyState_t = void(Gorori::*)();
+	enemyState_t m_enemyUpdate;
 	int m_hp;
 	int m_color;
-
 	int m_attackCoolDownCount;
-
-	float m_radius = 0;
-
+	
 	int m_modelHandle = 0;
-
 	int m_createFrameCount = 0;
 	int m_attackCount = 0;
-
-	float m_centerToEnemyAngle;
-
-	float m_idleSpeed = 0;
-
 	int m_sphereNum = 0;
 	int m_bombNum = 0;
+
+	float m_radius = 0;
+	float m_idleSpeed = 0;
+	float m_centerToEnemyAngle;
 
 	Vec3 m_vec;
 	Vec3 m_attackDir;

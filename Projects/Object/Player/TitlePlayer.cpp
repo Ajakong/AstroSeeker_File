@@ -125,7 +125,6 @@ void TitlePlayer::MoveToTargetWithStickStar(Vec3 targetPos)
 			Vec3 shotPos = MV1GetFramePosition(m_modelHandle, m_leftHandFrameIndex);
 			m_sphere.push_back(std::make_shared<PlayerStickSphere>(Priority::Low, ObjectTag::PlayerBullet, shared_from_this(), shotPos, targetVec, m_sideVec, 1, 0xff0000));
 			MyEngine::Physics::GetInstance().Entry(m_sphere.back());
-			m_sphere.back()->Init();
 
 			Player::SetNeutralUpdate();
 		}
@@ -151,7 +150,6 @@ void TitlePlayer::MoveToTargetWithStickStar(Vec3 targetPos)
 			Vec3 shotPos = MV1GetFramePosition(m_modelHandle, m_leftHandFrameIndex);
 			m_sphere.push_back(std::make_shared<PlayerStickSphere>(Priority::Low, ObjectTag::PlayerBullet, shared_from_this(), shotPos, targetVec, m_sideVec, 1, 0xff0000));
 			MyEngine::Physics::GetInstance().Entry(m_sphere.back());
-			m_sphere.back()->Init();
 
 			MV1SetScale(m_modelHandle, VGet(0.01f, 0.01f, 0.01f));
 			m_moveDir = Cross(GetCameraRightVector(), m_upVec);

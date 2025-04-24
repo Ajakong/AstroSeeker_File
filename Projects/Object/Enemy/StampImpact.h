@@ -25,13 +25,16 @@ public:
 
     bool GetDeleteFlag() { return m_deleteFlag; }
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
-    //メンバ関数ポインタ
-    using impactState_t = void(StampImpact::*)();
-    impactState_t m_impactUpdate;
+   
 private:
     void Draw3DCircle(Vec3 center, float radius, int num_segments);
     void ExpansionUpdate();
     void ReductionUpdate();
+
+private:
+	//メンバ関数ポインタ
+	using impactState_t = void(StampImpact::*)();
+	impactState_t m_impactUpdate;
 
 	Vec3 m_dir;
 	std::vector<std::shared_ptr<MyEngine::ColliderLine3D>>m_lines;
@@ -42,7 +45,4 @@ private:
 	float m_speed;
 
     bool m_deleteFlag;
-
-	
-
 };

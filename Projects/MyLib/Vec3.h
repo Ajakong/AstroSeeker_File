@@ -21,6 +21,7 @@ public:
 	static Vec3 Right();
 	static Vec3 Left();
 	static Vec3 Front();
+	static Vec3 Back();
 	static Vec3 Zero();
 
 	/* 演算 */
@@ -38,7 +39,6 @@ public:
 	bool operator==(const Vec3& val) const;
 	bool operator!=(const Vec3& val) const;
 
-
 	// 長さ取得
 	float Length() const;
 	// 長さの2乗を取得
@@ -47,7 +47,6 @@ public:
 	Vec3 GetNormalized() const;
 	// 自身の正規化
 	void Normalize();
-
 
 	// DxLib用のVECTORを取得
 	DxLib::VECTOR VGet() const;

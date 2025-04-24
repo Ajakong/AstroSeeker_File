@@ -10,7 +10,8 @@ namespace
 	const char* name = "MaterialX";
 }
 
-Item::Item(Vec3 pos, ObjectTag tag,bool antiGravity):Collidable(Priority::Lowest,tag)
+Item::Item(Vec3 pos, ObjectTag tag,bool antiGravity):Collidable(Priority::Lowest,tag),
+m_angle(0)
 {
 	SetAntiGravity(antiGravity);
 	
@@ -35,7 +36,7 @@ void Item::Update()
 {
 	m_upVec = (m_rigid->GetPos() - m_nowPlanetPos).GetNormalized();
 	m_rigid->SetPos(m_rigid->GetPos());
-	m_upVec = m_upVec * sin(angle) ;
+	m_upVec = m_upVec * sin(m_angle) ;
 	m_rigid->SetVelocity(m_upVec*0.1f);
 	
 }
@@ -48,13 +49,13 @@ void Item::Draw()
 	offSetVec -= GetCameraUpVector();
 	offSetVec *= 0.9f;
 	Quaternion myQ;
-	angle+=0.05f;
+	m_angle+=0.05f;
 	
 	Vec3 front = GetCameraFrontVector();
 	for (int i = 0; i < 3; i++)
 	{
 		myQ.SetQuaternion(offSetVec);
-		myQ.SetMove(DX_PI_F*2/3*i+angle , front);
+		myQ.SetMove(DX_PI_F*2/3*i + m_angle , front);
 		Vec3 offSet=myQ.Move(offSetVec,zero);
 		DrawSphere3D((m_rigid->GetPos() + offSet).VGet(), 1.0, 8, 0xff00ff, 0xff00ff, false);
 	}

@@ -19,6 +19,7 @@ public:
 	virtual float GetScale() { return m_scale*50; }
 
 	int GetModelHandle() { return modelH; }
+
 protected:
 	float m_coefficientOfFriction;//摩擦係数
 	int modelH;

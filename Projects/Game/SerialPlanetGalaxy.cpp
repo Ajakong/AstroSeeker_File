@@ -256,7 +256,7 @@ void SerialPlanetGalaxy::GamePlayingUpdate()
 
 	bool watchLockedObject = false;
 	
-	if(m_camera->m_cameraUpdate!=&Camera::WatchThisUpdate)m_camera->SetEasingSpeed(player->GetCameraEasingSpeed());
+	if(m_camera->GetCameraState()!=&Camera::WatchThisUpdate)m_camera->SetEasingSpeed(player->GetCameraEasingSpeed());
 	if (player->GetIsAiming())m_camera->Update(player->GetShotDir());
 	if (!player->GetIsAiming())
 	{

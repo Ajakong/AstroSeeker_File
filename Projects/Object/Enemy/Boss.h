@@ -150,6 +150,7 @@ private:
 
 	template <typename T>
 	void DeleteObject(std::vector<std::shared_ptr<T>>& objects);
+
 private:
 	//メンバ関数ポインタ
 	using bossState_t = void(Boss::*)();

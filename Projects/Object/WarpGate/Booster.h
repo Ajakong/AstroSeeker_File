@@ -17,6 +17,7 @@ public:
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
+
 private:
 	//アニメーションの進行
 	//ループしたかどうかを返す
@@ -24,6 +25,7 @@ private:
 	//アニメーションの変更
 	void ChangeAnim(int animIndex);
 
+private:
 	Vec3 m_dir;
 	Vec3 m_warpPos;
 	bool m_isActive;

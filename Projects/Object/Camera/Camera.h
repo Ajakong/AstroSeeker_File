@@ -57,13 +57,18 @@ public:
 	/// <param name="LookPoint"></param>
 	void WatchThisUpdate(Vec3 LookPoint);
 
+
 	//メンバ関数ポインタ
 	using cameraState_t = void(Camera::*)(Vec3 lookpoint);
-	cameraState_t m_cameraUpdate;
+	
+	cameraState_t GetCameraState() { return m_cameraUpdate; }
+	
 private:
 	
 
 private:
+	cameraState_t m_cameraUpdate;
+
 	int m_lightHandle = -1;
 	int m_watchCount;
 	float m_easingSpeed;

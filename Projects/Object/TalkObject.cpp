@@ -7,6 +7,7 @@ namespace
 {
 	constexpr float kTalkingRadius = 20.f;
 	constexpr float kRadius = 5.f;
+	constexpr float kScaleMag = 0.5f;
 
 }
 
@@ -15,7 +16,7 @@ m_canTalk(false)
 {
 	SetAntiGravity(true);
 	m_modelHandle = modelHandle;
-	MV1SetScale(m_modelHandle, VGet(0.5f, 0.5f,0.5f));
+	MV1SetScale(m_modelHandle, VGet(kScaleMag, kScaleMag, kScaleMag));
 	MV1SetPosition(m_modelHandle, m_rigid->GetPos().VGet());
 	m_rigid->SetPos(pos);
 	{
@@ -120,11 +121,6 @@ void TalkObject::CanWeJustTalk()
 
 void TalkObject::WaitingUpdate()
 {
-	if (m_canTalk)
-	{
-
-		
-	}
 }
 
 void TalkObject::NormalDraw()

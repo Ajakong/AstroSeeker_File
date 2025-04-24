@@ -10,9 +10,6 @@ struct ScreenInfo
 };
 class ScreenManager
 {
-private:
-	std::map<std::string, ScreenInfo> m_pathAndScreenInfoes;
-
 public:
 	ScreenManager();
 	~ScreenManager();
@@ -21,5 +18,9 @@ public:
 	int GetScreenData(const char* screenname, int width, int height);
 
 	void Clear();
+
+private:
+	std::map<std::string, ScreenInfo> m_pathAndScreenInfoes;
+
 };
 

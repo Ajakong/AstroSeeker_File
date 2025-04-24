@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "MyLib/Vec3.h"
+#include"Game.h"
 #include <cmath>
+#include <cassert>
 
 class Quaternion
 {
@@ -19,6 +21,51 @@ public:
 		y = _y;
 		z = _z;
 	};
+
+	static Quaternion GetIdentity()
+	{
+		return Quaternion(1, 0, 0, 0);
+	}
+
+	/// <summary>
+	/// 軸を基準に回転させるクオータニオンを作成
+	/// </summary>
+	/// <param name="angle">回転度合い(度数法)</param>
+	/// <param name="axis">軸</param>
+	/// <returns>クオータニオン</returns>
+	static Quaternion AngleAxis(float angle, const Vec3& axis)
+	{
+		Quaternion result;
+
+		float halfRad = angle * Game::DEG_2_RAD * 0.5f;
+		float sin = std::sin(halfRad);
+		float cos = std::cos(halfRad);
+		auto normAxis = axis.GetNormalized();
+		assert(normAxis.SqLength() > 0.0f && "軸がありません");
+
+		result = Quaternion(normAxis.x * sin, normAxis.y * sin, normAxis.z * sin, cos);
+
+		return result;
+	}
+
+	static Quaternion GetQuaternion(const Vec3& v1, const Vec3& v2, const Vec3& axisWhenParallel = Vec3::Up())
+	{
+		auto norm1 = v1.GetNormalized();
+		auto norm2 = v2.GetNormalized();
+		float dot = Dot(norm1, norm2);
+		// 2ベクトルが平行の場合、回転しないクオータニオンを返す
+		if (dot > 0.9999f) return Quaternion();
+		// 角度と軸を取得
+		float angle = std::acosf(dot) * Game::RAD_2_DEG;
+		auto axis = Cross(norm1, norm2);
+
+		if (axis.SqLength() < 0.0001f)
+		{
+			axis = axisWhenParallel;
+		}
+
+		return AngleAxis(angle, axis);
+	}
 	// クォータニオンの共役を返す
 	Quaternion Conjugated() const
 	{
@@ -43,6 +90,27 @@ public:
 		Quaternion newPos = *this * posQ * this->Conjugated();
 
 		return Vec3(newPos.x, newPos.y, newPos.z);
+	}
+
+	/// <summary>
+	/// 軸を取得
+	/// </summary>
+	/// <returns>軸</returns>
+	Vec3 GetAxis() const
+	{
+		Vec3 axis(x, y, z);
+
+		axis.Normalize();
+
+		return axis;
+	}
+	/// <summary>
+	/// 角度を取得(ラジアン)
+	/// </summary>
+	/// <returns>ラジアン</returns>
+	float GetRadian() const
+	{
+		return 2 * std::acosf(w);
 	}
 
 	virtual ~Quaternion() {}
@@ -199,6 +267,8 @@ public:
 
 		return vPos;
 	}
+
+
 };
 
 Quaternion AngleAxis(float angle, const Vec3& axis);

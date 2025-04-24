@@ -14,16 +14,6 @@ class Item;
 class Takobo : public Enemy
 {
 public:
-	enum AnimNum : int
-	{
-		Empty1,
-		Brow,
-		FastWalk,
-		Idle,
-		Empty2,
-		Shot
-	};
-
 	/// <param name="m_modelhandle">エネミーのモデル</param>
 	/// <param name="obj">影響を与えるオブジェ</param>
 	Takobo(Vec3 pos, std::shared_ptr<MyEngine::Collidable> target);
@@ -57,17 +47,23 @@ public:
 	void Death();
 	std::list<std::shared_ptr<EnemySphere>> GetAttackObj() { return m_sphere; }
 	
+private:
+	enum AnimNum : int
+	{
+		Empty1,
+		Brow,
+		FastWalk,
+		Idle,
+		Empty2,
+		Shot
+	};
 
-	//メンバ関数ポインタ
-	using enemyState_t = void(Takobo::*)();
-	enemyState_t m_enemyUpdate;
 private:
 	//アニメーションの進行
 	//ループしたかどうかを返す
 	bool UpdateAnim(int attachNo);
 	//アニメーションの変更
 	void ChangeAnim(int animIndex, int speed = 1.f);
-
 
 	/// <summary>
 	/// 通常(クールダウン)状態
@@ -81,33 +77,31 @@ private:
 	void AttackSphereUpdate();
 
 	Vec3 GetAttackDir() const;
+
 private:
+	//メンバ関数ポインタ
+	using enemyState_t = void(Takobo::*)();
+	enemyState_t m_enemyUpdate;
+
 	int m_hp;
-
 	int m_attackCoolDownCount;
-
-	float m_radius = 0;
-
-	int m_modelHandle = 0;
+	int m_modelHandle;
 	int m_modelHeadIndex;
-
-	int m_createFrameCount = 0;
-
-	float m_centerToEnemyAngle;
-
-	float m_idleSpeed = 0;
-
-	int m_sphereNum = 0;
-	int m_bombNum = 0;
+	int m_createFrameCount;
+	int m_sphereNum;
+	int m_bombNum ;
 	int m_shotSEHandle;
-
 	int m_animationSpeed;
 
 	//0.0f:prevが再生
 	//1.0:currentが再生
 	int m_currentAnimNo;//現在のアニメーション
 	int m_prevAnimNo;//変更前のアニメーション
+
 	float m_animBlendRate;//アニメーションの合成割合
+	float m_centerToEnemyAngle;
+	float m_idleSpeed;
+	float m_radius;
 
 	Vec3 m_vec;
 	Vec3 m_attackDir;

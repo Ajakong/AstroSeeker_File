@@ -41,7 +41,4 @@ private:
 	
 	//シーカーラインの長さ
 	float m_length;
-
-	int m_gaussFilterScreen;
-	int m_highBrightScreen;
 };

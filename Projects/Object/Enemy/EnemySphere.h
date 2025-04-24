@@ -20,19 +20,21 @@ public:
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 
-	//メンバ関数ポインタ
-	using MoveState_t = void(EnemySphere::*)();
-	MoveState_t m_moveUpdate;
+
 
 protected:
 	virtual void  StraightUpdate();//球を直線状に飛ばす
 	virtual void  ChaseUpdate();
 
 protected:
-	float m_impactTime;
-	Vec3 m_targetPos;
+	//メンバ関数ポインタ
+	using MoveState_t = void(EnemySphere::*)();
+	MoveState_t m_moveUpdate;
+
 	std::shared_ptr<Enemy>m_enemy;
-	
+	Vec3 m_targetPos;
+
+	float m_impactTime;
 private:
 
 

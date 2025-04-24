@@ -21,9 +21,6 @@ namespace
 
 	const char* kLineTraceName = "Line.efk";
 
-	const char* kGaussFilterScreenName = "GaussOfSeekerLine";
-	const char* kHighBrightScreenName = "HighBrightSeekerLine";
-
 }
 
 
@@ -72,8 +69,6 @@ m_movePlayerSoundHandle(-1)
 	m_endPointSoundHandle = SoundManager::GetInstance().GetSoundData(kEndPointSEName);
 	m_movePlayerSoundHandle = SoundManager::GetInstance().GetSoundData(kPlayerMoveSEName);
 
-	m_gaussFilterScreen=ScreenManager::GetInstance().GetScreenData(kGaussFilterScreenName,Game::kScreenWidth,Game::kScreenHeight);
-	m_highBrightScreen = ScreenManager::GetInstance().GetScreenData(kHighBrightScreenName, Game::kScreenWidth, Game::kScreenHeight);
 }
 
 SeekerLine::~SeekerLine()
@@ -108,7 +103,7 @@ void SeekerLine::Update()
 	//プレイヤーを徐々に加速させる
 	m_player.lock()->SetVelocity(m_velocity * m_totalPlayerMoveNum);
 
-	EffectManager::GetInstance().SetPositionEffect(kLineTraceName,m_lineEffectIndex, m_player.lock()->GetPos(), MGetIdent());
+	EffectManager::GetInstance().SetInformationEffect(kLineTraceName,m_lineEffectIndex, m_player.lock()->GetPos(), Quaternion::GetIdentity(),Vec3(1,1,1));
 	PlaySoundMem(m_movePlayerSoundHandle, DX_PLAYTYPE_BACK);
 	
 	//次のポイントに到達したら
@@ -136,7 +131,6 @@ void SeekerLine::Draw()
 {
 
 	DrawSphere3D(m_points[0].VGet(), kRadius, 8, 0xffff00, 0xffffff, false);
-	
 	
 	for (int i = 0; i < m_points.size(); i++)
 	{

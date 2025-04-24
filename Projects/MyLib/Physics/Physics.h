@@ -17,57 +17,6 @@ namespace MyEngine
 
 	class Physics final
 	{
-	private:
-		friend Galaxy;
-
-		//衝突種類
-		enum class OnCollideInfoKind
-		{
-			CollideEnter,
-			CollideStay,
-			CollideExit,
-			TriggerEnter,
-			TriggerStay,
-			TriggerExit
-		};
-
-		//衝突情報
-		struct CollideHitInfo
-		{
-			bool isHit = false;
-			Vec3 hitPos;//衝突位置
-			Vec3 Norm;//衝突した相手オブジェクトの法線(位置補正方向)
-		};
-
-		//CollideInfoに追加する衝突情報
-		struct SendInfo
-		{
-			std::weak_ptr<Collidable> own;//衝突した
-			std::weak_ptr<Collidable> send;//衝突された
-			ColideTag ownTag;
-			ColideTag sendTag; 
-			Vec3 hitPos;//衝突位置
-		};
-
-		//最終的な衝突データ
-		struct OnCollideInfoData
-		{
-			std::weak_ptr<Collidable> own;//衝突した
-			std::weak_ptr<Collidable> send;//衝突された
-			ColideTag ownTag;
-			ColideTag sendTag;
-			Vec3 hitPos;//衝突位置
-			OnCollideInfoKind kind;//衝突種類
-		};
-
-		using SendCollideInfo = std::list<SendInfo>;
-	private:
-
-		Physics();
-
-		Physics(const Physics&) = delete;
-		void operator= (const Physics&) = delete;
-
 	public:
 
 		static Physics& GetInstance();
@@ -98,6 +47,57 @@ namespace MyEngine
 
 		//オブジェクトの情報群
 		std::vector<std::shared_ptr<Collidable>> m_collidables;
+
+	private:
+		friend Galaxy;
+
+		//衝突種類
+		enum class OnCollideInfoKind
+		{
+			CollideEnter,
+			CollideStay,
+			CollideExit,
+			TriggerEnter,
+			TriggerStay,
+			TriggerExit
+		};
+
+		//衝突情報
+		struct CollideHitInfo
+		{
+			bool isHit = false;
+			Vec3 hitPos;//衝突位置
+			Vec3 Norm;//衝突した相手オブジェクトの法線(位置補正方向)
+		};
+
+		//CollideInfoに追加する衝突情報
+		struct SendInfo
+		{
+			std::weak_ptr<Collidable> own;//衝突した
+			std::weak_ptr<Collidable> send;//衝突された
+			ColideTag ownTag;
+			ColideTag sendTag;
+			Vec3 hitPos;//衝突位置
+		};
+
+		//最終的な衝突データ
+		struct OnCollideInfoData
+		{
+			std::weak_ptr<Collidable> own;//衝突した
+			std::weak_ptr<Collidable> send;//衝突された
+			ColideTag ownTag;
+			ColideTag sendTag;
+			Vec3 hitPos;//衝突位置
+			OnCollideInfoKind kind;//衝突種類
+		};
+
+		using SendCollideInfo = std::list<SendInfo>;
+	private:
+
+		Physics();
+
+		Physics(const Physics&) = delete;
+		void operator= (const Physics&) = delete;
 
 	private:
 		
@@ -160,8 +160,8 @@ namespace MyEngine
 		/// <param name="radius">球の半径</param>
 		/// <returns>true:してまぁす！！,false:してますぇん</returns>
 		bool IsPointOnEdge(const Vec3& point, float radius, const Vec3& v0, const Vec3& v1) const;
+
 	private:
-		
 		std::vector<std::shared_ptr<Collidable>> m_stageCollidables;
 
 		std::list<OnCollideInfoData> m_onCollideInfo;
@@ -170,8 +170,8 @@ namespace MyEngine
 		SendCollideInfo m_newTirrigerInfo;
 		SendCollideInfo m_preTirrigerInfo;
 
-		int m_shadowHandle;
 		std::vector<int> m_shadowHandles;
+		int m_shadowHandle;
 	};
 }
 

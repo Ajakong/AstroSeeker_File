@@ -28,11 +28,7 @@ public:
 	bool GetIsFind() { return m_isFindTarget; }
 	Vec3 GetNeckPos() const { return m_neckPos; }
 	
-	//メンバ関数ポインタ
-	using emperorState_t = void(SamuraiAlter::*)();
-	emperorState_t m_update;
 private:
-
 	void DoNothingUpdate() {};
 	void IntroUpdate();
 	void IdleUpdate();
@@ -44,6 +40,11 @@ private:
 	bool UpdateAnim(int attachNo);
 	//アニメーションの変更
 	void ChangeAnim(int animIndex, float speed = 1.f);
+
+private:
+	//メンバ関数ポインタ
+	using emperorState_t = void(SamuraiAlter::*)();
+	emperorState_t m_update;
 
 	std::shared_ptr<MyEngine::ColliderSphere> m_armCol;
 
@@ -62,6 +63,5 @@ private:
 	Vec3 m_armMoveDir;
 	Vec3 m_moveDir;
 	std::shared_ptr<Collidable> m_target;
-
 };
 

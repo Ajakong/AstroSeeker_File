@@ -37,10 +37,6 @@ public:
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerStay(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 
-	//メンバ関数ポインタ
-	using MoveState_t = void(Kuribo::*)();
-	MoveState_t m_moveUpdate;
-
 protected:
 	/// <summary>
 	/// アイドル時
@@ -81,6 +77,10 @@ protected:
 	void DeleteObject(std::vector<std::shared_ptr<T>>& objects);
 
 protected:
+	//メンバ関数ポインタ
+	using MoveState_t = void(Kuribo::*)();
+	MoveState_t m_moveUpdate;
+
 	Vec3 m_vec;
 	Vec3 m_attackDir;
 	Vec3 m_moveShaftPos;

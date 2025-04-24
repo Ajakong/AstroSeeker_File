@@ -30,6 +30,8 @@ namespace
 	constexpr int kStanCountMax = 200;
 	constexpr int kDeathCountMax = 200;
 
+	constexpr float kFOVAngle = DX_PI_F / 4;
+
 }
 
 float GetVec2Angle(Vec3 a, Vec3 b)
@@ -216,12 +218,14 @@ void Kuribo::OnTriggerStay(std::shared_ptr<Collidable> colider,ColideTag ownTag,
 {
 	if (colider->GetTag() == ObjectTag::Player)
 	{
+		//プレイヤーに向かうベクトルの計算
 		Vec3 ToVec = colider->GetRigidbody()->GetPos() - m_rigid->GetPos();
 		ToVec.Normalize();
-		if (GetVec2Angle(m_attackDir, ToVec) <= DX_PI_F /4)
+		if (GetVec2Angle(m_attackDir, ToVec) <= kFOVAngle)
 		{
 			m_player = colider;
-
+			
+			//プレイヤーを視認した地点
 			m_targetPoint = colider->GetRigidbody()->GetPos();
 		}
 	}

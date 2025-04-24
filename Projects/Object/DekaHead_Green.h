@@ -9,6 +9,7 @@ public:
 
 	virtual std::list<std::list<std::string>> GetTexts();
 
+private:
 	bool m_isUsed;
 };
 

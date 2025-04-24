@@ -20,16 +20,11 @@ protected:
 	virtual void Init()=0;
 	virtual void Update()=0;
 	virtual void Draw()=0;
-
 	
-
 protected:
-	int m_color = 0;
-
+	int m_color;
+	float m_radius;
 	bool m_counterFlag;
-
-	float m_radius = 0;
-
 	Vec3 m_velocity;
 };
 

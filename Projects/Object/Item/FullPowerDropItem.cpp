@@ -17,13 +17,13 @@ void FullPowerDropItem::Draw()
 	offSetVec -= GetCameraUpVector();
 	offSetVec *= 0.9f;
 	Quaternion myQ;
-	angle += 0.05f;
+	m_angle += 0.05f;
 
 	Vec3 front = GetCameraFrontVector();
 	for (int i = 0; i < 3; i++)
 	{
 		myQ.SetQuaternion(offSetVec);
-		myQ.SetMove(DX_PI_F * 2 / 3 * i + angle, front);
+		myQ.SetMove(DX_PI_F * 2 / 3 * i + m_angle, front);
 		Vec3 offSet = myQ.Move(offSetVec, zero);
 		DrawSphere3D((m_rigid->GetPos() + offSet).VGet(), 1.0, 8, 0x0000ff, 0x0000ff, false);
 	}

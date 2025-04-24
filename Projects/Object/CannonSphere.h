@@ -15,13 +15,14 @@ public:
 
 	float GetRadius() { return m_radius; }
 
-	//メンバ関数ポインタ
-	using bulletState_t = void(CannonSphere::*)();
-	bulletState_t m_bulletUpdate;
-
 private:
 	void SettingUpdate();
 	void StraightUpdate();
+
+private:
+	//メンバ関数ポインタ
+	using bulletState_t = void(CannonSphere::*)();
+	bulletState_t m_bulletUpdate;
 
 	float m_radiusExpansionSpeed;
 

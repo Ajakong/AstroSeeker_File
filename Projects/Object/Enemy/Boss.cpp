@@ -103,7 +103,6 @@ Boss::Boss(Vec3 pos, std::shared_ptr<Player>player):Enemy(Priority::Boss,ObjectT
 	MV1SetScale(m_modelHandle, VGet(kScaleMag,kScaleMag,kScaleMag));
 
 	m_phaseUpdate = &Boss::PhaseOneUpdate;
-
 	ChangeAnim(AnimNum::AnimationNumStun);
 }
 
@@ -140,7 +139,7 @@ void Boss::Update()
 	{
 		m_isBattle = false;
 		SoundManager::GetInstance().ChangeBGM(SoundManager::GetInstance().GetSoundData(kSuperMatrialBGMName));
-		m_dropItem = std::make_shared<ClearObject>(m_rigid->GetPos(), true);
+		m_dropItem = std::make_shared<ClearObject>(m_rigid->GetPos()+m_upVec* kModelHeightSize, true);
 		Physics::GetInstance().Entry(m_dropItem);
 		m_isDestroy = true;
 		UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::Boss);
@@ -184,12 +183,15 @@ void Boss::Update()
 
 void Boss::Draw()
 {
-	MV1DrawModel(m_modelHandle);
+	DrawSphere3D((m_rigid->GetPos()+m_upVec* kModelHeightSize).VGet(), kBodyRadiusSize, 8, m_color, 0x000000, true);
+	//MV1DrawModel(m_modelHandle);
 }
 
 void Boss::SetMatrix()
 {
-	
+	Vec3 dir = (m_player->GetPos() - m_rigid->GetPos()).GetNormalized();
+	//回転は難しいのでモデルの向き(Y,Z)を無理やり設定
+	MV1SetRotationZYAxis(m_modelHandle, (dir * -1).VGet(), m_upVec.GetNormalized().VGet(), 0);
 }
 
 void Boss::Wake()
@@ -495,12 +497,11 @@ void Boss::JumpingUpdate()
 				m_bossUpdate = &Boss::FullpowerJumpUpdate;
 				break;
 			}
-
 		}
 		else
 		{
 			m_jumpCount++;
-			m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() + m_upVec * -kBodyRadiusSize, m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::Electronic, 0.5f));
+			m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() , m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::Electronic, 0.5f));
 			MyEngine::Physics::GetInstance().Entry(m_impacts.back());
 			m_rigid->AddVelocity(m_upVec * 2);
 		}
@@ -519,7 +520,7 @@ void Boss::FullpowerJumpUpdate()
 	{
 		PlaySoundMem(m_dropSoundHandle, DX_PLAYTYPE_BACK);
 
-		m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() + m_upVec * -kBodyRadiusSize, m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::Electronic,0.8f));
+		m_impacts.push_back(std::make_shared<StampImpact>(m_rigid->GetPos() , m_nowPlanet->GetScale(), m_upVec * -1, ObjectTag::Electronic,0.8f));
 		MyEngine::Physics::GetInstance().Entry(m_impacts.back());
 
 		//HPが少ないほど隙がなくなる
@@ -639,7 +640,7 @@ void Boss::RunawayUpdate()
 	Vec3 velo = m_runawayPos - m_rigid->GetPos();
 
 	//目的地に一定距離近づいたら
-	if (velo.Length() < 1200&&m_isBattle)
+	if (velo.Length() < 1200 && m_isBattle)
 	{
 		//戦闘状態から離脱
 		SoundManager::GetInstance().ChangeBGM(SoundManager::GetInstance().GetSoundData(kGamePlayBGMName));
@@ -676,6 +677,8 @@ bool Boss::UpdateAnim(int attachNo)
 {
 	//アニメーションが設定されていないので終了
 	if (attachNo == -1) return false;
+	if (m_animationStop)return false;
+	
 
 	//アニメーションを進行させる
 	float now = MV1GetAttachAnimTime(m_modelHandle, attachNo);//現在の再生カウント

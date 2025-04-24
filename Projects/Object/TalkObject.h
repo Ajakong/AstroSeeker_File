@@ -19,11 +19,7 @@ public:
 	virtual void SetMatrix();
 
 	virtual std::list<std::list<std::string>> GetTexts();
-	
-	using talkObjectState_t = void(TalkObject::*)();
 
-	talkObjectState_t m_update;
-	talkObjectState_t m_draw;
 	virtual void CanWeJustTalk();
 	virtual void WaitingUpdate();
 
@@ -35,6 +31,10 @@ public:
 
 protected:
 	std::list<std::list<std::string>> m_talkTexts;
+
+	using talkObjectState_t = void(TalkObject::*)();
+	talkObjectState_t m_update;
+	talkObjectState_t m_draw;
 
 	Quaternion m_myQ;
 	int m_modelHandle;

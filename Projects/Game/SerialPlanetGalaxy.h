@@ -39,12 +39,7 @@ public:
 	void Init();
 	void Update();
 	void Draw();
-	
-	using managerState_t = void(SerialPlanetGalaxy::*)();
-	managerState_t m_managerUpdate;
 
-	using managerState_t = void(SerialPlanetGalaxy::*)();
-	managerState_t m_managerDraw;
 private:
 	/// <summary>
 	/// ステージ紹介の更新処理
@@ -90,8 +85,16 @@ private:
 		float clickedV;
 		float dummy2[2];
 	};
+
+private:
 	int cbuffH = CreateShaderConstantBuffer(sizeof(UserData));
 	UserData* userData = static_cast<UserData*>(GetBufferShaderConstantBuffer(cbuffH));
+
+	using managerState_t = void(SerialPlanetGalaxy::*)();
+	managerState_t m_managerUpdate;
+
+	using managerState_t = void(SerialPlanetGalaxy::*)();
+	managerState_t m_managerDraw;
 
 	std::shared_ptr<Camera> m_camera;
 	//ステージ

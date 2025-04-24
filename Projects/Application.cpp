@@ -217,7 +217,6 @@ void Application::Run()
 #endif
            
             sceneManager.Draw();
-            DrawEffekseer3D();
 
 #ifdef DEBUG
             drawTime = GetNowHiPerformanceCount() - drawTime;

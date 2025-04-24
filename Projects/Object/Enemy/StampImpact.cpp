@@ -23,6 +23,8 @@ StampImpact::StampImpact(Vec3 pos, float planetRadius, Vec3 dir,ObjectTag tag, f
 		m_lines.push_back(lineCol);
 	}
 	SetAntiGravity(true);
+
+	m_power = 10;
 }
 
 StampImpact::~StampImpact()

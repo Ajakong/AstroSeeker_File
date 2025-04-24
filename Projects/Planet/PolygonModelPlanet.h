@@ -23,9 +23,9 @@ public:
 	virtual void OnTriggerExit(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
 
 protected:
-
 	Vec3 ClosestPointOnTriangle(const Vec3& P, const Vec3& V0, const Vec3& V1, const Vec3& V2);
 
+protected:
 	std::shared_ptr<ColliderPolygonModel> m_polygons;
 	int m_enemyCount;
 	int m_color;

@@ -88,6 +88,8 @@ namespace
 
 	constexpr float kJumpPower = 2.f;
 
+	constexpr float kKnockBackPower = 0.5f;
+
 	//スティックの入力の歩きと判定する範囲
 	constexpr float kWalkInputVecMag = 0.2f;
 
@@ -229,7 +231,7 @@ m_currentOxygen(0)
 	}
 
 	//メンバ関数の初期設定
-	m_shotUpdate = &Player::ShotTheStickStar;
+	m_shotUpdate = &Player::ShotTheStar;
 	m_jumpActionUpdate = &Player::JumpingSpinUpdate;
 	m_dropAttackUpdate = &Player::NormalDropAttackUpdate;
 	m_spinAttackUpdate = &Player::SpiningUpdate;
@@ -340,7 +342,7 @@ void Player::Update()
 	}
 
 	//ダメージを受けていたら
-	if (m_state==State::Damage)
+	if (m_state == State::Damage)
 	{
 		m_damageFrame--;
 		if (m_damageFrame < 0)
@@ -561,7 +563,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		printf("Kuribo\n");
 
 		//スピンしていたら
-		if (m_state=State::Spin)
+		if (m_state == State::Spin)
 		{
 			auto kuribo = std::dynamic_pointer_cast<Kuribo>(colider);
 			//ノックバックするベクトルを計算
@@ -604,7 +606,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		Vec3 knockBackVec = Vec3(m_rigid->GetPos() - colider->GetRigidbody()->GetPos()).GetNormalized() * 3;
 
 		//スピンを当てたら
-		if (m_state = State::Spin)
+		if (m_state == State::Spin)
 		{
 			//パリィSEを流す
 			PlaySoundMem(m_parrySEHandle, DX_PLAYTYPE_BACK);
@@ -629,7 +631,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 
 		//ノックバックのベクトル計算
 		Vec3 knockBackVec = (m_rigid->GetPos() - colider->GetRigidbody()->GetPos()).GetNormalized() * 4;
-		if (m_state = State::Spin)
+		if (m_state == State::Spin)
 		{
 			//パリィSEを流す
 			PlaySoundMem(m_parrySEHandle, DX_PLAYTYPE_BACK);
@@ -715,7 +717,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 				dir.Normalize();
 				dir = dir + m_upVec * 2;
 				dir.Normalize();
-				Vec3 knockBackVec = dir * 3;
+				Vec3 knockBackVec = dir * 2;
 				//ダメージを受ける
 				OnDamege(knockBackVec, colider->GetPower());
 			}
@@ -960,11 +962,12 @@ void Player::NeutralUpdate()
 	//プレイヤーの最大移動速度は0.01f/frame
 	else if (Pad::IsTrigger(PAD_INPUT_1))//XBoxのAボタン
 	{
-		//Aボタンだけ入力されていたら
-
-		//ただのジャンプ
+		//ジャンプされる
 		m_postState = m_state;
-		CommandJump();
+		ChangeAnim(AnimNum::AnimationNumJump);
+		m_isJump = true;
+		move += m_upVec.GetNormalized() * kJumpPower;
+		m_playerUpdate = &Player::JumpingUpdate;
 	}
 
 	//XBoxのBボタンが入力されているか
@@ -1061,42 +1064,29 @@ void Player::DashUpdate()
 	if ((Pad::IsRelase(PAD_INPUT_Z)))
 	{
 		//歩き状態に移行
-		m_postState = m_state;
-		m_cameraEasingSpeed = kOnNeutralCameraEasingSpeed;
-		ChangeAnim(AnimNum::AnimationNumRun);
-		m_playerUpdate = &Player::WalkingUpdate;
+		Walk();
 	}
 
 	//スティックの歩き範囲より小さい入力か
 	if (std::abs(ans.Length()) < kWalkInputVecMag * kMaxSpeed)
 	{
 		//アイドル状態に移行
-		m_postState = m_state;
-		m_cameraEasingSpeed = kOnNeutralCameraEasingSpeed;
-		ChangeAnim(AnimNum::AnimationNumIdle);
-		m_playerUpdate = &Player::NeutralUpdate;
+		Neutral();
 	}
 
 	//Aボタンが入力されているか
 	if (Pad::IsTrigger(PAD_INPUT_1))
 	{
 		//ジャンプ状態に以降
-		m_postState = m_state;
-		m_cameraEasingSpeed = kOnNeutralCameraEasingSpeed;
-		ChangeAnim(AnimNum::AnimationNumJump);
-		m_isJump = true;
 		ans += m_upVec.GetNormalized() * kJumpPower;
-		m_playerUpdate = &Player::DashJumpUpdate;
+		DashJump();
 	}
 
 	//Bボタンが入力されているか
 	if (Pad::IsTrigger(PAD_INPUT_B))
 	{
 		//スピン状態に移行
-		m_postState = m_state;
-		m_cameraEasingSpeed = kOnNeutralCameraEasingSpeed;
-		ChangeAnim(AnimNum::AnimationNumSpin, kSpinAnimationSpeed);
-		m_playerUpdate = &Player::SpinActionUpdate;
+		SpinAction();
 	}
 
 	//移動ベクトルに加算
@@ -1388,7 +1378,7 @@ void Player::SpiningUpdate()
 	m_rigid->AddVelocity(move);
 
 	//回転させる
-	m_spinAngle += kAngleRotateSpeed;
+	m_spinAngle += kAngleRotateSpeed/2;
 	if (m_spinAngle >= DX_PI_F * 2)
 	{
 		//アイドル状態に移行
@@ -1411,7 +1401,6 @@ void Player::RollingAttackUpdate()
 	//Bボタンが入力されているか
 	if (Pad::IsTrigger(PAD_INPUT_B))
 	{
-		
 		m_postState = m_state;
 		ChangeAnim(AnimNum::AnimationNumIdle);
 		m_playerUpdate = &Player::NeutralUpdate;
@@ -1434,7 +1423,7 @@ void Player::JumpingSpinUpdate()
 	m_rigid->SetVelocity(move);
 
 	//回転させる
-	m_spinAngle += kAngleRotateSpeed*5;
+	m_spinAngle += kAngleRotateSpeed * 5;
 	if (m_spinAngle >= DX_PI_F * 2)
 	{
 		//ジャンプ状態に移行
@@ -1454,7 +1443,7 @@ void Player::CommandJump()
 	//プレイヤーをジャンプ状態に移行
 	m_playerUpdate = &Player::JumpingUpdate;
 	//移動ベクトルを加算
-	m_rigid->AddVelocity(m_upVec.GetNormalized() * kJumpPower);
+	m_rigid->AddVelocity(m_upVec.GetNormalized() * kKnockBackPower*2);
 }
 
 void Player::BoostUpdate()
@@ -1468,7 +1457,7 @@ void Player::BoostUpdate()
 	m_moveDir = m_frontVec;
 
 	//加速が終了したら
-	if (!m_state==State::Boosting)
+	if (!m_state == State::Boosting)
 	{
 		//アイドル状態に移行
 		m_postState = m_state;
@@ -1550,6 +1539,43 @@ Vec3 Player::Move()
 	return ans;
 }
 
+void Player::Walk()
+{
+	//歩き状態に移行
+	m_postState = m_state;
+	m_cameraEasingSpeed = kOnNeutralCameraEasingSpeed;
+	ChangeAnim(AnimNum::AnimationNumRun);
+	m_playerUpdate = &Player::WalkingUpdate;
+}
+
+void Player::Neutral()
+{
+	//アイドル状態に移行
+	m_postState = m_state;
+	m_cameraEasingSpeed = kOnNeutralCameraEasingSpeed;
+	ChangeAnim(AnimNum::AnimationNumIdle);
+	m_playerUpdate = &Player::NeutralUpdate;
+}
+
+void Player::DashJump()
+{
+	//ジャンプ状態に以降
+	m_postState = m_state;
+	m_cameraEasingSpeed = kOnNeutralCameraEasingSpeed;
+	ChangeAnim(AnimNum::AnimationNumJump);
+	m_isJump = true;
+	m_playerUpdate = &Player::DashJumpUpdate;
+}
+
+void Player::SpinAction()
+{
+	//スピン状態に移行
+	m_postState = m_state;
+	m_cameraEasingSpeed = kOnNeutralCameraEasingSpeed;
+	ChangeAnim(AnimNum::AnimationNumSpin, kSpinAnimationSpeed);
+	m_playerUpdate = &Player::SpinActionUpdate;
+}
+
 void Player::ShotTheStar()
 {
 	//コインを持っていたら
@@ -1557,7 +1583,6 @@ void Player::ShotTheStar()
 	{
 		//弾を発射
 		m_coinCount--;
-		m_sphere.back()->Init();
 		PlaySoundMem(m_shotTheStarSEHandle, DX_PLAYTYPE_BACK);
 
 		//弾の発生位置
@@ -1597,7 +1622,6 @@ void Player::ShotTheStickStar()
 
 		//グラッピング弾を発射
 		m_coinCount--;
-		m_sphere.back()->Init();
 		MyEngine::Physics::GetInstance().Entry(m_sphere.back());
 		PlaySoundMem(m_shotStickStarSEHandle, DX_PLAYTYPE_BACK);
 	}

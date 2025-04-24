@@ -18,15 +18,14 @@ public:
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerStay(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerExit(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
-private:
-	using StarCaptureState_t = void(StarCapture::*)();
-	StarCaptureState_t m_stateUpdate;
 
+private:
 	void WaitingUpdate();
 	void CaptureUpdate();
 
-
 private:
+	using StarCaptureState_t = void(StarCapture::*)();
+	StarCaptureState_t m_stateUpdate;
 	float m_ratio;
 	int m_captureColLifeTime;
 	int m_recastTime;

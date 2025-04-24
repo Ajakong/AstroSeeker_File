@@ -24,10 +24,10 @@ public:
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerStay(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag);
-protected:
 
+protected:
 	std::shared_ptr<ColliderSphere> m_col;
-	float angle=0;
+	float m_angle;
 	Vec3 m_nowPlanetPos;
 };
 

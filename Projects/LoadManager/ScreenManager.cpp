@@ -6,6 +6,11 @@ ScreenManager::ScreenManager()
 
 ScreenManager::~ScreenManager()
 {
+	for (auto& item : m_pathAndScreenInfoes)
+	{
+		DxLib::DeleteGraph(item.second.handle);
+	}
+	m_pathAndScreenInfoes.clear();
 }
 
 ScreenManager& ScreenManager::GetInstance()

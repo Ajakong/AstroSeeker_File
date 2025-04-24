@@ -1,51 +1,52 @@
-#pragma once
+ï»¿#pragma once
 #include <memory>
 #include <list>
 
 class Scene;
 /// <summary>
-/// ŠeƒV[ƒ“‚Ì‘JˆÚ‚ğƒRƒ“ƒgƒ[ƒ‹‚·‚éƒNƒ‰ƒX
+/// å„ã‚·ãƒ¼ãƒ³ã®é·ç§»ã‚’ã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã™ã‚‹ã‚¯ãƒ©ã‚¹
 /// </summary>
 class SceneManager
 {
-private:
-	std::list<std::shared_ptr<Scene>> m_scenes;
-
 public:
 	SceneManager();
 	~SceneManager();
 	/// <summary>
-	/// ‚Á‚Ä‚¢‚éƒV[ƒ“‚ÌUpdateŠÖ”‚ğŒÄ‚Ño‚·
+	/// æŒã£ã¦ã„ã‚‹ã‚·ãƒ¼ãƒ³ã®Updateé–¢æ•°ã‚’å‘¼ã³å‡ºã™
 	/// </summary>
-	/// <param name="input">“ü—ÍƒNƒ‰ƒX</param>
+	/// <param name="input">å…¥åŠ›ã‚¯ãƒ©ã‚¹</param>
 	void Update();
 	/// <summary>
-	/// ‚Á‚Ä‚¢‚éƒV[ƒ“‚Ì•`‰æDrawŠÖ”‚ğŒÄ‚Ño‚·
+	/// æŒã£ã¦ã„ã‚‹ã‚·ãƒ¼ãƒ³ã®æç”»Drawé–¢æ•°ã‚’å‘¼ã³å‡ºã™
 	/// </summary>
 	void Draw();
 
 	/// <summary>
-	/// Œ»İ––”ö‚ÅÀs’†‚ÌƒV[ƒ“‚ğˆø”‚Åw’è‚³‚ê‚½ƒV[ƒ“‚ÉØ‚è‘Ö‚¦‚é
+	/// ç¾åœ¨æœ«å°¾ã§å®Ÿè¡Œä¸­ã®ã‚·ãƒ¼ãƒ³ã‚’å¼•æ•°ã§æŒ‡å®šã•ã‚ŒãŸã‚·ãƒ¼ãƒ³ã«åˆ‡ã‚Šæ›¿ãˆã‚‹
 	/// </summary>
-	/// <param name="nextScene">Ÿ‚ÌƒV[ƒ“</param>
+	/// <param name="nextScene">æ¬¡ã®ã‚·ãƒ¼ãƒ³</param>
 	void ChangeScene(std::shared_ptr<Scene> nextScene);
 	void InsertScene(std::shared_ptr<Scene> nextScene);
 	/// <summary>
-	/// Œ»İ‚ÌƒV[ƒ“‚Ìã‚ÉƒV[ƒ“‚ğæ‚Á‚¯‚Ü‚·
+	/// ç¾åœ¨ã®ã‚·ãƒ¼ãƒ³ã®ä¸Šã«ã‚·ãƒ¼ãƒ³ã‚’ä¹—ã£ã‘ã¾ã™
 	/// </summary>
-	/// <param name="scene">ã‚Éæ‚Á‚¯‚½‚¢ƒV[ƒ“</param>
+	/// <param name="scene">ä¸Šã«ä¹—ã£ã‘ãŸã„ã‚·ãƒ¼ãƒ³</param>
 	void PushScene(std::shared_ptr<Scene> scene);
 
 	/// <summary>
-	/// Œ»İ‚Ì––”öƒV[ƒ“‚ğƒ|ƒbƒv‚µ‚Ü‚·B
+	/// ç¾åœ¨ã®æœ«å°¾ã‚·ãƒ¼ãƒ³ã‚’ãƒãƒƒãƒ—ã—ã¾ã™ã€‚
 	/// </summary>
 	void PopScene();
 
 	/// <summary>
-	/// ‚±‚ÌƒV[ƒ“‚ÉˆÚ“®‚µ‚½‚¢‚ñ‚¾‚Á‚Ä‚É‘S•”ƒNƒŠƒA‚µ‚½Œã‚ÉƒvƒbƒVƒ…‚µ‚ÄˆÚ“®‚µ‚Ü‚·
+	/// ã“ã®ã‚·ãƒ¼ãƒ³ã«ç§»å‹•ã—ãŸã„ã‚“ã ã£ã¦æ™‚ã«å…¨éƒ¨ã‚¯ãƒªã‚¢ã—ãŸå¾Œã«ãƒ—ãƒƒã‚·ãƒ¥ã—ã¦ç§»å‹•ã—ã¾ã™
 	/// </summary>
 	/// <param name="scene"></param>
 	void ResetScene(std::shared_ptr<Scene> scene);
 
 	std::shared_ptr<Scene> LookBack();
+
+private:
+	std::list<std::shared_ptr<Scene>> m_scenes;
+
 };

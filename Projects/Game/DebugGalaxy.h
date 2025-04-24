@@ -21,13 +21,14 @@ public:
 	void Update();
 	void Draw();
 
+private:
 	using managerState_t = void(DebugGalaxy::*)();
 	managerState_t m_managerUpdate;
 
 	using managerState_t = void(DebugGalaxy::*)();
 	managerState_t m_managerDraw;
 
-private:
+
 	std::shared_ptr<UI> m_ui;
 	std::shared_ptr<Camera> m_camera;
 	std::vector<std::shared_ptr<Kuribo>> m_kuribo;

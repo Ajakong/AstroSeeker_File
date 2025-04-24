@@ -42,10 +42,6 @@ namespace MyEngine
 		/// </summary>
 		/// <param name="shift"></param>
 		void SetShiftPosNum(Vec3 shift) { m_posShift = shift; }
-	public:
-		// MEMO: 色々なところで使うためColliderBase関係のpublic変数は
-		// メンバ変数のコーディング規約無視している
-		bool m_isTrigger;
 
 	protected:
 		//オブジェクトの位置からの当たり判定の相対量
@@ -57,6 +53,12 @@ namespace MyEngine
 		bool m_isNowOnHit;
 		bool m_isPreOnHit;
 		bool m_isHitResult;
+
+	public:
+		// MEMO: 色々なところで使うためColliderBase関係のpublic変数は
+		// メンバ変数のコーディング規約無視している
+		bool m_isTrigger;
+
 	};
 
 

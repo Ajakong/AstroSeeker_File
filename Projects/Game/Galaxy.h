@@ -29,13 +29,13 @@ namespace World
 		/// <returns>クリアフラグ</returns>
 		bool GetClear() const { return m_isClear; }
 
+	protected:
 		using managerState_t = void(Galaxy::*)();
 		managerState_t m_managerUpdate;
 
 		using managerState_t = void(Galaxy::*)();
 		managerState_t m_managerDraw;
 
-	protected:
 		std::shared_ptr<Player> player;
 
 		//モデルのみを描画するスクリーン(回転などの確認用)

@@ -22,11 +22,7 @@ public:
 	Vec3 GetNeckPos() const{ return m_neckPos; }
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 
-	//メンバ関数ポインタ
-	using emperorState_t = void(SpaceEmperor::*)();
-	emperorState_t m_update;
 private:
-
 	void DoNothingUpdate();
 	void IntroUpdate();
 	void IdleUpdate();
@@ -40,20 +36,21 @@ private:
 	//アニメーションの変更
 	void ChangeAnim(int animIndex, float speed = 1.f);
 
+private:
+	//メンバ関数ポインタ
+	using emperorState_t = void(SpaceEmperor::*)();
+	emperorState_t m_update;
+
 	std::shared_ptr<MyEngine::ColliderSphere> m_armCol;
 
 	bool m_isFindTarget;
-
+	int m_vsH;//バーテックスシェーダーハンドル
 	int m_currentAnimNo;//現在のアニメーション
 	int m_prevAnimNo;//変更前のアニメーション
-	float m_animBlendRate;//アニメーションの合成割合
-
-
 	int m_neckFrameIndex;//モデルの首のフレームのインデックス
-	int m_vsH;//バーテックスシェーダーハンドル
+	float m_animBlendRate;//アニメーションの合成割合
 	float m_armExtensionSpeed;
 	float m_armExtensionDistance;
-
 	float m_animSpeed;
 	Vec3 m_hitDir;
 	Vec3 m_neckNowDir;

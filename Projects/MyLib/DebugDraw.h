@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <list>
 #include "Vec3.h"
 
@@ -27,6 +27,7 @@ namespace MyEngine
 			int dirNum = 8;
 			bool isFill = false;
 		};
+
 	private:
 		DebugDraw();
 		~DebugDraw();

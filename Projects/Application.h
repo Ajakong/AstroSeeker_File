@@ -14,21 +14,6 @@ struct Size
 /// </summary>
 class Application
 {
-private:
-	Size m_windowSize;
-
-	Application();	// シングルトンのためにprivateに
-	// コピー＆代入の禁止
-	Application(const Application& app) = delete;		// コピーコンストラクタの廃止
-	void operator =(const Application& app) = delete;	// 代入コンストラクタの廃止
-
-	/// <summary>
-	/// 後処理を行う
-	/// </summary>
-	void Terminate();
-
-	int m_screenHandle = 0;
-
 public:
 	/// <summary>
 	/// Applicationのシングルトンインスタンスを返す
@@ -48,6 +33,22 @@ public:
 	int GetScreenHandle();
 
 	const Size& GetWindowSize() const;
+
+private:
+	Application();	// シングルトンのためにprivateに
+	// コピー＆代入の禁止
+	Application(const Application& app) = delete;		// コピーコンストラクタの廃止
+	void operator =(const Application& app) = delete;	// 代入コンストラクタの廃止
+
+	/// <summary>
+	/// 後処理を行う
+	/// </summary>
+	void Terminate();
+private:
+	Size m_windowSize;
+
+	int m_screenHandle = 0;
+
 
 };
 

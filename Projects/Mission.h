@@ -43,6 +43,8 @@ public:
 	void MissionClear() { m_missionFlag = true; }
 	bool Clear() { return m_missionFlag; }
 
+private:
+
 	//メンバ関数ポインタ
 	using missionState_t = void(Mission::*)();
 	missionState_t m_missionUpdate;

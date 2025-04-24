@@ -18,7 +18,7 @@ BigKuribo::BigKuribo(Vec3 pos,int connectNum) : Kuribo(pos)
 #ifdef DEBUG
 
 #endif
-	
+	m_power = 10;
 	m_modelHandle = ModelManager::GetInstance().GetModelData(kModelName);
 	MV1SetScale(m_modelHandle, VGet(0.03f, 0.03f, 0.03f));
 	ChangeAnim(AnimNum::AnimationNumIdle);

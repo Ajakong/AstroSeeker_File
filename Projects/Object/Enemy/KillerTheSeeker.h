@@ -29,12 +29,6 @@ public:
 	Vec3 GetVelocity() const { return m_velocity; }
 	std::list<std::shared_ptr<Killer>> GetAttackObj() { return m_sphere; }
 
-	//メンバ関数ポインタ
-	using enemyState_t = void(KillerTheSeeker::*)();
-	enemyState_t m_enemyUpdate;
-
-
-	int m_hp;
 private:
 	/// <summary>
 	/// 通常(クールダウン)状態
@@ -48,6 +42,12 @@ private:
 
 	Vec3 GetAttackDir() const;
 private:
+	//メンバ関数ポインタ
+	using enemyState_t = void(KillerTheSeeker::*)();
+	enemyState_t m_enemyUpdate;
+
+
+	int m_hp;
 	
 	int m_color;
 	int m_attackCount;

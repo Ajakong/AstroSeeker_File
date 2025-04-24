@@ -5,13 +5,6 @@
 
 class TextManager
 {
-	///本来はここで話してるオブジェクトと話してる内容の情報を入れたい
-	struct TalkInfo
-	{
-		std::string text;
-		int talkObjectHandle;
-	};
-	
 public:
 	TextManager();
 	~TextManager();
@@ -20,7 +13,8 @@ public:
 	void Update();
 	void Draw();
 
-	void TextUpdate() {
+	void TextUpdate()
+	{
 		if (m_texts.size() == 0)
 		{
 			if (m_nextTexts.size() != 0)
@@ -76,6 +70,15 @@ public:
 
 
 private:
+	///本来はここで話してるオブジェクトと話してる内容の情報を入れたい
+	struct TalkInfo
+	{
+		std::string text;
+		int talkObjectHandle;
+	};
+
+private:
+
 	int m_postFrameTextSize;
 	int m_fontHandle;
 	int m_drawTextLength;

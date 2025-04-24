@@ -15,6 +15,7 @@ public:
 	virtual Vec3 GetNormVec(Vec3 pos);
 	virtual void OnTriggerEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerExit(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
+
 private:
 	Vec3 m_norm;
 	Vec3 m_size;
