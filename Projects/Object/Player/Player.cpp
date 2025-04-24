@@ -349,7 +349,6 @@ void Player::Update()
 		{
 			m_damageFrame = 0;
 		}
-
 	}
 
 	//体力が残っていなかったら
@@ -369,7 +368,6 @@ void Player::Update()
 
 			m_playerUpdate = &Player::DeathUpdate;
 		}
-
 	}
 
 	UpdateAnim(m_currentAnimNo);
@@ -394,8 +392,6 @@ void Player::Update()
 			m_isDead = true;
 		}
 	}
-
-
 }
 
 void Player::SetMatrix()
@@ -429,7 +425,6 @@ void Player::SetMatrix()
 	//回転は難しいのでモデルの向き(Y,Z)を無理やり設定
 	MV1SetRotationZYAxis(m_modelHandle, (m_moveDir * -1).VGet(), m_upVec.GetNormalized().VGet(), 0);
 
-
 	//当たり判定の更新
 	//※直径分ずらすため半径を2倍にしている
 	m_headCol->SetShiftPosNum(m_upVec * (m_footCol->GetRadius() * 2 + m_bodyCol->GetRadius() * 2 + m_headCol->GetRadius()));
@@ -437,7 +432,6 @@ void Player::SetMatrix()
 	m_footCol->SetShiftPosNum(m_upVec * m_footCol->GetRadius());
 
 	m_lookPoint = m_rigid->GetPos() + m_upVec * kCamerLookPointHeight;
-
 }
 
 void Player::Draw()
@@ -473,8 +467,6 @@ void Player::Draw()
 	//DrawLine3D(m_rigid->GetPos().VGet(), Vec3(m_rigid->GetPos() + m_sideVec * 100).VGet(), 0x00ff00);
 
 #endif 
-
-
 }
 
 void Player::SetBoost(Vec3 sideVec)
@@ -851,7 +843,6 @@ void Player::OnTriggerEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 
 void Player::OnTriggerStay(std::shared_ptr<Collidable> colider, ColideTag ownTag, ColideTag targetTag)
 {
-
 }
 
 void Player::Landing(int recast)
@@ -870,7 +861,6 @@ bool Player::UpdateAnim(int attachNo)
 	//アニメーションを進行させる
 	float now = MV1GetAttachAnimTime(m_modelHandle, attachNo);//現在の再生カウント
 	now += kAnimFrameSpeed * m_speed / kFrameParSecond;//アニメーションカウントを進める
-
 
 	//現在再生中のアニメーションの総カウントを取得する
 	float total = MV1GetAttachAnimTotalTime(m_modelHandle, attachNo);
