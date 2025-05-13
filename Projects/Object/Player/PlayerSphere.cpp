@@ -33,6 +33,7 @@ m_isStick(false)
 	AddCollider(MyEngine::ColliderBase::Kind::Sphere, ColideTag::Body);
 	auto item = dynamic_pointer_cast<MyEngine::ColliderSphere>(m_colliders.back()->col);
 	item->radius = m_radius;
+
 	m_color = color;
 	//moveNumによって挙動が変わるのかもしれない(実装するかわからん)
 	//if (moveNum == 0)
@@ -50,21 +51,16 @@ PlayerSphere::~PlayerSphere()
 
 void PlayerSphere::Init()
 {
-	SetAntiGravity(true);
+	SetAntiGravity(false);
 }
 
 void PlayerSphere::Update()
 {
-	//m_rotateYAngle++;
-	m_upVec = Cross(m_velocity.GetNormalized(),m_sideVec).GetNormalized();
-
-
 	MATRIX scaleMat = MGetScale(VGet(kScale, kScale, kScale)); // Y軸方向に0.1倍のスケーリング
 
 	// 回転行列の作成（モデルの上方向ベクトルを法線ベクトルに合わせる）
 	//MATRIX rotationY = MGetRotY(m_rotateYAngle);
 	MATRIX rotMat = MGetRotVec2(Vec3::Up().VGet(), m_upVec.VGet());//MMult(, m_upVec.VGet()),rotationY);
-
 
 	// 平行移動行列の作成（モデルを衝突位置に移動）
 	MATRIX transMat = MGetTranslate((m_rigid->GetPos()).VGet());

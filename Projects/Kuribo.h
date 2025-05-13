@@ -23,7 +23,7 @@ public:
 		AnimationNumWalk,
 	};
 
-	Kuribo(Vec3 pos);
+	Kuribo(Vec3 pos,int hp=50,float speed=1.f);
 	virtual ~Kuribo();
 
 	virtual void Init();
@@ -32,7 +32,6 @@ public:
 	virtual void Draw();
 
 	virtual void Stan(int stanCount);
-
 
 	virtual void OnCollideEnter(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
 	virtual void OnTriggerStay(std::shared_ptr<Collidable> colider,ColideTag ownTag,ColideTag targetTag);
@@ -93,7 +92,6 @@ protected:
 	std::shared_ptr<ColliderSphere> m_bodyCol;
 	std::shared_ptr<ColliderSphere> m_searchCol;
 	std::shared_ptr<Item>m_dropItem;
-
 
 	int m_chaseFrameCount;
 	int m_initTime;

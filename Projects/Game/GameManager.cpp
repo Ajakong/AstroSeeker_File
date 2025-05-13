@@ -57,7 +57,6 @@ void GameManager::Update()
 	{
 		//ステージやオブジェクトの更新
 		m_galaxy.back()->Update();
-
 	}
 	
 	//ステージでゲームオーバーフラグがたったら

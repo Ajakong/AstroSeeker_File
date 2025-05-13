@@ -94,7 +94,6 @@ void TitlePlayer::IdleUpdate()
 {
 	m_upVec = Vec3::Up();
 
-	m_stateName = "Idle";
 	m_state = State::Neutral;
 
 }

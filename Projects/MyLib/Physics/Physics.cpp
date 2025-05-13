@@ -363,6 +363,8 @@ void MyEngine::Physics::UpdatePlanetPhysics()
 						//重力はオブジェクトごとに一回のみ
 						//重力の強さぶんベクトルに加算
 						if (colB->tag != ColideTag::Body)continue;
+						
+
 						auto planet = dynamic_cast<Planet*>(stage.get());
 						object->m_rigid->AddVelocity(planet->GravityEffect(object));
 						object->m_rigid->SetNextPos(object->m_rigid->GetPos() + object->m_rigid->GetVelocity());

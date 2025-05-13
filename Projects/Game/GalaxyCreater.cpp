@@ -176,7 +176,6 @@ void GalaxyCreater::PlanetCreate()
 		//大きさを取得する
 		FileRead_read(&loc.scale, sizeof(loc.scale), handle);
 
-
 		m_planetModelData.push_back(ModelManager::GetInstance().GetModelData(loc.modelName.c_str()));
 		auto planet = std::make_shared<SpherePlanet>(loc.pos, loc.color, loc.gravityPower, m_planetModelData.back(), loc.coefficientOfFriction, loc.scale);
 		MyEngine::Physics::GetInstance().Entry(planet);
@@ -288,11 +287,19 @@ std::vector<std::shared_ptr<Enemy>> GalaxyCreater::EnemyCreate(std::shared_ptr<P
 
 		if (loc.tag == "Takobo")
 		{
-			enemies.push_back(std::make_shared<Takobo>(loc.pos, player));
+			int hp;
+			//重力を取得する
+			FileRead_read(&hp, sizeof(hp), handle);//重力を取得する
+			enemies.push_back(std::make_shared<Takobo>(loc.pos, player,hp));
 		}
 		else if (loc.tag == "Kuribo")
 		{
-			enemies.push_back(std::make_shared<Kuribo>(loc.pos));
+			int hp;
+			//重力を取得する
+			FileRead_read(&hp, sizeof(hp), handle);//重力を取得する
+			float speed;
+			FileRead_read(&speed, sizeof(speed), handle);
+			enemies.push_back(std::make_shared<Kuribo>(loc.pos,hp,speed));
 		}
 		
 		else if (loc.tag == "Boss")
@@ -389,6 +396,22 @@ std::vector<std::shared_ptr<MyEngine::Collidable>> GalaxyCreater::LockedObjectCr
 			m_lockedObjects.push_back(std::make_shared<SeekerLine>(info.points, info.color));
 			
 		}
+		if (loc.tag == "Coin")
+		{
+			//読み込むオブジェクト数が何個あるか取得
+			int dataCnt = 0;
+			FileRead_read(&dataCnt, sizeof(dataCnt), handle);
+			LocationSeekerLine info;
+			std::vector<Vec3> coinPositions;
+			for (int i = 0; i < dataCnt; i++)
+			{
+				//位置を設定
+				Vec3 pos;
+				FileRead_read(&pos, sizeof(pos), handle);
+				coinPositions.push_back(pos);
+				m_coinPositions.push_back(coinPositions);
+			}
+		}
 		MyEngine::Physics::GetInstance().Entry(m_lockedObjects.back());
 	}
 
@@ -400,7 +423,7 @@ std::vector<std::shared_ptr<Enemy>> GalaxyCreater::KeyLockObjectCreate()
 {
 	m_keyLockObjectData.clear();
 
-	std::string fileName = "Data/Info/"+m_galaxyName + "KeyLockedObjects.loc";
+	std::string fileName = "Data/Info/" + m_galaxyName + "KeyLockedObjects.loc";
 	//開くファイルのハンドルを取得
 	int handle = FileRead_open(fileName.c_str());
 

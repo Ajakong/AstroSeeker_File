@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 #include <list>
+#include <map>
 
 namespace MyEngine
 {
@@ -115,8 +116,6 @@ namespace MyEngine
 			return upVector;
 		}
 
-
-
 		Collidable(Priority priority, ObjectTag tag);
 		Collidable(std::shared_ptr<Collidable> col);
 		virtual ~Collidable();
@@ -147,9 +146,10 @@ namespace MyEngine
 		Vec3 GetSideVec() { return m_sideVec; }
 		State GetState()const { return m_state; }
 		State GetPostState() const { return m_postState; }
+
 		Priority GetPriority() const { return m_priority; }
 		ObjectTag GetTag() const { return m_tag; }
-		std::string GetStateName() const { return m_stateName; }
+		std::string GetStateName() const;
 
 		void SetIsActive(bool flag) { m_isActive = flag; }
 
@@ -195,11 +195,9 @@ namespace MyEngine
 
 		//状態
 		State m_state;
+
 		//1フレーム前の状態
 		State m_postState;
-		//状態の名前
-		std::string m_stateName;
-		
 		//影響力
 		float m_power;
 		

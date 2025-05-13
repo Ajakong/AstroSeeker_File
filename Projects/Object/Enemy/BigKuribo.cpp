@@ -39,7 +39,6 @@ void BigKuribo::DeathUpdate()
 	m_rigid->SetVelocity(Vec3::Zero());
 	SetAntiGravity(true);
 	m_bodyCol->radius = -1;
-	m_stateName = "Death";
 	m_state = State::Death;
 	m_userData->dissolveY -= 0.01f;
 	float animFrame = MV1GetAttachAnimTime(m_modelHandle, m_currentAnimNo);

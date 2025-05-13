@@ -114,7 +114,7 @@ void Camera::SetCamera(Vec3 LookPoint)
 	int directX = 0, directY = 0;
 	GetJoypadAnalogInputRight(&directX, &directY, DX_INPUT_PAD1);
 	//プレイヤーの上方向を回転軸にして左スティックのX方向入力の強度に応じて回転
-	m_myQ=m_myQ.CreateRotationQuaternion(static_cast<float>(directX) / kCameraRotationSpeed, m_upVec);
+	m_myQ = m_myQ.CreateRotationQuaternion(static_cast<float>(directX) / kCameraRotationSpeed, m_upVec);
 	//ローカル座標系(原点中心)で回転させたのちに平行移動
 	m_pos = m_myQ.Move(m_pos-LookPoint, LookPoint);
 
@@ -176,7 +176,7 @@ void Camera::AimingUpdate(Vec3 LookPoint)
 
 void Camera::WatchThisUpdate(Vec3 LookPoint)
 {
-	m_upVec=Slerp(m_upVec, m_nextUpVec, 0.1f);
+	m_upVec = Slerp(m_upVec, m_nextUpVec, 0.1f);
 	m_watchCount++;
 
 	SetLightPositionHandle(m_lightHandle, m_pos.VGet());

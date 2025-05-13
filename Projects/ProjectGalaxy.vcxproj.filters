@@ -142,6 +142,9 @@
     <Filter Include="ヘッダー ファイル\Object\TalkObject">
       <UniqueIdentifier>{d850fceb-59b9-44c5-85dc-a45ce78e603c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\AstroSeeker">
+      <UniqueIdentifier>{4c0f988f-960d-4bf1-9bcc-af4aa509a26f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -436,6 +439,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="ECG_signalLine.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\CoinManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -738,6 +744,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="ECG_signalLine.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\CoinManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

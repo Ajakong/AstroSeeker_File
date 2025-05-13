@@ -153,6 +153,7 @@
     <ClCompile Include="ECG_signalLine.cpp" />
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Game\CoinManager.cpp" />
     <ClCompile Include="Game\DebugGalaxy.cpp" />
     <ClCompile Include="Game\Galaxy.cpp" />
     <ClCompile Include="Game\GalaxyCreater.cpp" />
@@ -253,6 +254,7 @@
     <ClInclude Include="ECG_signalLine.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Game\CoinManager.h" />
     <ClInclude Include="Game\DebugGalaxy.h" />
     <ClInclude Include="Game\Galaxy.h" />
     <ClInclude Include="Game\GalaxyCreater.h" />

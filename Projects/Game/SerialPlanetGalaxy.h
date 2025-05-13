@@ -10,7 +10,7 @@ class Player;
 class Planet;
 class BossPlanet;
 class ClearObject;
-class Coin;
+class CoinManager;
 class WarpGate;
 
 //ギミック
@@ -101,7 +101,6 @@ private:
 	std::vector<std::shared_ptr<Planet>> m_planet;
 	//アイテム
 	std::vector<std::shared_ptr<Item>> m_item;
-	std::vector<std::shared_ptr<Coin>> m_coin;
 	//ギミック
 	std::vector<std::shared_ptr<WarpGate>> m_warpGate;
 	std::vector<std::shared_ptr<Booster>> m_booster;

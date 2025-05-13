@@ -65,9 +65,9 @@ namespace
 	const char* name = "takobo";
 }
 
-Takobo::Takobo(Vec3 pos,std::shared_ptr<MyEngine::Collidable> target) :Enemy( Priority::Low, ObjectTag::Takobo),
+Takobo::Takobo(Vec3 pos,std::shared_ptr<MyEngine::Collidable> target, float hp) :Enemy( Priority::Low, ObjectTag::Takobo),
 
-m_hp(kHp),
+m_hp(hp),
 
 m_attackCoolDownCount(0),
 m_centerToEnemyAngle(0)

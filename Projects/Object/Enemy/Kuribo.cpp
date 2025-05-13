@@ -46,15 +46,15 @@ float GetVec2Angle(Vec3 a, Vec3 b)
 	return rad;
 }
 
-Kuribo::Kuribo(Vec3 pos) :Enemy(Priority::Low, ObjectTag::Kuribo),
+Kuribo::Kuribo(Vec3 pos, int hp,float speed) :Enemy(Priority::Low, ObjectTag::Kuribo),
 m_attackDir(0, 0, 1),
 m_chaseFrameCount(0),
 m_stanCount(0),
-m_speed(1.f)
+m_speed(speed)
 {
 	m_power = 10;
 
-	m_hp = 10;
+	m_hp = hp;
 	m_comebackPoint = pos;
 	m_rigid->SetPos(pos);
 	{
@@ -233,7 +233,6 @@ void Kuribo::OnTriggerStay(std::shared_ptr<Collidable> colider,ColideTag ownTag,
 
 void Kuribo::SearchUpdate()
 {
-	m_stateName = "Search";
 	m_state = State::Search;
 	if (!m_player.get())return;
 	m_rigid->SetVelocity(m_upVec);
@@ -247,7 +246,6 @@ void Kuribo::SearchUpdate()
 
 void Kuribo::JumpUpdate()
 {
-	m_stateName = "Jump";
 	m_state = State::Jump;
 	m_initTime++;
 	if (m_initTime >= 60)
@@ -258,7 +256,6 @@ void Kuribo::JumpUpdate()
 
 void Kuribo::ChaseUpdate()
 {
-	m_stateName = "Chase";
 	m_state = State::Chase;
 	m_chaseFrameCount++;
 	//ターゲット位置が正反対の時動かなくなるバグ
@@ -297,7 +294,6 @@ void Kuribo::ChaseUpdate()
 
 void Kuribo::ComebackUpdate()
 {
-	m_stateName = "Comeback";
 	m_state = State::ComeBack;
 	Vec3 vec = m_comebackPoint - m_rigid->GetPos();
 	vec.Normalize();
@@ -321,7 +317,6 @@ void Kuribo::ComebackUpdate()
 
 void Kuribo::StanUpdate()
 {
-	m_stateName = "Stan";
 	m_state = State::Stan;
 	m_stanCount++;
 
@@ -344,7 +339,6 @@ void Kuribo::DeathUpdate()
 	m_rigid->SetVelocity(Vec3::Zero());
 	SetAntiGravity(true);
 	m_bodyCol->radius = -1;
-	m_stateName = "Death";
 	m_state = State::Death;
 	m_userData->dissolveY -= 0.01f;
 	float animFrame = MV1GetAttachAnimTime(m_modelHandle,m_currentAnimNo);
@@ -373,7 +367,6 @@ bool Kuribo::UpdateAnim(int attachNo)
 	//アニメーションを進行させる
 	float now = MV1GetAttachAnimTime(m_modelHandle, attachNo);//現在の再生カウント
 	now += kAnimFrameSpeed * m_animationSpeed / kFrameParSecond;//アニメーションカウントを進める
-
 
 	//現在再生中のアニメーションの総カウントを取得する
 	float total = MV1GetAttachAnimTotalTime(m_modelHandle, attachNo);

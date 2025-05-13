@@ -45,15 +45,16 @@ m_rotationAngle(0)
 	AddCollider(MyEngine::ColliderBase::Kind::Sphere, ColideTag::Body);//ここで入れたのは重力の影響範囲
 	m_colliders.back()->col->m_isTrigger = true;
 	auto item = dynamic_pointer_cast<MyEngine::ColliderSphere>(m_colliders.back()->col);
-	item->radius = kGroundRadius *m_scale*3;
+	item->radius = kGroundRadius * m_scale * 3;
 	AddThroughTag(ObjectTag::Stage);
 	AddCollider(MyEngine::ColliderBase::Kind::Sphere, ColideTag::Body);//マップの当たり判定
 	auto item2 = dynamic_pointer_cast<MyEngine::ColliderSphere>(m_colliders.back()->col);
-	item2->radius = kGroundRadius*m_scale;
+	item2->radius = kGroundRadius * m_scale;
 }
 
 SpherePlanet::~SpherePlanet()
 {
+
 }
 
 void SpherePlanet::Init()
@@ -92,27 +93,10 @@ Vec3 SpherePlanet::GravityEffect(std::shared_ptr<Collidable> obj)//成分ごと�
 	toObj = toObj.GetNormalized();
 	Vec3 GravityDir = toObj * -1;
 	///一番重力が強い惑星の影響を受ける
-	obj->AddNextUpVec(toObj* gravityPower);
-	if (obj->IsAntiGravity())
-	{
-		return Vec3::Zero();
-	}
+	obj->AddNextUpVec(toObj * gravityPower);
 
-	if (obj->GetTag() == ObjectTag::EnemyAttack)
-	{
-		return objVelocity;
-	}
+	if (obj->IsAntiGravity())return Vec3::Zero();
 
-	if (obj->GetTag() == ObjectTag::PlayerBullet)
-	{
-		return GravityDir * kGravityPower + objVelocity;
-	}
-	/*
-	Quaternion q ;
-	q.SetQuaternion(obj->GetRigidbody()->GetPos());
-	q=AngleAxis(m_rotationAngle, Vec3::Right());
-	obj->GetRigidbody()->SetPos(q.ToVec3());*/
-	
 	//重力のみ
 	GravityDir = GravityDir * kGravityPower;
 

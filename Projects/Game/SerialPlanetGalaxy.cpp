@@ -35,6 +35,7 @@
 #include"ScreenManager.h"
 #include"ModelManager.h"
 #include"GalaxyCreater.h"
+#include"CoinManager.h"
 #include"Game.h"
 
 #include"Mission.h"
@@ -113,6 +114,7 @@ m_bgmHandle(SoundManager::GetInstance().GetSoundData(kBGMName)),
 m_bossBattleBgmHandle(SoundManager::GetInstance().GetSoundData("SpaceEmperor_battle.mp3")),
 m_warpEffectHandle(-1)
 {
+	//カメラの生成
 	m_camera = make_shared<Camera>();
 	m_camera->SetCameraPoint(player->GetPos() + player->GetNormVec().GetNormalized() * kCameraDistanceUp - player->GetFrontVec() * (kCameraDistanceFront));
 	m_camera->SetAimCamera(Vec3(0, 0, 0));
@@ -132,6 +134,8 @@ m_warpEffectHandle(-1)
 	//オブジェクトを出現させる条件となるオブジェクトの配置
 	m_keyLockEnemies=GalaxyCreater::GetInstance().KeyLockObjectCreate();
 	GalaxyCreater::GetInstance().TalkObjectCreate();
+
+	CoinManager::GetInstance().SetPositionList(GalaxyCreater::GetInstance().GetCoinPosition());
 
 	//流れているBGMの変更
 	SoundManager::GetInstance().ChangeBGM(m_bgmHandle);
@@ -160,7 +164,6 @@ m_warpEffectHandle(-1)
 
 	m_modelScreenHandle = ScreenManager::GetInstance().GetScreenData(kModelScreenName, Game::kScreenWidth, Game::kScreenHeight);
 	std::list<std::string> m_texts;
-	
 
 	UI::GetInstance().Init();
 	UI::GetInstance().SetTalkObjectHandle(UI::TalkGraphKind::TakasakiTaisa);
@@ -184,7 +187,6 @@ SerialPlanetGalaxy::~SerialPlanetGalaxy()
 	m_cannon.clear();
 	m_starCapture.clear();
 	m_booster.clear();
-	m_coin.clear();
 	m_lockedObject.clear();
 }
 

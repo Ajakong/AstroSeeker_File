@@ -5,7 +5,40 @@
 #include"ColliderLine3D.h"
 #include<cassert>
 
+
 using namespace MyEngine;
+
+namespace
+{
+	//他のオブジェクトの状態を認識できるようにすべてのオブジェクトの状態をぶち込んでるが、無駄があるので何とかしたい
+	std::map<Collidable::State, std::string> kStateName
+	{
+		{Collidable::State::Intro,"Intro"},
+		{Collidable::State::Neutral,"Neutral"},
+		{Collidable::State::Walk,"Walk"},
+		{Collidable::State::Dash,"Dash"},
+		{Collidable::State::Jump,"Jump"},
+		{Collidable::State::DashJump,"DashJump"},
+		{Collidable::State::JumpBoost,"JumpBoost"},
+		{Collidable::State::Spin,"Spin"},
+		{Collidable::State::Roll,"Roll"},
+		{Collidable::State::JumpDrop,"JumpDrop"},
+		{Collidable::State::FullpowerJumpDrop,"FullPowerJumpDrop"},
+		{Collidable::State::Land,"Land"},
+		{Collidable::State::Damage,"Damage"},
+		{Collidable::State::Boosting,"Boosting"},
+		{Collidable::State::Operation,"Oparation"},
+		{Collidable::State::Search,"Search"},
+		{Collidable::State::Chase,"Chase"},
+		{Collidable::State::ComeBack,"ComeBack"},
+		{Collidable::State::Attack,"Attack"},
+		{Collidable::State::Tackle,"Tackle"},
+		{Collidable::State::Stan,"Stan"},
+		{Collidable::State::Death,"Death"},
+		{Collidable::State::Talk,"Talk"},
+		{Collidable::State::End,"End"}
+	};
+}
 
 Collidable::Collidable(Priority priority, ObjectTag tag) :
 	m_priority(priority),
@@ -94,6 +127,10 @@ void MyEngine::Collidable::RemoveCollider(std::shared_ptr<Collidable::CollideInf
 	auto it = std::find(m_colliders.begin(), m_colliders.end(), col);
 	if (it == m_colliders.end()) return;
 	m_colliders.erase(it);
+}
+std::string MyEngine::Collidable::GetStateName() const
+{
+	return kStateName[m_state];
 }
 /// <summary>
 /// 当たり判定を無視（スルー）するタグの追加

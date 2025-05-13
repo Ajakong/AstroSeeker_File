@@ -16,7 +16,7 @@ class Takobo : public Enemy
 public:
 	/// <param name="m_modelhandle">エネミーのモデル</param>
 	/// <param name="obj">影響を与えるオブジェ</param>
-	Takobo(Vec3 pos, std::shared_ptr<MyEngine::Collidable> target);
+	Takobo(Vec3 pos, std::shared_ptr<MyEngine::Collidable> target,float hp);
 	virtual ~Takobo();
 
 	void Init();

@@ -77,6 +77,8 @@ public:
 	/// <returns>そのオブジェクトのポインタ</returns>
 	std::shared_ptr<MyEngine::Collidable> GetCollidable(int connectNumber);
 
+	std::vector<std::vector<Vec3>> GetCoinPosition() { return m_coinPositions; };
+
 private:
 	struct Location
 	{
@@ -141,6 +143,7 @@ private:
 	std::vector<KeyLockObject> m_keyLockObjectData;
 
 	std::vector<LockedObject> m_lockedData;
+	std::vector<std::vector<Vec3>> m_coinPositions;
 	std::vector<std::shared_ptr<MyEngine::Collidable>> m_lockedObjects;
 
 	std::string m_galaxyName;

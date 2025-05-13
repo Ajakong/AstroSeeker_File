@@ -167,6 +167,7 @@ TitleScene::TitleScene(SceneManager& manager) :
 
 
     camera->SetEasingSpeed(kCameraEasingSpeed);
+    camera->SetCameraPoint(cameraFirstPosition);
 
     //カメラが回転するスピード
     m_cameraAngleRotateSpeed = kCameraRotationSpeed;
@@ -196,9 +197,12 @@ void TitleScene::Update()
     MyEngine::Physics::GetInstance().Update();
     player->SetMatrix();
     camera->Setting(player->GetBoostFlag(), player->GetIsAiming());
+
     (this->*m_updateFunc)();
+    
     m_skyDomeRotationAngle += kSkyDomeRotationSpeed;
     MV1SetRotationXYZ(m_skyDomeH, VGet(0, m_skyDomeRotationAngle, 0));
+
 
     EffectManager::GetInstance().Update();
     Pad::Update();
@@ -240,13 +244,14 @@ void TitleScene::NormalUpdate()
 
     player->SetMatrix();
     
-    Quaternion q;
-    q.SetQuaternion(camera->GetPos());
-    q.SetMove(m_cameraAngleRotateSpeed, Vec3::Up());
-   
-
-    camera->SetCameraPoint(q.Move(camera->GetPos(), Vec3::Zero()));
-    camera->Update(VGet(0, 0, 150));
+    //回転クォータニオンの生成
+    Quaternion cameraQ;
+    cameraQ.SetQuaternion(camera->GetPos());
+    //回転角と回転軸を設定
+    cameraQ.SetMove(kCameraRotationSpeed, Vec3::Up());
+    //回転するものの位置と移動するなら座標を設定(今回は移動しない)
+    camera->SetCameraPoint(cameraQ.Move(camera->GetPos(), Vec3::Zero()));
+    camera->Update(cameraFirstPosition);
 
     //Aボタンが押されたら
     if (Pad::IsTrigger(PAD_INPUT_1))
