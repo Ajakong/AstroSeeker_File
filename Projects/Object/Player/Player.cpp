@@ -572,15 +572,13 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 		{
 			auto kuribo = std::dynamic_pointer_cast<Kuribo>(colider);
 			
-
-
 			//60フレームスタンさせる
 			kuribo->Stan(60);
 			PlaySoundMem(m_parrySEHandle, DX_PLAYTYPE_BACK);
 		}
 
 		//胴体と衝突
-		if (ownTag == ColideTag::Body)
+		else if (ownTag == ColideTag::Body)
 		{
 			//無敵なら返す
 			if (m_isVisible)return;
@@ -592,7 +590,7 @@ void Player::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTa
 			//ノックバックするベクトルを計算
 			Vec3 enemyAttackDir = m_rigid->GetPos() - colider->GetRigidbody()->GetPos();
 			enemyAttackDir.Normalize();
-			Vec3 knockBackVec = enemyAttackDir * 2;
+			Vec3 knockBackVec = enemyAttackDir * 3;
 			OnDamege(knockBackVec, colider->GetPower());
 			PlaySoundMem(m_hitSEHandle, DX_PLAYTYPE_BACK);
 
