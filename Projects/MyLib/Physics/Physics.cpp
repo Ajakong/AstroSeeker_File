@@ -113,8 +113,7 @@ void Physics::Exit(const std::shared_ptr<Collidable>& collidable)
 
 void Physics::Update()
 {
-
-	std::reverse_iterator<std::vector<int>::iterator> rit;
+	//登録されたオブジェクトのローカル座標系を生成して設定
 	for (auto& item : std::vector<std::shared_ptr<MyEngine::Collidable>>(m_collidables.rbegin(), m_collidables.rend()))//途中で要素を削除してもいいように逆順
 	{
 		//次の上方向ベクトルを設定(このオブジェクトに影響している全重力の合計の反対方向になってるので方向だけにする)
@@ -148,6 +147,7 @@ void Physics::Update()
 
 	//次の位置を決定した後ではないと補正されて衝突していなくなる
 	UpdatePlanetPhysics();
+	//摩擦の反映
 	Friction();
 
 	// 判定確認
@@ -166,6 +166,7 @@ void Physics::Update()
 		OnCollideInfo(item.own, item.send, item.ownTag, item.sendTag, item.hitPos, item.kind);
 	}
 
+	//削除フラグが立っていたら自動で削除
 	for (auto& item : std::vector<std::shared_ptr<MyEngine::Collidable>>(m_collidables.rbegin(), m_collidables.rend()))//途中で要素を削除してもいいように逆順
 	{
 		if (item->IsDestroy())Exit(item);

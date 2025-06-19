@@ -754,22 +754,29 @@ void Boss::OnCollideEnter(std::shared_ptr<Collidable> colider, ColideTag ownTag,
 		//ボスが突進中または走っている時にプレイヤーがスピンしていたら
 		if ((state == State::Running || state == State::Tackle) && colider->GetState() == State::Spin)
 		{
+			//効果音再生
 			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
+
+			//プレイヤーの持つ移動ベクトル
 			Vec3 dir = colider->GetRigidbody()->GetPos();
 			dir.Normalize();
+			//プレイヤーからみて移動方向斜め上に吹っ飛ぶ
 			m_rigid->SetVelocity((dir + m_upVec) * 2);
-			m_hp -= 20;
+			//ボスにプレイヤーのパワー分のダメージ
+			m_hp -= colider->GetPower();
 			Away();
-			//Stan(m_hp + 200);
 		}
 
 		//ボスが怯み中にプレイヤーがスピンしていたら
 		if (state == State::Land && colider->GetState() == State::Spin)
 		{
 			m_rigid->SetVelocity(m_upVec * 2);
-			m_hp -= 20;
+			//ボスにプレイヤーのパワー分のダメージ
+			m_hp -= colider->GetPower();
+			//プレイヤーから離れて、怯み処理
 			Away();
 			
+			//効果音再生
 			PlaySoundMem(m_criticalHandle, DX_PLAYTYPE_BACK);
 		}
 	}
